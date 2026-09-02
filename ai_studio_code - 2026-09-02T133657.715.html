@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MP Market — Local sourcing, made simple.</title>
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Yoco Web SDK -->
+  <script src="https://js.yoco.com/sdk/v1/yoco-sdk-web.js"></script>
+  <style>
+    :root {
+      --primary: #087A58;
+      --primary-hover: #065e43;
+      --primary-light: #e8f5f1;
+      --charcoal: #1F2937;
+      --gray-muted: #6B7280;
+      --gray-light: #F3F4F6;
+      --gray-border: #E5E7EB;
+      --white: #FFFFFF;
+      --danger: #DC2626;
+      --gold: #F59E0B;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-lg: 0 10px 25px rgba(0,0,0,0.12);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background-color: #FAFAFA; color: var(--charcoal); display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* Sticky White Header */
+    header { position: sticky; top: 0; z-index: 40; background: var(--white); border-bottom: 1px solid var(--gray-border); box-shadow: var(--shadow-sm); }
+    .header-container { max-width: 1200px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .logo-area { display: flex; align-items: center; gap: 8px; text-decoration: none; cursor: pointer; }
+    .logo-badge { background: var(--primary); color: var(--white); font-weight: 800; font-size: 16px; padding: 6px 10px; border-radius: var(--radius-sm); letter-spacing: -0.5px; }
+    .logo-text { font-size: 20px; font-weight: 800; color: var(--charcoal); letter-spacing: -0.5px; }
+
+    .search-wrapper { flex: 1; max-width: 520px; position: relative; }
+    .search-input { width: 100%; background: var(--gray-light); border: 1px solid transparent; padding: 10px 16px 10px 40px; border-radius: 9999px; font-size: 14px; outline: none; transition: all 0.2s; }
+    .search-input:focus { background: var(--white); border-color: var(--primary); box-shadow: 0 0 0 3px rgba(8, 122, 88, 0.15); }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--gray-muted); font-size: 14px; }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-header { background: transparent; border: 1px solid var(--gray-border); padding: 8px 14px; border-radius: 9999px; font-size: 13px; font-weight: 600; color: var(--charcoal); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .btn-header:hover { background: var(--gray-light); }
+    .btn-cart { background: var(--primary); color: var(--white); border: none; }
+    .btn-cart:hover { background: var(--primary-hover); color: var(--white); }
+    .cart-badge { background: #EF4444; color: var(--white); font-size: 11px; font-weight: 700; border-radius: 9999px; padding: 2px 6px; }
+
+    /* Main Content */
+    main { max-width: 1200px; margin: 0 auto; padding: 20px 16px 60px; flex: 1; width: 100%; }
+
+    /* Large Green Hero Section */
+    .hero-banner { background: linear-gradient(135deg, #087A58 0%, #05543c 100%); color: var(--white); border-radius: 20px; padding: 36px 32px; margin-bottom: 24px; position: relative; overflow: hidden; box-shadow: var(--shadow-md); }
+    .hero-tagline { display: inline-block; background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+    .hero-banner h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; max-width: 600px; }
+    .hero-banner p { font-size: 15px; opacity: 0.9; max-width: 520px; }
+
+    /* Category Chips */
+    .category-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px; scrollbar-width: none; }
+    .category-scroll::-webkit-scrollbar { display: none; }
+    .cat-chip { background: var(--white); border: 1px solid var(--gray-border); padding: 8px 16px; border-radius: 9999px; font-size: 13px; font-weight: 600; color: var(--charcoal); white-space: nowrap; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .cat-chip:hover { border-color: var(--primary); }
+    .cat-chip.active { background: var(--primary); color: var(--white); border-color: var(--primary); box-shadow: 0 2px 8px rgba(8, 122, 88, 0.25); }
+
+    /* Product Grid */
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; } }
+    @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 24px; } }
+
+    /* White Product Card */
+    .product-card { background: var(--white); border: 1px solid var(--gray-border); border-radius: var(--radius); padding: 12px; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
+    .product-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+    .product-image-box { width: 100%; height: 160px; background: var(--gray-light); border-radius: var(--radius-sm); overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 10px; }
+    .product-image { width: 100%; height: 100%; object-fit: cover; }
+    .badge-local { position: absolute; top: 8px; left: 8px; background: rgba(8, 122, 88, 0.92); color: var(--white); font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+    .badge-sourcing { font-size: 11px; color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+
+    .product-title { font-size: 14px; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 36px; }
+    .product-rating { font-size: 12px; color: var(--gold); font-weight: 700; margin-bottom: 6px; cursor: pointer; }
+    .product-desc { font-size: 12px; color: var(--gray-muted); margin-bottom: 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .product-footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--gray-light); }
+    .product-price { font-size: 16px; font-weight: 800; color: var(--charcoal); }
+    .btn-add { background: var(--primary-light); color: var(--primary); border: none; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .btn-add:hover { background: var(--primary); color: var(--white); }
+    .btn-add:disabled { background: var(--gray-light); color: var(--gray-muted); cursor: not-allowed; }
+
+    /* Slide-in Shopping Cart & Free Delivery Bar */
+    .cart-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 50; opacity: 0; visibility: hidden; transition: 0.3s ease; }
+    .cart-overlay.open { opacity: 1; visibility: visible; }
+    .cart-drawer { position: fixed; top: 0; right: -420px; width: 100%; max-width: 400px; height: 100%; background: var(--white); z-index: 51; box-shadow: var(--shadow-lg); display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .cart-overlay.open .cart-drawer { right: 0; }
+    .cart-header { padding: 16px 20px; border-bottom: 1px solid var(--gray-border); display: flex; align-items: center; justify-content: space-between; }
+
+    .delivery-threshold-banner { background: #ECFDF5; border-bottom: 1px solid #A7F3D0; padding: 12px 20px; font-size: 12px; }
+    .threshold-progress-bar { width: 100%; height: 6px; background: #D1FAE5; border-radius: 9999px; margin-top: 6px; overflow: hidden; }
+    .threshold-progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s ease; }
+
+    .cart-items { flex: 1; overflow-y: auto; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .cart-item { display: flex; align-items: center; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--gray-light); }
+    .cart-footer { padding: 20px; border-top: 1px solid var(--gray-border); background: #FAFAFA; }
+    .price-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; color: var(--gray-muted); }
+    .total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; margin: 10px 0 16px; color: var(--charcoal); }
+
+    .btn-checkout { width: 100%; background: var(--primary); color: var(--white); border: none; padding: 14px; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .btn-checkout:hover { background: var(--primary-hover); }
+
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: 0.2s; }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal-content { background: var(--white); width: 100%; max-width: 500px; border-radius: var(--radius); padding: 24px; position: relative; max-height: 90vh; overflow-y: auto; }
+    .modal-content.wide { max-width: 900px; }
+    .btn-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--gray-muted); }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--gray-border); border-radius: var(--radius-sm); font-size: 14px; outline: none; transition: border 0.2s; }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(8, 122, 88, 0.15); }
+
+    /* Admin UI */
+    .admin-nav { display: flex; gap: 8px; border-bottom: 1px solid var(--gray-border); margin-bottom: 16px; padding-bottom: 8px; overflow-x: auto; }
+    .tab-btn { padding: 8px 14px; background: transparent; border: none; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: var(--radius-sm); color: var(--gray-muted); white-space: nowrap; }
+    .tab-btn.active { background: var(--primary-light); color: var(--primary); }
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 10px; border-bottom: 1px solid var(--gray-border); text-align: left; }
+    .admin-table th { background: var(--gray-light); font-weight: 700; }
+
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: #064E3B; color: var(--white); padding: 12px 18px; border-radius: var(--radius-sm); border-left: 4px solid #10B981; box-shadow: var(--shadow-lg); font-size: 13px; }
+
+    footer { background: var(--white); border-top: 1px solid var(--gray-border); padding: 24px 16px; text-align: center; font-size: 13px; color: var(--gray-muted); margin-top: auto; }
+    .footer-link { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; margin-left: 8px; }
+
+    /* Waybill Print View */
+    @media print {
+      body * { visibility: hidden; }
+      #waybillPrintArea, #waybillPrintArea * { visibility: visible; }
+      #waybillPrintArea { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STICKY HEADER -->
+  <header>
+    <div class="header-container">
+      <div class="logo-area" onclick="filterCategory('cat-all')">
+        <div class="logo-badge">MP</div>
+        <div class="logo-text">MP Market</div>
+      </div>
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="Search DIY tools, electronics, gaming, home essentials..." oninput="fetchProducts()">
+      </div>
+      <div class="nav-actions">
+        <button class="btn-header" onclick="openMyOrdersModal()"><span>📦</span> My Orders</button>
+        <button class="btn-header" onclick="openAdminModal()"><span>⚙️</span> Admin</button>
+        <button class="btn-header btn-cart" onclick="toggleCart(true)">
+          <span>🛒</span> <span class="cart-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CATALOGUE VIEW -->
+  <main>
+    <section class="hero-banner">
+      <span class="hero-tagline">Local sourcing, made simple.</span>
+      <h1>Useful products. Sourced close to home.</h1>
+      <p>Hardware, electronics, gaming gear, and home essentials sourced from trusted local shops and delivered straight to your door.</p>
+    </section>
+
+    <!-- 7 Non-Food Sourcing Categories -->
+    <div class="category-scroll" id="categoryChips"></div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 id="catalogTitle" style="font-size: 18px; font-weight:700;">Local Catalogue</h2>
+      <span id="productCount" style="font-size:13px; color:var(--gray-muted);"></span>
+    </div>
+
+    <div class="product-grid" id="productGrid"></div>
+  </main>
+
+  <!-- FOOTER WITH LEGAL CPA LINK -->
+  <footer>
+    <p>
+      <strong>MP Market</strong> — Local sourcing, made simple.
+      <span class="footer-link" onclick="openReturnsModal()">🇿🇦 Returns & CPA Policy</span>
+    </p>
+  </footer>
+
+  <!-- SLIDE-IN BASKET & FREE SHIPPING PROGRESS BAR -->
+  <div class="cart-overlay" id="cartOverlay" onclick="toggleCart(false)">
+    <div class="cart-drawer" onclick="event.stopPropagation()">
+      <div class="cart-header">
+        <h3 style="font-size:17px; font-weight:700;">Your Basket</h3>
+        <button class="btn-close" onclick="toggleCart(false)">&times;</button>
+      </div>
+
+      <div class="delivery-threshold-banner" id="thresholdBanner">
+        <div id="thresholdText">Add R0.00 more to unlock FREE Delivery!</div>
+        <div class="threshold-progress-bar">
+          <div class="threshold-progress-fill" id="thresholdFill"></div>
+        </div>
+      </div>
+
+      <div class="cart-items" id="cartItemsContainer"></div>
+
+      <div class="cart-footer">
+        <div class="price-row"><span>Items Subtotal</span><span id="cartSubtotalDisplay">R0.00</span></div>
+        <div class="price-row"><span>Local Delivery</span><span id="cartDeliveryDisplay">R0.00</span></div>
+        <div class="total-row"><span>Total Amount</span><span id="cartTotalDisplay" style="color:var(--primary);">R0.00</span></div>
+        <button class="btn-checkout" id="checkoutBtn" onclick="openCheckoutModal()">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div class="modal-overlay" id="checkoutModal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; font-weight:700;">Complete Order</h3>
+        <button class="btn-close" onclick="closeModal('checkoutModal')">&times;</button>
+      </div>
+      <form onsubmit="submitOrder(event)">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="custName" class="form-control" required placeholder="e.g. Sipho Nkosi">
+        </div>
+        <div class="form-group">
+          <label>WhatsApp Contact (For Delivery Updates)</label>
+          <input type="tel" id="custWhatsapp" class="form-control" required placeholder="e.g. 0821234567">
+        </div>
+        <div class="form-group">
+          <label>Delivery Address</label>
+          <textarea id="custAddress" class="form-control" rows="2" required placeholder="Street address, suburb, city"></textarea>
+        </div>
+        <div style="background:var(--primary-light); padding:12px; border-radius:var(--radius-sm); margin-bottom:16px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Subtotal:</span><strong id="modalSubtotal">R0.00</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px;"><span>Delivery Fee:</span><strong id="modalDelivery">R0.00</strong></div>
+          <hr style="border:none; border-top:1px solid #A7F3D0; margin:6px 0;">
+          <div style="display:flex; justify-content:space-between; font-weight:800; color:var(--primary);"><span>Total:</span><span id="modalTotal">R0.00</span></div>
+        </div>
+        <button type="submit" class="btn-checkout" id="orderSubmitBtn">Confirm & Sourced Order</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MY ORDERS / TRACKING MODAL -->
+  <div class="modal-overlay" id="myOrdersModal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; font-weight:700;">📦 My Orders & Tracking</h3>
+        <button class="btn-close" onclick="closeModal('myOrdersModal')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Your WhatsApp Number</label>
+        <div style="display:flex; gap:8px;">
+          <input type="tel" id="trackPhoneInput" class="form-control" placeholder="e.g. 0821234567">
+          <button class="btn-header" style="background:var(--primary); color:#fff;" onclick="loadCustomerOrders()">Find Orders</button>
+        </div>
+      </div>
+      <div id="customerOrdersList" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- PRODUCT REVIEWS MODAL -->
+  <div class="modal-overlay" id="reviewsModal">
+    <div class="modal-content">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="font-size:18px; font-weight:700;" id="reviewsProdTitle">Product Reviews</h3>
+        <button class="btn-close" onclick="closeModal('reviewsModal')">&times;</button>
+      </div>
+      <div id="reviewsList" style="max-height:200px; overflow-y:auto; margin-bottom:16px;"></div>
+      <hr style="border:none; border-top:1px solid var(--gray-border); margin:12px 0;">
+      <h4 style="font-size:14px; font-weight:700; margin-bottom:10px;">Leave a Review</h4>
+      <form onsubmit="submitReview(event)">
+        <input type="hidden" id="reviewProdId">
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="revName" class="form-control" required placeholder="e.g. Thabo">
+        </div>
+        <div class="form-group">
+          <label>Rating</label>
+          <select id="revRating" class="form-control">
+            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+            <option value="4">⭐⭐⭐⭐ (4/5)</option>
+            <option value="3">⭐⭐⭐ (3/5)</option>
+            <option value="2">⭐⭐ (2/5)</option>
+            <option value="1">⭐ (1/5)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Feedback</label>
+          <textarea id="revComment" class="form-control" rows="2" required placeholder="Write your experience..."></textarea>
+        </div>
+        <button type="submit" class="btn-checkout" style="padding:10px;">Post Review</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SOUTH AFRICAN CPA RETURNS POLICY MODAL -->
+  <div class="modal-overlay" id="returnsModal">
+    <div class="modal-content wide">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <h3 style="font-size:18px; font-weight:700;">🇿🇦 MP Market Returns & Refunds Policy</h3>
+        <button class="btn-close" onclick="closeModal('returnsModal')">&times;</button>
+      </div>
+      <div style="font-size:13px; color:var(--charcoal); line-height:1.6; max-height:60vh; overflow-y:auto; padding-right:8px;">
+        <p><strong>1. Compliance with the Consumer Protection Act (CPA of 2008):</strong></p>
+        <p>Our Returns Policy operates in strict accordance with the Consumer Protection Act (CPA) and the Electronic Communications and Transactions Act (ECTA). Returns can be initiated within 7 to 14 days of receipt.</p>
+        <br>
+        <p><strong>2. Circumstances for Returns & Exchanges:</strong></p>
+        <ul style="margin-left:20px; margin-bottom:12px;">
+          <li><strong>Incorrectly Supplied Goods:</strong> If you receive an item substantially different from what was ordered, MP Market will collect the incorrect goods and deliver the correct item at no charge.</li>
+          <li><strong>Materially Defective Goods (6-Month Statutory Warranty):</strong> If goods are found to have a manufacturing defect, they will be inspected before offering a replacement, store credit, or full refund.</li>
+        </ul>
+        <p><strong>3. Non-Returnable Items:</strong></p>
+        <ul style="margin-left:20px; margin-bottom:12px;">
+          <li>Goods that have been damaged due to ordinary wear and tear, willful damage, or power surges.</li>
+          <li>Opened beauty, skincare, personal body care items, earrings, or underwear due to public health and safety considerations.</li>
+          <li>Buyer's remorse (changing mind after sourcing has completed).</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PORTAL MODAL -->
+  <div class="modal-overlay" id="adminModal">
+    <div class="modal-content wide">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="font-size:18px; font-weight:700;">🏪 MP Market Admin Portal</h3>
+        <button class="btn-close" onclick="closeModal('adminModal')">&times;</button>
+      </div>
+
+      <div id="adminAuthSection">
+        <p style="font-size:13px; color:var(--gray-muted); margin-bottom:12px;">Enter your Cloudflare ADMIN_PASSWORD secret to access management tools.</p>
+        <div class="form-group"><input type="password" id="adminSecretInput" class="form-control" placeholder="Admin Secret Password"></div>
+        <button class="btn-checkout" onclick="loginAdmin()">Sign In to Dashboard</button>
+      </div>
+
+      <div id="adminPanelSection" style="display:none;">
+        <div class="admin-nav">
+          <button class="tab-btn active" onclick="switchAdminTab('ordersTab', this)">Live Orders (<span id="liveOrderCount">0</span>)</button>
+          <button class="tab-btn" onclick="switchAdminTab('productsTab', this)">Catalogue & Sourcing</button>
+          <button class="tab-btn" onclick="switchAdminTab('addProductTab', this)">+ Add Product</button>
+          <button class="tab-btn" onclick="switchAdminTab('settingsTab', this)">⚙️ Delivery Rates</button>
+          <button class="tab-btn" style="margin-left:auto; color:var(--danger);" onclick="logoutAdmin()">Logout</button>
+        </div>
+
+        <!-- Tab 1: Orders -->
+        <div id="ordersTab">
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Order #</th><th>Customer & WhatsApp</th><th>Delivery Address</th><th>Items & Total</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="adminOrdersBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 2: Products -->
+        <div id="productsTab" style="display:none;">
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Selling Price</th><th>Availability</th><th>Action</th></tr></thead>
+              <tbody id="adminProductsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab 3: Add Product -->
+        <div id="addProductTab" style="display:none;">
+          <form onsubmit="saveProduct(event)">
+            <div class="form-group"><label>Product Name</label><input type="text" id="prodName" class="form-control" required placeholder="e.g. 65W Fast Charger"></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+              <div class="form-group"><label>Selling Price (ZAR)</label><input type="number" step="0.01" id="prodPrice" class="form-control" required placeholder="140.00"></div>
+              <div class="form-group"><label>Sourcing Time</label><input type="text" id="prodSourcingTime" class="form-control" value="Dispatched in 24h"></div>
+            </div>
+            <div class="form-group"><label>Category</label><select id="prodCategory" class="form-control"></select></div>
+            <div class="form-group"><label>Description</label><textarea id="prodDescription" class="form-control" rows="2"></textarea></div>
+            <div class="form-group"><label>Product Image (Direct R2 Upload)</label><input type="file" id="prodImageFile" class="form-control" accept="image/*"></div>
+            <button type="submit" class="btn-checkout" id="saveProdBtn">Save to Sourcing Catalogue</button>
+          </form>
+        </div>
+
+        <!-- Tab 4: Delivery Pricing Settings -->
+        <div id="settingsTab" style="display:none;">
+          <form onsubmit="saveSettings(event)">
+            <div class="form-group">
+              <label>Standard Base Delivery Fee (ZAR)</label>
+              <input type="number" step="0.01" id="settingBaseFee" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Free Delivery Minimum Threshold (ZAR)</label>
+              <input type="number" step="0.01" id="settingFreeThreshold" class="form-control" required>
+              <small style="color:var(--gray-muted);">Orders above this amount automatically receive FREE Delivery.</small>
+            </div>
+            <button type="submit" class="btn-checkout" style="max-width:240px;">Save Delivery Rates</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRINTABLE DISPATCH WAYBILL -->
+  <div id="waybillPrintArea" style="display:none;"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    let categories = [], products = [], cart = [];
+    let selectedCategory = 'cat-all';
+    let adminToken = localStorage.getItem('mp_admin_token') || '';
+    let storeConfig = { delivery_base_fee: 60, free_delivery_threshold: 600, yoco_public_key: '' };
+    let ws = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      loadCart();
+      await fetchStoreConfig();
+      await fetchCategories();
+      await fetchProducts();
+      initWebSocket();
+      autoPopulateCustomer();
+    });
+
+    async function fetchStoreConfig() {
+      try {
+        const res = await fetch('/api/config');
+        storeConfig = await res.json();
+      } catch (e) {}
+    }
+
+    async function fetchCategories() {
+      try {
+        const res = await fetch('/api/categories');
+        categories = await res.json();
+        document.getElementById('categoryChips').innerHTML = categories.map(c => `
+          <button class="cat-chip ${c.id === selectedCategory ? 'active' : ''}" onclick="filterCategory('${c.id}')">
+            <span>${c.icon}</span> ${c.name}
+          </button>
+        `).join('');
+
+        document.getElementById('prodCategory').innerHTML = categories
+          .filter(c => c.id !== 'cat-all')
+          .map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      } catch (e) {}
+    }
+
+    async function fetchProducts() {
+      try {
+        let url = `/api/products?category=${selectedCategory}`;
+        const query = document.getElementById('searchInput').value.trim();
+        if (query) url += `&search=${encodeURIComponent(query)}`;
+        const res = await fetch(url);
+        products = await res.json();
+        renderProducts();
+      } catch (e) {}
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      document.getElementById('productCount').innerText = `${products.length} products available`;
+
+      grid.innerHTML = products.map(p => `
+        <div class="product-card">
+          <div class="product-image-box">
+            <span class="badge-local">Local Find</span>
+            ${p.image_url ? `<img src="${p.image_url}" class="product-image" alt="${p.name}">` : '📦'}
+          </div>
+          <div class="badge-sourcing">⚡ ${p.sourcing_time}</div>
+          <h3 class="product-title">${p.name}</h3>
+          <div class="product-rating" onclick="openReviewsModal('${p.id}', '${p.name.replace(/'/g, "\\'")}')">
+            ⭐ ${p.avg_rating.toFixed(1)} (${p.review_count} reviews)
+          </div>
+          <p class="product-desc">${p.description || 'Authentic locally sourced product.'}</p>
+          <div class="product-footer">
+            <div class="product-price">R${p.price.toFixed(2)}</div>
+            <button class="btn-add" onclick="addToCart('${p.id}')" ${p.is_available === 0 ? 'disabled' : ''}>
+              ${p.is_available === 1 ? '+ Add' : 'Unavailable'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterCategory(id) {
+      selectedCategory = id;
+      fetchCategories();
+      fetchProducts();
+    }
+
+    // Cart & Dynamic Free Delivery Bar
+    function loadCart() {
+      try { cart = JSON.parse(sessionStorage.getItem('mp_cart') || '[]'); } catch (e) { cart = []; }
+      updateCartUI();
+    }
+
+    function saveCart() {
+      sessionStorage.setItem('mp_cart', JSON.stringify(cart));
+      updateCartUI();
+    }
+
+    function addToCart(id) {
+      const p = products.find(x => x.id === id);
+      if (!p || p.is_available === 0) return;
+      const ex = cart.find(x => x.id === id);
+      if (ex) ex.quantity += 1;
+      else cart.push({ id: p.id, name: p.name, price: p.price, quantity: 1 });
+      saveCart();
+      toggleCart(true);
+    }
+
+    function updateCartQty(id, d) {
+      const it = cart.find(x => x.id === id);
+      if (!it) return;
+      it.quantity += d;
+      if (it.quantity <= 0) cart = cart.filter(x => x.id !== id);
+      saveCart();
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((s, i) => s + i.quantity, 0);
+      document.getElementById('cartCount').innerText = totalCount;
+
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const threshold = storeConfig.free_delivery_threshold || 600;
+      const baseFee = storeConfig.delivery_base_fee || 60;
+      const isFree = subtotal >= threshold;
+      const deliveryFee = (subtotal === 0 || isFree) ? 0 : baseFee;
+      const total = subtotal + deliveryFee;
+
+      const diff = threshold - subtotal;
+      const progress = Math.min(100, (subtotal / threshold) * 100);
+      document.getElementById('thresholdFill').style.width = `${progress}%`;
+      document.getElementById('thresholdText').innerText = isFree
+        ? '🎉 Congratulations! You unlocked FREE Delivery!'
+        : `Add R${diff.toFixed(2)} more to unlock FREE Delivery!`;
+
+      document.getElementById('cartSubtotalDisplay').innerText = `R${subtotal.toFixed(2)}`;
+      document.getElementById('cartDeliveryDisplay').innerText = isFree ? 'FREE' : `R${deliveryFee.toFixed(2)}`;
+      document.getElementById('cartTotalDisplay').innerText = `R${total.toFixed(2)}`;
+
+      const container = document.getElementById('cartItemsContainer');
+      if (cart.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px 0; color:var(--gray-muted);">Your basket is empty.</div>`;
+        document.getElementById('checkoutBtn').disabled = true;
+        return;
+      }
+
+      document.getElementById('checkoutBtn').disabled = false;
+      container.innerHTML = cart.map(i => `
+        <div class="cart-item">
+          <div style="flex:1;">
+            <div style="font-size:13px; font-weight:600;">${i.name}</div>
+            <div style="font-size:13px; color:var(--primary); font-weight:700;">R${i.price.toFixed(2)}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; background:var(--gray-light); padding:2px 8px; border-radius:4px;">
+            <button onclick="updateCartQty('${i.id}', -1)" style="border:none; background:none; cursor:pointer;">−</button>
+            <span style="font-size:13px; font-weight:700;">${i.quantity}</span>
+            <button onclick="updateCartQty('${i.id}', 1)" style="border:none; background:none; cursor:pointer;">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCart(open) {
+      document.getElementById('cartOverlay').classList.toggle('open', open);
+    }
+
+    function openCheckoutModal() {
+      toggleCart(false);
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const isFree = subtotal >= (storeConfig.free_delivery_threshold || 600);
+      const deliveryFee = isFree ? 0 : (storeConfig.delivery_base_fee || 60);
+
+      document.getElementById('modalSubtotal').innerText = `R${subtotal.toFixed(2)}`;
+      document.getElementById('modalDelivery').innerText = isFree ? 'FREE' : `R${deliveryFee.toFixed(2)}`;
+      document.getElementById('modalTotal').innerText = `R${(subtotal + deliveryFee).toFixed(2)}`;
+      document.getElementById('checkoutModal').classList.add('open');
+    }
+
+    async function submitOrder(e) {
+      e.preventDefault();
+      const btn = document.getElementById('orderSubmitBtn');
+      btn.disabled = true;
+
+      const phone = document.getElementById('custWhatsapp').value.trim();
+      const name = document.getElementById('custName').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+
+      localStorage.setItem('mp_customer_phone', phone);
+      localStorage.setItem('mp_customer_name', name);
+      localStorage.setItem('mp_customer_address', address);
+
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const isFree = subtotal >= (storeConfig.free_delivery_threshold || 600);
+      const deliveryFee = isFree ? 0 : (storeConfig.delivery_base_fee || 60);
+      const totalAmount = subtotal + deliveryFee;
+
+      // Check if Yoco Public Key is configured
+      if (storeConfig.yoco_public_key && storeConfig.yoco_public_key.startsWith('pk_')) {
+        btn.innerText = 'Opening Secure Yoco Payment...';
+        const yoco = new window.YocoSDK({ publicKey: storeConfig.yoco_public_key });
+        
+        yoco.showPopup({
+          amountInCents: Math.round(totalAmount * 100),
+          currency: 'ZAR',
+          name: 'MP Market',
+          description: `Sourced Delivery for ${name}`,
+          callback: async (result) => {
+            if (result.error) {
+              alert(`Payment Error: ${result.error.message}`);
+              btn.disabled = false;
+              btn.innerText = 'Confirm & Sourced Order';
+            } else {
+              await processOrderPayload({ customer_name: name, customer_whatsapp: phone, delivery_address: address, items: cart.map(i => ({ id: i.id, quantity: i.quantity })), yoco_token: result.id });
+            }
+          }
+        });
+      } else {
+        // Fallback Direct Sourcing Mode
+        btn.innerText = 'Transmitting Order...';
+        await processOrderPayload({ customer_name: name, customer_whatsapp: phone, delivery_address: address, items: cart.map(i => ({ id: i.id, quantity: i.quantity })) });
+      }
+    }
+
+    async function processOrderPayload(payload) {
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        cart = [];
+        saveCart();
+        closeModal('checkoutModal');
+        alert(`🎉 Order Succeeded!\nOrder #: ${data.order_number}\nTotal: R${data.total_amount.toFixed(2)}\nStatus: ${data.payment_status === 'Paid' ? 'Paid via Yoco' : 'Pending Sourcing'}`);
+        openMyOrdersModal();
+      } else {
+        alert(data.error || 'Failed to submit order');
+      }
+      document.getElementById('orderSubmitBtn').disabled = false;
+      document.getElementById('orderSubmitBtn').innerText = 'Confirm & Sourced Order';
+    }
+
+    // Customer "My Orders" Auto-Recall
+    function autoPopulateCustomer() {
+      const phone = localStorage.getItem('mp_customer_phone');
+      const name = localStorage.getItem('mp_customer_name');
+      const address = localStorage.getItem('mp_customer_address');
+      if (phone) {
+        document.getElementById('custWhatsapp').value = phone;
+        document.getElementById('trackPhoneInput').value = phone;
+      }
+      if (name) document.getElementById('custName').value = name;
+      if (address) document.getElementById('custAddress').value = address;
+    }
+
+    function openMyOrdersModal() {
+      document.getElementById('myOrdersModal').classList.add('open');
+      const phone = localStorage.getItem('mp_customer_phone');
+      if (phone) {
+        document.getElementById('trackPhoneInput').value = phone;
+        loadCustomerOrders();
+      }
+    }
+
+    async function loadCustomerOrders() {
+      const phone = document.getElementById('trackPhoneInput').value.trim();
+      if (!phone) return;
+      const res = await fetch(`/api/orders/customer/${encodeURIComponent(phone)}`);
+      const orders = await res.json();
+
+      const container = document.getElementById('customerOrdersList');
+      if (orders.length === 0) {
+        container.innerHTML = `<p style="font-size:13px; color:var(--gray-muted);">No orders found for this WhatsApp number.</p>`;
+        return;
+      }
+
+      container.innerHTML = orders.map(o => `
+        <div style="background:var(--gray-light); padding:12px; border-radius:8px; margin-bottom:10px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; font-weight:700;">
+            <span>${o.order_number}</span>
+            <span style="color:var(--primary);">${o.status} (${o.payment_status})</span>
+          </div>
+          <div style="color:var(--gray-muted); margin:4px 0;">Total: R${o.total_amount.toFixed(2)} (Delivery: ${o.delivery_fee === 0 ? 'FREE' : 'R' + o.delivery_fee.toFixed(2)})</div>
+          <div style="font-size:12px;">Items: ${o.items.map(i => `${i.quantity}x ${i.product_name}`).join(', ')}</div>
+        </div>
+      `).join('');
+    }
+
+    // Reviews System
+    async function openReviewsModal(productId, prodName) {
+      document.getElementById('reviewProdId').value = productId;
+      document.getElementById('reviewsProdTitle').innerText = `${prodName} — Reviews`;
+      document.getElementById('reviewsModal').classList.add('open');
+
+      const res = await fetch(`/api/reviews/${productId}`);
+      const revs = await res.json();
+      const list = document.getElementById('reviewsList');
+
+      if (revs.length === 0) {
+        list.innerHTML = `<p style="font-size:13px; color:var(--gray-muted);">No reviews yet. Be the first!</p>`;
+        return;
+      }
+
+      list.innerHTML = revs.map(r => `
+        <div style="margin-bottom:10px; padding-bottom:10px; border-bottom:1px solid var(--gray-light); font-size:13px;">
+          <div style="display:flex; justify-content:space-between; font-weight:700;">
+            <span>${r.customer_name}</span>
+            <span style="color:var(--gold);">${'⭐'.repeat(r.rating)}</span>
+          </div>
+          <p style="color:var(--gray-muted); margin-top:2px;">"${r.comment}"</p>
+        </div>
+      `).join('');
+    }
+
+    async function submitReview(e) {
+      e.preventDefault();
+      const pid = document.getElementById('reviewProdId').value;
+      await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: pid,
+          customer_name: document.getElementById('revName').value.trim(),
+          rating: document.getElementById('revRating').value,
+          comment: document.getElementById('revComment').value.trim()
+        })
+      });
+      closeModal('reviewsModal');
+      fetchProducts();
+    }
+
+    function openReturnsModal() { document.getElementById('returnsModal').classList.add('open'); }
+
+    // ---------------------------------------------------------------
+    // ADMIN FUNCTIONS & 1-CLICK DISPATCH WAYBILL
+    // ---------------------------------------------------------------
+    function openAdminModal() {
+      document.getElementById('adminModal').classList.add('open');
+      if (adminToken) showAdminDashboard();
+    }
+
+    async function loginAdmin() {
+      const pwd = document.getElementById('adminSecretInput').value.trim();
+      const res = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${pwd}` }
+      });
+      if (res.ok) {
+        adminToken = pwd;
+        localStorage.setItem('mp_admin_token', adminToken);
+        showAdminDashboard();
+      } else {
+        alert('Invalid Admin Secret Password');
+      }
+    }
+
+    function logoutAdmin() {
+      adminToken = '';
+      localStorage.removeItem('mp_admin_token');
+      document.getElementById('adminAuthSection').style.display = 'block';
+      document.getElementById('adminPanelSection').style.display = 'none';
+    }
+
+    function showAdminDashboard() {
+      document.getElementById('adminAuthSection').style.display = 'none';
+      document.getElementById('adminPanelSection').style.display = 'block';
+      loadAdminOrders();
+      loadAdminProducts();
+      document.getElementById('settingBaseFee').value = storeConfig.delivery_base_fee;
+      document.getElementById('settingFreeThreshold').value = storeConfig.free_delivery_threshold;
+    }
+
+    function switchAdminTab(id, btn) {
+      ['ordersTab', 'productsTab', 'addProductTab', 'settingsTab'].forEach(t => document.getElementById(t).style.display = (t === id ? 'block' : 'none'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    async function loadAdminOrders() {
+      const res = await fetch('/api/admin/orders', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+      const orders = await res.json();
+      document.getElementById('liveOrderCount').innerText = orders.length;
+
+      document.getElementById('adminOrdersBody').innerHTML = orders.map(o => `
+        <tr>
+          <td><strong>${o.order_number}</strong></td>
+          <td>${o.customer_name}<br><a href="https://wa.me/${o.customer_whatsapp.replace(/[^0-9]/g, '')}" target="_blank" style="color:var(--primary); font-weight:600;">${o.customer_whatsapp}</a></td>
+          <td><small>${o.delivery_address}</small></td>
+          <td>R${o.total_amount.toFixed(2)} (${o.items.length} items)<br><small style="color:var(--primary); font-weight:700;">${o.payment_method}</small></td>
+          <td>
+            <select onchange="updateOrderStatus('${o.id}', this.value)" style="padding:4px; font-size:12px;">
+              <option value="Pending Sourcing" ${o.status==='Pending Sourcing'?'selected':''}>Pending Sourcing</option>
+              <option value="Sourced" ${o.status==='Sourced'?'selected':''}>Sourced</option>
+              <option value="Out for Delivery" ${o.status==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+              <option value="Delivered" ${o.status==='Delivered'?'selected':''}>Delivered</option>
+              <option value="Cancelled" ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+            </select>
+          </td>
+          <td>
+            <button onclick='printWaybill(${JSON.stringify(o)})' style="padding:4px 8px; font-size:11px; background:var(--charcoal); color:#fff; border:none; border-radius:4px; cursor:pointer;">🖨️ Waybill</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function printWaybill(order) {
+      const printArea = document.getElementById('waybillPrintArea');
+      printArea.innerHTML = `
+        <div style="font-family:sans-serif; padding:20px; border:2px dashed #000; max-width:500px; margin:20px auto;">
+          <h2 style="margin-bottom:4px;">MP MARKET — DISPATCH WAYBILL</h2>
+          <p style="font-size:12px; margin-bottom:12px;">Local Sourcing & Delivery Concierge</p>
+          <hr style="margin:10px 0;">
+          <p><strong>Order #:</strong> ${order.order_number}</p>
+          <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+          <p><strong>Customer:</strong> ${order.customer_name} (${order.customer_whatsapp})</p>
+          <p><strong>Delivery Address:</strong> ${order.delivery_address}</p>
+          <hr style="margin:10px 0;">
+          <h4>ITEMS TO DELIVER:</h4>
+          <ul>
+            ${order.items.map(i => `<li>${i.quantity}x ${i.product_name} (R${i.unit_price.toFixed(2)})</li>`).join('')}
+          </ul>
+          <hr style="margin:10px 0;">
+          <p><strong>Subtotal:</strong> R${order.subtotal_amount.toFixed(2)}</p>
+          <p><strong>Delivery Fee:</strong> ${order.delivery_fee === 0 ? 'FREE' : 'R' + order.delivery_fee.toFixed(2)}</p>
+          <h3 style="margin-top:6px;">TOTAL COLLECTED: R${order.total_amount.toFixed(2)} (${order.payment_status})</h3>
+        </div>
+      `;
+      window.print();
+    }
+
+    async function updateOrderStatus(id, status) {
+      await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({ status })
+      });
+    }
+
+    async function loadAdminProducts() {
+      const res = await fetch('/api/products');
+      const prods = await res.json();
+      document.getElementById('adminProductsBody').innerHTML = prods.map(p => `
+        <tr>
+          <td>${p.image_url ? `<img src="${p.image_url}" style="width:32px; height:32px; object-fit:cover; border-radius:4px;">` : '📦'}</td>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.category_id}</td>
+          <td>R${p.price.toFixed(2)}</td>
+          <td>
+            <button onclick="toggleProductAvailability('${p.id}')" style="padding:3px 8px; font-size:11px; border-radius:4px; border:none; cursor:pointer; background:${p.is_available===1 ? '#D1FAE5; color:#065F46' : '#FEE2E2; color:#991B1B'}">
+              ${p.is_available === 1 ? 'Available' : 'Unavailable'}
+            </button>
+          </td>
+          <td><button onclick="deleteProduct('${p.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer;">Delete</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function toggleProductAvailability(id) {
+      await fetch(`/api/admin/products/toggle/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadAdminProducts();
+      fetchProducts();
+    }
+
+    async function saveSettings(e) {
+      e.preventDefault();
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          delivery_base_fee: parseFloat(document.getElementById('settingBaseFee').value),
+          free_delivery_threshold: parseFloat(document.getElementById('settingFreeThreshold').value)
+        })
+      });
+      alert('Delivery pricing saved successfully!');
+      await fetchStoreConfig();
+      updateCartUI();
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('saveProdBtn');
+      saveBtn.disabled = true;
+      saveBtn.innerText = 'Saving to R2 & Sourcing List...';
+
+      let imageUrl = '';
+      const file = document.getElementById('prodImageFile').files[0];
+      if (file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const up = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` },
+          body: fd
+        });
+        const upJson = await up.json();
+        if (upJson.imageUrl) imageUrl = upJson.imageUrl;
+      }
+
+      await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          name: document.getElementById('prodName').value.trim(),
+          price: parseFloat(document.getElementById('prodPrice').value),
+          category_id: document.getElementById('prodCategory').value,
+          sourcing_time: document.getElementById('prodSourcingTime').value,
+          description: document.getElementById('prodDescription').value.trim(),
+          image_url: imageUrl
+        })
+      });
+
+      document.getElementById('prodName').value = '';
+      document.getElementById('prodPrice').value = '';
+      document.getElementById('prodDescription').value = '';
+      saveBtn.disabled = false;
+      saveBtn.innerText = 'Save to Sourcing Catalogue';
+      switchAdminTab('productsTab', document.querySelectorAll('.tab-btn')[1]);
+      loadAdminProducts();
+      fetchProducts();
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Remove this product from sourcing?')) return;
+      await fetch(`/api/admin/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadAdminProducts();
+      fetchProducts();
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    // Real-Time WebSockets via Durable Objects
+    function initWebSocket() {
+      const p = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${p}//${location.host}/api/ws/admin`);
+      ws.onmessage = (e) => {
+        try {
+          const m = JSON.parse(e.data);
+          if (m.event === 'NEW_ORDER') {
+            showToast(`🔔 New Order Received: ${m.order.order_number} (R${m.order.total_amount.toFixed(2)})`);
+            if (adminToken) loadAdminOrders();
+          }
+        } catch (err) {}
+      };
+      ws.onclose = () => setTimeout(initWebSocket, 3000);
+    }
+
+    function showToast(txt) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerText = txt;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 5000);
+    }
+  </script>
+</body>
+</html>
