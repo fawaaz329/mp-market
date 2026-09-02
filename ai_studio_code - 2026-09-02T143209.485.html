@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MP Market — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #087A58;
+      --primary-hover: #065e43;
+      --primary-light: #e8f5f1;
+      --charcoal: #1F2937;
+      --gray-muted: #6B7280;
+      --gray-light: #F3F4F6;
+      --gray-border: #E5E7EB;
+      --white: #FFFFFF;
+      --danger: #DC2626;
+      --gold: #F59E0B;
+      --radius: 10px;
+      --radius-sm: 6px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: #F9FAFB; color: var(--charcoal); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header { background: var(--white); border-bottom: 1px solid var(--gray-border); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .logo-badge { background: var(--primary); color: #fff; font-weight: 800; padding: 4px 8px; border-radius: 6px; font-size: 14px; }
+    .header-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .btn-view-store { background: var(--gray-light); border: 1px solid var(--gray-border); padding: 6px 12px; border-radius: 9999px; text-decoration: none; color: var(--charcoal); font-size: 12px; font-weight: 600; }
+
+    .admin-container { max-width: 1200px; margin: 24px auto; padding: 0 16px; width: 100%; flex: 1; }
+
+    /* Login Screen */
+    .login-box { max-width: 400px; margin: 60px auto; background: var(--white); border: 1px solid var(--gray-border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); text-align: center; }
+    .login-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .login-box p { font-size: 13px; color: var(--gray-muted); margin-bottom: 20px; }
+
+    /* Dashboard UI */
+    .dashboard-layout { display: none; }
+    .admin-nav { display: flex; gap: 10px; border-bottom: 1px solid var(--gray-border); margin-bottom: 20px; padding-bottom: 10px; overflow-x: auto; }
+    .nav-tab { background: transparent; border: none; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; color: var(--gray-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .nav-tab.active { background: var(--primary); color: var(--white); }
+    .nav-tab:hover:not(.active) { background: var(--gray-light); color: var(--charcoal); }
+
+    .card { background: var(--white); border: 1px solid var(--gray-border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--gray-border); border-radius: var(--radius-sm); font-size: 14px; outline: none; background: #fff; }
+    .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(8, 122, 88, 0.15); }
+
+    .btn-primary { background: var(--primary); color: #fff; border: none; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 12px; border-bottom: 1px solid var(--gray-border); text-align: left; }
+    .admin-table th { background: var(--gray-light); font-weight: 700; color: var(--charcoal); }
+
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: #064E3B; color: var(--white); padding: 14px 20px; border-radius: var(--radius-sm); border-left: 4px solid #10B981; box-shadow: 0 10px 25px rgba(0,0,0,0.15); font-size: 13px; }
+
+    @media print {
+      body * { visibility: hidden; }
+      #waybillPrintArea, #waybillPrintArea * { visibility: visible; }
+      #waybillPrintArea { position: absolute; left: 0; top: 0; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <span class="logo-badge">MP</span>
+      <span>MP Market — Control Portal</span>
+    </div>
+    <div>
+      <a href="/" class="btn-view-store">← View Customer Store</a>
+    </div>
+  </header>
+
+  <div class="admin-container">
+
+    <!-- LOGIN SCREEN -->
+    <div class="login-box" id="loginBox">
+      <h2>Manager Sign In</h2>
+      <p>Enter your Cloudflare ADMIN_PASSWORD to manage sourcing, orders & delivery fees.</p>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <input type="password" id="adminPasswordInput" class="form-control" placeholder="Enter Secret Password" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;">Access Dashboard</button>
+      </form>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div class="dashboard-layout" id="dashboardLayout">
+      <div class="admin-nav">
+        <button class="nav-tab active" onclick="showTab('ordersTab', this)">🔔 Live Orders (<span id="orderCount">0</span>)</button>
+        <button class="nav-tab" onclick="showTab('catalogueTab', this)">📦 Sourcing Catalogue</button>
+        <button class="nav-tab" onclick="showTab('addProductTab', this)">➕ Add New Product</button>
+        <button class="nav-tab" onclick="showTab('deliveryTab', this)">⚙️ Delivery Rates</button>
+        <button class="nav-tab" style="margin-left:auto; color:var(--danger);" onclick="logout()">Logout</button>
+      </div>
+
+      <!-- TAB 1: LIVE ORDERS -->
+      <div id="ordersTab">
+        <div class="card">
+          <div class="card-title">
+            <span>Incoming Sourcing & Delivery Orders</span>
+            <span style="font-size:12px; color:var(--primary); font-weight:600;">⚡ Live Real-Time WebSockets Active</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>WhatsApp</th>
+                  <th>Delivery Address</th>
+                  <th>Total & Payment</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: SOURCING CATALOGUE -->
+      <div id="catalogueTab" style="display:none;">
+        <div class="card">
+          <div class="card-title">
+            <span>Active Products Catalogue</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Category</th>
+                  <th>Selling Price</th>
+                  <th>Availability</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="catalogueTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: ADD NEW PRODUCT -->
+      <div id="addProductTab" style="display:none;">
+        <div class="card" style="max-width:700px; margin:0 auto;">
+          <div class="card-title">Add Product to Sourcing List</div>
+          <form onsubmit="saveProduct(event)">
+            <div class="form-group">
+              <label>Product Name</label>
+              <input type="text" id="pName" class="form-control" required placeholder="e.g. 65W Fast-Charging Type-C Cable">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label>Selling Price (ZAR)</label>
+                <input type="number" step="0.01" id="pPrice" class="form-control" required placeholder="140.00">
+              </div>
+              <div class="form-group">
+                <label>Sourcing & Dispatch Time</label>
+                <input type="text" id="pSourcingTime" class="form-control" value="Dispatched in 24h">
+              </div>
+            </div>
+
+            <!-- HARDCODED + DYNAMIC REINFORCED CATEGORY SELECTION -->
+            <div class="form-group">
+              <label>Category</label>
+              <select id="prodCategory" class="form-control" required>
+                <option value="cat-hardware">🔨 Hardware & DIY</option>
+                <option value="cat-electronics">🔌 Electronics & Gadgets</option>
+                <option value="cat-home">🛋️ Home & Living</option>
+                <option value="cat-clothing">👕 Clothing & Apparel</option>
+                <option value="cat-beauty">💄 Beauty & Personal Care</option>
+                <option value="cat-gaming">🎮 Gaming & Accessories</option>
+                <option value="cat-gifts">🎁 Gifts & General</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Description & Sourcing Details</label>
+              <textarea id="pDesc" class="form-control" rows="3" placeholder="Briefly describe the product"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Product Photo (Uploads straight to Cloudflare R2)</label>
+              <input type="file" id="pImageFile" class="form-control" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn-primary" id="saveProdBtn" style="width:100%;">Save & Publish to Catalogue</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 4: DELIVERY RATES -->
+      <div id="deliveryTab" style="display:none;">
+        <div class="card" style="max-width:500px; margin:0 auto;">
+          <div class="card-title">Delivery Fee Configuration</div>
+          <form onsubmit="saveDeliveryRates(event)">
+            <div class="form-group">
+              <label>Standard Base Delivery Fee (ZAR)</label>
+              <input type="number" step="0.01" id="settingBaseFee" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Free Delivery Minimum Threshold (ZAR)</label>
+              <input type="number" step="0.01" id="settingFreeThreshold" class="form-control" required>
+              <small style="color:var(--gray-muted); font-size:12px;">Orders with subtotal above this get automatic FREE delivery.</small>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;">Save Delivery Pricing</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="waybillPrintArea" style="display:none;"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    let adminToken = localStorage.getItem('mp_admin_token') || '';
+    let ws = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (adminToken) {
+        verifyAndOpen();
+      }
+      initWebSocket();
+    });
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('adminPasswordInput').value.trim();
+      const res = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${pwd}` }
+      });
+      if (res.ok) {
+        adminToken = pwd;
+        localStorage.setItem('mp_admin_token', adminToken);
+        verifyAndOpen();
+      } else {
+        alert('Invalid Admin Secret Password.');
+      }
+    }
+
+    function logout() {
+      adminToken = '';
+      localStorage.removeItem('mp_admin_token');
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('dashboardLayout').style.display = 'none';
+      document.getElementById('adminPasswordInput').value = '';
+    }
+
+    async function verifyAndOpen() {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('dashboardLayout').style.display = 'block';
+      loadOrders();
+      loadCatalogue();
+      loadSettings();
+    }
+
+    function showTab(tabId, btn) {
+      ['ordersTab', 'catalogueTab', 'addProductTab', 'deliveryTab'].forEach(id => {
+        document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+      });
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    // Orders
+    async function loadOrders() {
+      const res = await fetch('/api/admin/orders', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+      const orders = await res.json();
+      document.getElementById('orderCount').innerText = orders.length;
+
+      document.getElementById('ordersTableBody').innerHTML = orders.map(o => `
+        <tr>
+          <td><strong>${o.order_number}</strong></td>
+          <td>${o.customer_name}</td>
+          <td><a href="https://wa.me/${o.customer_whatsapp.replace(/[^0-9]/g, '')}" target="_blank" style="color:var(--primary); font-weight:700; text-decoration:none;">${o.customer_whatsapp} ↗</a></td>
+          <td><small>${o.delivery_address}</small></td>
+          <td><strong>R${o.total_amount.toFixed(2)}</strong><br><small style="color:var(--primary); font-weight:700;">${o.payment_method}</small></td>
+          <td>
+            <select onchange="updateStatus('${o.id}', this.value)" style="padding:6px; font-size:12px; border-radius:4px;">
+              <option value="Pending Sourcing" ${o.status==='Pending Sourcing'?'selected':''}>Pending Sourcing</option>
+              <option value="Sourced" ${o.status==='Sourced'?'selected':''}>Sourced</option>
+              <option value="Out for Delivery" ${o.status==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+              <option value="Delivered" ${o.status==='Delivered'?'selected':''}>Delivered</option>
+              <option value="Cancelled" ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+            </select>
+          </td>
+          <td>
+            <button onclick='printWaybill(${JSON.stringify(o)})' style="padding:6px 10px; font-size:11px; background:var(--charcoal); color:#fff; border:none; border-radius:4px; cursor:pointer;">🖨️ Waybill</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateStatus(id, status) {
+      await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({ status })
+      });
+    }
+
+    function printWaybill(order) {
+      const area = document.getElementById('waybillPrintArea');
+      area.innerHTML = `
+        <div style="font-family:sans-serif; padding:24px; border:2px dashed #000; max-width:500px; margin:20px auto;">
+          <h2>MP MARKET — DISPATCH WAYBILL</h2>
+          <p style="font-size:12px; margin-bottom:12px;">Local Sourcing & Delivery</p>
+          <hr style="margin:10px 0;">
+          <p><strong>Order #:</strong> ${order.order_number}</p>
+          <p><strong>Date:</strong> ${new Date(order.created_at).toLocaleString()}</p>
+          <p><strong>Customer:</strong> ${order.customer_name} (${order.customer_whatsapp})</p>
+          <p><strong>Delivery Address:</strong> ${order.delivery_address}</p>
+          <hr style="margin:10px 0;">
+          <h4>ITEMS TO DELIVER:</h4>
+          <ul>
+            ${order.items.map(i => `<li>${i.quantity}x ${i.product_name} (R${i.unit_price.toFixed(2)})</li>`).join('')}
+          </ul>
+          <hr style="margin:10px 0;">
+          <p><strong>Subtotal:</strong> R${order.subtotal_amount.toFixed(2)}</p>
+          <p><strong>Delivery Fee:</strong> ${order.delivery_fee === 0 ? 'FREE' : 'R' + order.delivery_fee.toFixed(2)}</p>
+          <h3 style="margin-top:8px;">TOTAL: R${order.total_amount.toFixed(2)} (${order.payment_status})</h3>
+        </div>
+      `;
+      window.print();
+    }
+
+    // Catalogue
+    async function loadCatalogue() {
+      const res = await fetch('/api/products');
+      const prods = await res.json();
+      document.getElementById('catalogueTableBody').innerHTML = prods.map(p => `
+        <tr>
+          <td>${p.image_url ? `<img src="${p.image_url}" style="width:36px; height:36px; object-fit:cover; border-radius:4px;">` : '📦'}</td>
+          <td><strong>${p.name}</strong></td>
+          <td>${p.category_id}</td>
+          <td>R${p.price.toFixed(2)}</td>
+          <td>
+            <button onclick="toggleAvailability('${p.id}')" style="padding:4px 10px; font-size:11px; border-radius:4px; border:none; cursor:pointer; font-weight:700; background:${p.is_available===1 ? '#D1FAE5; color:#065F46' : '#FEE2E2; color:#991B1B'}">
+              ${p.is_available === 1 ? 'Available' : 'Unavailable'}
+            </button>
+          </td>
+          <td>
+            <button onclick="deleteProd('${p.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:700;">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function toggleAvailability(id) {
+      await fetch(`/api/admin/products/toggle/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadCatalogue();
+    }
+
+    async function deleteProd(id) {
+      if (!confirm('Are you sure you want to remove this product?')) return;
+      await fetch(`/api/admin/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadCatalogue();
+    }
+
+    // Add Product
+    async function saveProduct(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveProdBtn');
+      btn.disabled = true;
+      btn.innerText = 'Uploading to R2 & Publishing...';
+
+      let imageUrl = '';
+      const file = document.getElementById('pImageFile').files[0];
+      if (file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const up = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` },
+          body: fd
+        });
+        const upJson = await up.json();
+        if (upJson.imageUrl) imageUrl = upJson.imageUrl;
+      }
+
+      await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          name: document.getElementById('pName').value.trim(),
+          price: parseFloat(document.getElementById('pPrice').value),
+          category_id: document.getElementById('prodCategory').value,
+          sourcing_time: document.getElementById('pSourcingTime').value,
+          description: document.getElementById('pDesc').value.trim(),
+          image_url: imageUrl
+        })
+      });
+
+      document.getElementById('pName').value = '';
+      document.getElementById('pPrice').value = '';
+      document.getElementById('pDesc').value = '';
+      document.getElementById('pImageFile').value = '';
+      btn.disabled = false;
+      btn.innerText = 'Save & Publish to Catalogue';
+      alert('Product published successfully!');
+      showTab('catalogueTab', document.querySelectorAll('.nav-tab')[1]);
+      loadCatalogue();
+    }
+
+    // Delivery Rates
+    async function loadSettings() {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      document.getElementById('settingBaseFee').value = cfg.delivery_base_fee;
+      document.getElementById('settingFreeThreshold').value = cfg.free_delivery_threshold;
+    }
+
+    async function saveDeliveryRates(e) {
+      e.preventDefault();
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          delivery_base_fee: parseFloat(document.getElementById('settingBaseFee').value),
+          free_delivery_threshold: parseFloat(document.getElementById('settingFreeThreshold').value)
+        })
+      });
+      alert('Delivery rates updated!');
+    }
+
+    // Real-Time WebSockets
+    function initWebSocket() {
+      const p = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${p}//${location.host}/api/ws/admin`);
+      ws.onmessage = (e) => {
+        try {
+          const m = JSON.parse(e.data);
+          if (m.event === 'NEW_ORDER') {
+            showToast(`🔔 New Order Sourced: ${m.order.order_number} (R${m.order.total_amount.toFixed(2)})`);
+            if (adminToken) loadOrders();
+          }
+        } catch (err) {}
+      };
+      ws.onclose = () => setTimeout(initWebSocket, 3000);
+    }
+
+    function showToast(txt) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerText = txt;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 5000);
+    }
+  </script>
+</body>
+</html>
