@@ -1,0 +1,46 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "mp-market",
+  "main": "worker.js",
+  "compatibility_date": "2024-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // Static Assets Routing
+  "assets": {
+    "directory": "."
+  },
+
+  // Cloudflare D1 Database Binding
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "mp_market_db",
+      "database_id": "81e14548-b731-4b51-bf13-ec7bfb829e7b"
+    }
+  ],
+
+  // Cloudflare R2 Storage Bucket Binding
+  "r2_buckets": [
+    {
+      "binding": "IMAGES_BUCKET",
+      "bucket_name": "mp-market-images"
+    }
+  ],
+
+  // Cloudflare Durable Objects for Live Real-Time WebSockets
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "REALTIME",
+        "class_name": "MPMarketRealtime"
+      }
+    ]
+  },
+
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["MPMarketRealtime"]
+    }
+  ]
+}
