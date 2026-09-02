@@ -963,14 +963,21 @@
     }
 
     function loadCart() {
-      try { cart = JSON.parse(sessionStorage.getItem('mp_cart') || '[]'); } catch (e) { cart = []; }
-      updateCartUI();
-    }
+  try { cart = JSON.parse(localStorage.getItem('mp_cart') || '[]'); } catch (e) { cart = []; }
+  updateCartUI();
+}
 
-    function saveCart() {
-      sessionStorage.setItem('mp_cart', JSON.stringify(cart));
-      updateCartUI();
-    }
+function saveCart() {
+  localStorage.setItem('mp_cart', JSON.stringify(cart));
+  updateCartUI();
+}
+
+// Automatically sync cart across all open tabs in real-time
+window.addEventListener('storage', (e) => {
+  if (e.key === 'mp_cart') {
+    loadCart();
+  }
+});
 
     function addToCart(id) {
       const p = products.find(x => x.id === id);
