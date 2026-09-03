@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MP Market — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-ivory: #F7F4EF;
+      --surface-card: #FFFFFF;
+      --charcoal: #171717;
+      --gray-muted: #737373;
+      --gray-light: #EAE6DF;
+      --border-subtle: #E8E3DA;
+      --accent: #C45A2C;
+      --accent-hover: #A8481E;
+      --danger: #B91C1C;
+      --radius-sm: 4px;
+      --radius: 8px;
+      --shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-ivory); color: var(--charcoal); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header { background: var(--surface-card); border-bottom: 1px solid var(--border-subtle); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .header-title { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn-view-store { background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 6px 14px; border-radius: var(--radius-sm); text-decoration: none; color: var(--charcoal); font-size: 12px; font-weight: 600; }
+
+    .admin-container { max-width: 1200px; margin: 24px auto; padding: 0 16px; width: 100%; flex: 1; }
+
+    .login-box { max-width: 400px; margin: 60px auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); text-align: center; }
+    .login-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
+    .login-box p { font-size: 13px; color: var(--gray-muted); margin-bottom: 20px; }
+
+    .dashboard-layout { display: none; }
+    .admin-nav { display: flex; gap: 10px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 20px; padding-bottom: 10px; overflow-x: auto; }
+    .nav-tab { background: transparent; border: none; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; color: var(--gray-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.3px; }
+    .nav-tab.active { background: var(--charcoal); color: #FFFFFF; }
+
+    .card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .card-title { font-size: 15px; font-weight: 800; margin-bottom: 16px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: #fff; }
+    .form-control:focus { border-color: var(--charcoal); }
+
+    .btn-primary { background: var(--accent); color: #fff; border: none; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; letter-spacing: 0.3px; text-transform: uppercase; }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 12px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
+    .admin-table th { background: #FAFAFA; font-weight: 700; color: var(--charcoal); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
+    .toast { background: var(--charcoal); color: var(--bg-ivory); padding: 14px 20px; border-radius: var(--radius-sm); border-left: 4px solid var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.15); font-size: 13px; }
+
+    #waybillPrintArea { display: none; }
+    @media print {
+      @page { size: auto; margin: 10mm; }
+      body { background: #FFFFFF !important; color: #000000 !important; }
+      body * { visibility: hidden !important; }
+      #waybillPrintArea, #waybillPrintArea * { visibility: visible !important; }
+      #waybillPrintArea {
+        display: block !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        background: #FFFFFF !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">MP Market — Control Portal</div>
+    <div><a href="/" class="btn-view-store">← View Customer Store</a></div>
+  </header>
+
+  <div class="admin-container">
+
+    <div class="login-box" id="loginBox">
+      <h2>Manager Sign In</h2>
+      <p>Enter your ADMIN_PASSWORD secret to access management tools.</p>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <input type="password" id="adminPasswordInput" class="form-control" placeholder="Enter Secret Password" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;">Access Dashboard</button>
+      </form>
+    </div>
+
+    <div class="dashboard-layout" id="dashboardLayout">
+      <div class="admin-nav">
+        <button class="nav-tab active" onclick="showTab('ordersTab', this)">Live Orders (<span id="orderCount">0</span>)</button>
+        <button class="nav-tab" onclick="showTab('catalogueTab', this)">Sourcing Catalogue</button>
+        <button class="nav-tab" onclick="showTab('addProductTab', this)">+ Add Product</button>
+        <button class="nav-tab" onclick="showTab('deliveryTab', this)">Delivery Rates</button>
+        <button class="nav-tab" style="margin-left:auto; color:var(--danger);" onclick="logout()">Logout</button>
+      </div>
+
+      <!-- LIVE ORDERS (SHOWS ITEMS WITH SUPPLIER SHOPS) -->
+      <div id="ordersTab">
+        <div class="card">
+          <div class="card-title">
+            <span>Incoming Sourcing Orders</span>
+            <span style="font-size:11px; color:var(--accent); font-weight:700;">● Live Real-Time Feed</span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>WhatsApp</th>
+                  <th>Address</th>
+                  <th>Items & Shop Source</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- SOURCING CATALOGUE (WITH SUPPLIER FILTER) -->
+      <div id="catalogueTab" style="display:none;">
+        <div class="card">
+          <div class="card-title">
+            <span>Active Products Catalogue</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <select id="supplierFilterSelect" onchange="filterCatalogueBySupplier()" class="form-control" style="width:auto; padding:6px 12px; font-size:12px;">
+                <option value="ALL">All Suppliers / Shops</option>
+              </select>
+              <button onclick="loadCatalogue()" class="btn-view-store" style="cursor:pointer;">↻ Refresh</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Product Name</th>
+                  <th>Supplier / Shop</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Availability</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="catalogueTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADD PRODUCT (WITH SUPPLIER NAME FIELD) -->
+      <div id="addProductTab" style="display:none;">
+        <div class="card" style="max-width:700px; margin:0 auto;">
+          <div class="card-title">Add Product to Sourcing List</div>
+          <form onsubmit="saveProduct(event)">
+            <div class="form-group">
+              <label>Product Name</label>
+              <input type="text" id="pName" class="form-control" required placeholder="e.g. 65W Fast-Charging Type-C Cable">
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label>Selling Price (ZAR)</label>
+                <input type="number" step="0.01" id="pPrice" class="form-control" required placeholder="140.00">
+              </div>
+              <div class="form-group">
+                <label>Supplier / Shop Name</label>
+                <input type="text" id="pSupplier" class="form-control" required placeholder="e.g. ABC Warehouse, Builders">
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group">
+                <label>Sourcing & Dispatch Time</label>
+                <input type="text" id="pSourcingTime" class="form-control" value="Dispatched in 24h">
+              </div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="prodCategory" class="form-control" required>
+                  <option value="cat-hardware">Hardware & DIY</option>
+                  <option value="cat-electronics">Electronics & Gadgets</option>
+                  <option value="cat-home">Home & Living</option>
+                  <option value="cat-clothing">Clothing & Apparel</option>
+                  <option value="cat-beauty">Personal Care</option>
+                  <option value="cat-gaming">Gaming & Accessories</option>
+                  <option value="cat-gifts">Gifts & General</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="pDesc" class="form-control" rows="3" placeholder="Briefly describe the product"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Product Photo (Uploads straight to Cloudflare R2)</label>
+              <input type="file" id="pImageFile" class="form-control" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn-primary" id="saveProdBtn" style="width:100%;">Save & Publish to Catalogue</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- DELIVERY SETTINGS -->
+      <div id="deliveryTab" style="display:none;">
+        <div class="card" style="max-width:500px; margin:0 auto;">
+          <div class="card-title">Delivery Fee Configuration</div>
+          <form onsubmit="saveDeliveryRates(event)">
+            <div class="form-group">
+              <label>Standard Base Delivery Fee (ZAR)</label>
+              <input type="number" step="0.01" id="settingBaseFee" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Free Delivery Minimum Threshold (ZAR)</label>
+              <input type="number" step="0.01" id="settingFreeThreshold" class="form-control" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width:100%;">Save Delivery Pricing</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="waybillPrintArea"></div>
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    let adminToken = localStorage.getItem('mp_admin_token') || '';
+    let allCatalogueProducts = [];
+    let ws = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (adminToken) verifyAndOpen();
+      initWebSocket();
+    });
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('adminPasswordInput').value.trim();
+      const res = await fetch('/api/admin/verify', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${pwd}` }
+      });
+      if (res.ok) {
+        adminToken = pwd;
+        localStorage.setItem('mp_admin_token', adminToken);
+        verifyAndOpen();
+      } else {
+        alert('Invalid Admin Secret Password.');
+      }
+    }
+
+    function logout() {
+      adminToken = '';
+      localStorage.removeItem('mp_admin_token');
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('dashboardLayout').style.display = 'none';
+    }
+
+    async function verifyAndOpen() {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('dashboardLayout').style.display = 'block';
+      loadOrders();
+      loadCatalogue();
+      loadSettings();
+    }
+
+    function showTab(tabId, btn) {
+      ['ordersTab', 'catalogueTab', 'addProductTab', 'deliveryTab'].forEach(id => {
+        document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+      });
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/admin/orders', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        const orders = await res.json();
+        document.getElementById('orderCount').innerText = orders.length;
+
+        document.getElementById('ordersTableBody').innerHTML = orders.map(o => `
+          <tr>
+            <td><strong>${o.order_number}</strong></td>
+            <td>${o.customer_name}</td>
+            <td><a href="https://wa.me/${o.customer_whatsapp.replace(/[^0-9]/g, '')}" target="_blank" style="color:var(--accent); font-weight:700; text-decoration:none;">${o.customer_whatsapp} ↗</a></td>
+            <td><small>${o.delivery_address}</small></td>
+            <td>
+              <div style="font-size:12px;">
+                ${o.items.map(i => `<div>• ${i.quantity}x ${i.product_name} <span style="color:var(--accent); font-weight:600;">[Shop: ${i.supplier_name || 'Local Partner'}]</span></div>`).join('')}
+              </div>
+            </td>
+            <td><strong>R ${Number(o.total_amount).toFixed(2)}</strong><br><small style="color:var(--gray-muted);">${o.payment_method}</small></td>
+            <td>
+              <select onchange="updateStatus('${o.id}', this.value)" style="padding:6px; font-size:12px; border-radius:4px; border:1px solid var(--border-subtle);">
+                <option value="Pending Sourcing" ${o.status==='Pending Sourcing'?'selected':''}>Pending Sourcing</option>
+                <option value="Sourced" ${o.status==='Sourced'?'selected':''}>Sourced</option>
+                <option value="Out for Delivery" ${o.status==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+                <option value="Delivered" ${o.status==='Delivered'?'selected':''}>Delivered</option>
+                <option value="Cancelled" ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+              </select>
+            </td>
+            <td>
+              <button onclick='printWaybill(${JSON.stringify(o)})' style="padding:6px 12px; font-size:11px; font-weight:700; background:var(--charcoal); color:#fff; border:none; border-radius:4px; cursor:pointer;">Waybill</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function updateStatus(id, status) {
+      await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({ status })
+      });
+    }
+
+    function printWaybill(order) {
+      const area = document.getElementById('waybillPrintArea');
+      area.innerHTML = `
+        <div style="border: 2px solid #000; padding: 20px; max-width: 600px; margin: 0 auto; font-family: sans-serif; color: #000;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 12px;">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 800; margin: 0;">MP MARKET</h2>
+              <p style="font-size: 11px; margin: 2px 0 0 0;">Dispatch & Sourcing Waybill</p>
+            </div>
+            <div style="text-align: right;">
+              <h3 style="font-size: 16px; margin: 0;">${order.order_number}</h3>
+              <p style="font-size: 11px; margin: 2px 0 0 0;">${new Date(order.created_at).toLocaleDateString()}</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; margin-bottom: 14px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+            <div>
+              <strong>CUSTOMER:</strong><br>
+              ${order.customer_name}<br>
+              Tel: ${order.customer_whatsapp}
+            </div>
+            <div>
+              <strong>DELIVER TO:</strong><br>
+              ${order.delivery_address}
+            </div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 14px;">
+            <thead>
+              <tr style="border-bottom: 1px solid #000; text-align: left;">
+                <th style="padding: 6px 0;">Item Description</th>
+                <th style="padding: 6px 0;">Pickup Shop</th>
+                <th style="padding: 6px 0; text-align: center;">Qty</th>
+                <th style="padding: 6px 0; text-align: right;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map(i => `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 6px 0;">${i.product_name}</td>
+                  <td style="padding: 6px 0; font-weight:700;">${i.supplier_name || 'Local Partner'}</td>
+                  <td style="padding: 6px 0; text-align: center;">${i.quantity}</td>
+                  <td style="padding: 6px 0; text-align: right;">R ${Number(i.unit_price).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div style="text-align: right; font-size: 12px; line-height: 1.6;">
+            <div>Subtotal: R ${Number(order.subtotal_amount).toFixed(2)}</div>
+            <div>Delivery Fee: ${order.delivery_fee === 0 ? 'FREE' : 'R ' + Number(order.delivery_fee).toFixed(2)}</div>
+            <div style="font-size: 15px; font-weight: 800; border-top: 1px solid #000; padding-top: 6px; margin-top: 4px;">
+              TOTAL PAID: R ${Number(order.total_amount).toFixed(2)}
+            </div>
+            <div style="font-size: 10px; color: #555;">Payment Method: ${order.payment_method} (${order.payment_status})</div>
+          </div>
+        </div>
+      `;
+      window.print();
+    }
+
+    async function loadCatalogue() {
+      try {
+        const res = await fetch('/api/products');
+        allCatalogueProducts = await res.json();
+        
+        // Populate Supplier Filter Dropdown
+        const suppliers = Array.from(new Set(allCatalogueProducts.map(p => p.supplier_name).filter(Boolean)));
+        const select = document.getElementById('supplierFilterSelect');
+        select.innerHTML = `<option value="ALL">All Suppliers / Shops (${allCatalogueProducts.length})</option>` + 
+          suppliers.map(s => `<option value="${s}">${s}</option>`).join('');
+
+        renderCatalogueTable(allCatalogueProducts);
+      } catch (e) {}
+    }
+
+    function renderCatalogueTable(prods) {
+      if (prods.length === 0) {
+        document.getElementById('catalogueTableBody').innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--gray-muted);">No products found.</td></tr>`;
+        return;
+      }
+
+      document.getElementById('catalogueTableBody').innerHTML = prods.map(p => `
+        <tr>
+          <td>${p.image_url ? `<img src="${p.image_url}" style="width:36px; height:36px; object-fit:cover; border-radius:4px;">` : '—'}</td>
+          <td><strong>${p.name}</strong></td>
+          <td><span style="font-weight:700; color:var(--accent);">${p.supplier_name || 'Local Partner'}</span></td>
+          <td>${p.category_id}</td>
+          <td>R ${Number(p.price).toFixed(2)}</td>
+          <td>
+            <button onclick="toggleAvailability('${p.id}')" style="padding:4px 10px; font-size:11px; border-radius:4px; border:none; cursor:pointer; font-weight:700; background:${p.is_available===1 ? '#E6F4EA; color:#137333' : '#FCE8E6; color:#C5221F'}">
+              ${p.is_available === 1 ? 'Available' : 'Unavailable'}
+            </button>
+          </td>
+          <td>
+            <button onclick="deleteProd('${p.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:700;">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterCatalogueBySupplier() {
+      const selected = document.getElementById('supplierFilterSelect').value;
+      if (selected === 'ALL') {
+        renderCatalogueTable(allCatalogueProducts);
+      } else {
+        const filtered = allCatalogueProducts.filter(p => p.supplier_name === selected);
+        renderCatalogueTable(filtered);
+      }
+    }
+
+    async function toggleAvailability(id) {
+      await fetch(`/api/admin/products/toggle/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadCatalogue();
+    }
+
+    async function deleteProd(id) {
+      if (!confirm('Are you sure you want to remove this product?')) return;
+      await fetch(`/api/admin/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadCatalogue();
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveProdBtn');
+      btn.disabled = true;
+      btn.innerText = 'Publishing to Database & R2...';
+
+      let imageUrl = '';
+      const file = document.getElementById('pImageFile').files[0];
+      if (file) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const up = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${adminToken}` },
+          body: fd
+        });
+        const upJson = await up.json();
+        if (upJson.imageUrl) imageUrl = upJson.imageUrl;
+      }
+
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          name: document.getElementById('pName').value.trim(),
+          price: parseFloat(document.getElementById('pPrice').value),
+          supplier_name: document.getElementById('pSupplier').value.trim() || 'Local Partner',
+          category_id: document.getElementById('prodCategory').value,
+          sourcing_time: document.getElementById('pSourcingTime').value,
+          description: document.getElementById('pDesc').value.trim(),
+          image_url: imageUrl
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert('Error saving product: ' + (data.error || 'Check database connection'));
+        btn.disabled = false;
+        btn.innerText = 'Save & Publish to Catalogue';
+        return;
+      }
+
+      document.getElementById('pName').value = '';
+      document.getElementById('pPrice').value = '';
+      document.getElementById('pSupplier').value = '';
+      document.getElementById('pDesc').value = '';
+      document.getElementById('pImageFile').value = '';
+      btn.disabled = false;
+      btn.innerText = 'Save & Publish to Catalogue';
+      alert('Product published successfully!');
+      showTab('catalogueTab', document.querySelectorAll('.nav-tab')[1]);
+      loadCatalogue();
+    }
+
+    async function loadSettings() {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      document.getElementById('settingBaseFee').value = cfg.delivery_base_fee;
+      document.getElementById('settingFreeThreshold').value = cfg.free_delivery_threshold;
+    }
+
+    async function saveDeliveryRates(e) {
+      e.preventDefault();
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          delivery_base_fee: parseFloat(document.getElementById('settingBaseFee').value),
+          free_delivery_threshold: parseFloat(document.getElementById('settingFreeThreshold').value)
+        })
+      });
+      alert('Delivery rates updated!');
+    }
+
+    function initWebSocket() {
+      const p = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${p}//${location.host}/api/ws/admin`);
+      ws.onmessage = (e) => {
+        try {
+          const m = JSON.parse(e.data);
+          if (m.event === 'NEW_ORDER') {
+            showToast(`🔔 New Paid Order: ${m.order.order_number} (R ${Number(m.order.total_amount).toFixed(2)})`);
+            if (adminToken) loadOrders();
+          }
+        } catch (err) {}
+      };
+      ws.onclose = () => setTimeout(initWebSocket, 3000);
+    }
+
+    function showToast(txt) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerText = txt;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 5000);
+    }
+  </script>
+</body>
+</html>
