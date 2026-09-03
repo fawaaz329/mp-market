@@ -989,13 +989,18 @@
     </div>
   </main>
 
+<!-- FOOTER WITH MPM BRAND EMBLEM -->
   <footer>
-    <div class="footer-brand">MP Market</div>
-    <p>Local sourcing, made simple. Quality products, dispatched with care.</p>
-    <div class="footer-links-row">
-      <span class="footer-link-item" onclick="openReturnsModal()">🇿🇦 Warranty & Returns</span>
-      <span>·</span>
-      <a href="/admin.html" class="footer-link-item">Merchant Portal</a>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+      <!-- Footer Emblem Image -->
+      <img src="/footer-badge.png" alt="Mitchell's Plain Marketplace" style="max-width: 240px; width: 100%; height: auto; object-fit: contain; margin-bottom: 20px; border-radius: 50%; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+      
+      <!-- Clean Links Row (Neatly Placed Below Without Overlapping) -->
+      <div class="footer-links-row" style="margin-top: 4px; display: flex; gap: 20px; font-size: 13px;">
+        <span class="footer-link-item" onclick="openReturnsModal()" style="cursor: pointer; color: var(--gray-muted); font-weight: 600;">🇿🇦 Warranty & Returns</span>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/admin.html" class="footer-link-item" style="text-decoration: none; color: var(--gray-muted); font-weight: 600;">Merchant Portal</a>
+      </div>
     </div>
   </footer>
 
