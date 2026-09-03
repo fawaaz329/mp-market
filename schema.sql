@@ -36,6 +36,7 @@ CREATE TABLE products (
     name TEXT NOT NULL,
     description TEXT,
     price REAL NOT NULL,
+    supplier_name TEXT NOT NULL DEFAULT 'Local Partner',
     is_available INTEGER NOT NULL DEFAULT 1,
     sourcing_time TEXT NOT NULL DEFAULT 'Dispatched in 24h',
     category_id TEXT NOT NULL,
@@ -64,6 +65,7 @@ CREATE TABLE order_items (
     order_id TEXT NOT NULL,
     product_id TEXT NOT NULL,
     product_name TEXT NOT NULL,
+    supplier_name TEXT NOT NULL DEFAULT 'Local Partner',
     unit_price REAL NOT NULL,
     quantity INTEGER NOT NULL,
     subtotal REAL NOT NULL
