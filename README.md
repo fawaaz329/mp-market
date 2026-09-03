@@ -1,4 +1,4 @@
-# MP Market — Local Sourcing, Made Simple
+# MP Market — Local Sourcing, Made Simple.
 
 A full-scale ecommerce platform built on Cloudflare Workers, Cloudflare D1, Cloudflare R2, and Cloudflare Durable Objects.
 
