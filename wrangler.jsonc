@@ -10,6 +10,14 @@
     "directory": "."
   },
 
+  // PERMANENT ENVIRONMENT VARIABLES (Locked in across all builds)
+  "vars": {
+    "YOCO_PUBLIC_KEY": "pk_test_055cf35bnZ2ZA2j27eb4",
+    "OWNER_NOTIFICATION_EMAIL": "docfloweditor@gmail.com",
+    "SENDER_EMAIL": "orders@mp-market.co.za",
+    "SENDER_NAME": "MP Market"
+  },
+
   // Cloudflare D1 Database Binding
   "d1_databases": [
     {
