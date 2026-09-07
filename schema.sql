@@ -11,7 +11,7 @@ CREATE TABLE settings (
 );
 
 INSERT INTO settings (key, value) VALUES 
-('delivery_base_fee', '60.00'),
+('delivery_base_fee', '30.00'),
 ('free_delivery_threshold', '600.00');
 
 CREATE TABLE categories (
@@ -23,6 +23,7 @@ CREATE TABLE categories (
 
 INSERT INTO categories (id, name, icon) VALUES 
 ('cat-all', 'All Products', ''),
+('cat-new-arrivals', 'New Arrivals', ''),
 ('cat-hardware', 'Hardware & DIY', ''),
 ('cat-electronics', 'Electronics & Gadgets', ''),
 ('cat-home', 'Home & Living', ''),
@@ -38,6 +39,7 @@ CREATE TABLE products (
     price REAL NOT NULL,
     supplier_name TEXT NOT NULL DEFAULT 'Local Partner',
     is_available INTEGER NOT NULL DEFAULT 1,
+    is_new_arrival INTEGER NOT NULL DEFAULT 0,
     sourcing_time TEXT NOT NULL DEFAULT 'Dispatched in 24h',
     category_id TEXT NOT NULL,
     image_url TEXT,
