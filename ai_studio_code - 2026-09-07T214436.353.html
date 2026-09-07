@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MP Market — Quality products. Sourced locally.</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-ivory: #F7F4EF;
+      --surface-card: #FFFFFF;
+      --charcoal: #171717;
+      --charcoal-secondary: #404040;
+      --gray-muted: #737373;
+      --gray-light: #EAE6DF;
+      --border-subtle: #E8E3DA;
+      --accent: #C45A2C;
+      --accent-hover: #A8481E;
+      --accent-light: #FAF2ED;
+      --gold: #D97706;
+      --primary: #087A58;
+      --radius-sm: 4px;
+      --radius: 8px;
+      --shadow-subtle: 0 4px 20px -4px rgba(23, 23, 23, 0.05);
+      --shadow-card-hover: 0 12px 30px -6px rgba(23, 23, 23, 0.08);
+      --shadow-drawer: -10px 0 40px rgba(23, 23, 23, 0.08);
+      --shadow-dropdown: 0 14px 35px rgba(23, 23, 23, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif; }
+    
+    body {
+      background-color: var(--bg-ivory);
+      color: var(--charcoal);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(247, 244, 239, 0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .header-top {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 28px;
+    }
+
+    .brand-block {
+      text-decoration: none;
+      color: var(--charcoal);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .search-container {
+      flex: 1;
+      max-width: 500px;
+      position: relative;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--gray-light);
+      border: 1px solid transparent;
+      padding: 11px 40px 11px 40px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      color: var(--charcoal);
+      outline: none;
+      transition: all 0.2s ease;
+      height: 42px;
+    }
+
+    .search-input:focus {
+      background: #FFFFFF;
+      border-color: #D6CFBE;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+    }
+
+    .search-icon-svg {
+      position: absolute;
+      left: 14px;
+      width: 15px;
+      height: 15px;
+      stroke: var(--gray-muted);
+      fill: none;
+      pointer-events: none;
+    }
+
+    .search-clear-btn {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      color: var(--gray-muted);
+      cursor: pointer;
+      display: none;
+      padding: 4px;
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      width: 100%;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-dropdown);
+      z-index: 100;
+      display: none;
+      overflow: hidden;
+    }
+
+    .search-dropdown-section-title {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--gray-muted);
+      padding: 10px 16px 4px;
+      background: #FAFAFA;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .search-dropdown-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.15s;
+    }
+    .search-dropdown-item:last-child { border-bottom: none; }
+    .search-dropdown-item:hover { background: var(--bg-ivory); }
+
+    .search-dropdown-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      object-fit: cover;
+      background: var(--gray-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #999;
+      flex-shrink: 0;
+    }
+
+    .search-dropdown-info {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .search-dropdown-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--charcoal);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .search-dropdown-sub {
+      font-size: 11px;
+      color: var(--gray-muted);
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .search-dropdown-price {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-left: 8px;
+    }
+
+    .search-dropdown-footer {
+      padding: 12px 16px;
+      background: #FAFAFA;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      cursor: pointer;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .btn-minimal {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--charcoal);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-minimal:hover {
+      background: var(--surface-card);
+      border-color: var(--charcoal);
+    }
+
+    .btn-cart {
+      background: var(--charcoal);
+      color: #FFFFFF;
+      border: 1px solid var(--charcoal);
+    }
+
+    .btn-cart:hover {
+      background: #000000;
+      color: #FFFFFF;
+    }
+
+    .cart-badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 9999px;
+      padding: 2px 6px;
+      margin-left: 2px;
+    }
+
+    .category-subnav {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 24px 12px;
+      display: flex;
+      gap: 22px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .category-subnav::-webkit-scrollbar { display: none; }
+
+    .cat-link {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--gray-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .cat-link:hover { color: var(--charcoal); }
+    .cat-link.active {
+      color: var(--charcoal);
+      font-weight: 700;
+      border-bottom-color: var(--accent);
+    }
+
+    /* 📱 2-ROW MOBILE HEADER */
+    @media (max-width: 768px) {
+      .header-top {
+        display: grid !important;
+        grid-template-columns: 1fr auto !important;
+        grid-template-rows: auto auto !important;
+        align-items: center !important;
+        gap: 12px 0 !important;
+        padding: 12px 16px !important;
+      }
+
+      .brand-block {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        justify-self: start !important;
+      }
+
+      .nav-actions {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        justify-self: end !important;
+        display: flex !important;
+        gap: 8px !important;
+      }
+
+      .btn-minimal {
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+      }
+
+      .search-container {
+        grid-column: 1 / -1 !important;
+        grid-row: 2 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+
+      .search-input {
+        width: 100% !important;
+        height: 44px !important;
+        font-size: 14px !important;
+        padding: 12px 40px 12px 42px !important;
+      }
+
+      .search-dropdown {
+        position: absolute !important;
+        top: calc(100% + 4px) !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-height: 65vh !important;
+        overflow-y: auto !important;
+      }
+
+      .category-subnav {
+        padding: 0 16px 10px !important;
+        gap: 16px !important;
+      }
+    }
+
+    /* MAIN CATALOGUE */
+    main {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .hero-section {
+      background: linear-gradient(to right, rgba(23, 23, 23, 0.82) 0%, rgba(23, 23, 23, 0.45) 100%), 
+                  url('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1600&auto=format&fit=crop') center/cover no-repeat;
+      color: #FFFFFF;
+      border-radius: var(--radius);
+      padding: 64px 48px;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-subtle);
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 700;
+      color: #E2D9CD;
+      margin-bottom: 12px;
+      display: inline-block;
+    }
+
+    .hero-section h1 {
+      font-size: 38px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+      max-width: 600px;
+    }
+
+    .hero-section p {
+      font-size: 16px;
+      color: #D6CEC3;
+      margin-bottom: 28px;
+      max-width: 480px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #FFFFFF;
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    .hero-cta:hover { background: var(--accent-hover); }
+
+    .section-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      text-transform: uppercase;
+    }
+
+    .section-count {
+      font-size: 13px;
+      color: var(--gray-muted);
+      font-weight: 500;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+    @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 28px; } }
+
+    .product-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .product-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-card-hover);
+      border-color: #D6CFBE;
+    }
+
+    .product-image-container {
+      width: 100%;
+      height: 180px;
+      background: #F3EFE9;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .product-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .product-image { transform: scale(1.03); }
+
+    .badge-origin {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(23, 23, 23, 0.88);
+      color: #FFFFFF;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 3px;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
+
+    .badge-new-arrival {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 3px 7px;
+      border-radius: 3px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .sourcing-lead-time {
+      font-size: 11px;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .product-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--charcoal);
+      margin-bottom: 6px;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 38px;
+    }
+
+    .rating-summary {
+      font-size: 11px;
+      color: var(--gray-muted);
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .star-icon { color: var(--gold); }
+
+    .product-description {
+      font-size: 12px;
+      color: var(--gray-muted);
+      margin-bottom: 12px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .product-card-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .price-and-btn-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .product-price-tag {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--charcoal);
+      letter-spacing: -0.3px;
+    }
+
+    .product-sourcing-origin {
+      font-size: 11px;
+      color: var(--gray-muted);
+      font-weight: 500;
+      letter-spacing: 0.1px;
+      margin-top: 2px;
+    }
+
+    .badge-trust-delivery {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      color: var(--charcoal-secondary);
+      background: #EFECE6;
+      padding: 3px 6px;
+      border-radius: 3px;
+      display: inline-block;
+      text-transform: uppercase;
+      width: fit-content;
+    }
+
+    .btn-add-item {
+      background: var(--gray-light);
+      color: var(--charcoal);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-add-item:hover {
+      background: var(--charcoal);
+      color: #FFFFFF;
+      border-color: var(--charcoal);
+    }
+
+    /* SLIDER & GALLERY STYLING */
+    .detail-gallery-container {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      background: #F3EFE9;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .detail-gallery-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(23, 23, 23, 0.7);
+      color: #fff;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 10;
+    }
+    .gallery-arrow.left { left: 10px; }
+    .gallery-arrow.right { right: 10px; }
+
+    .gallery-thumbs-row {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      margin-top: 10px;
+      padding-bottom: 6px;
+    }
+
+    .gallery-thumb-item {
+      width: 54px;
+      height: 54px;
+      border-radius: 4px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+      opacity: 0.6;
+      transition: all 0.2s;
+    }
+    .gallery-thumb-item.active {
+      border-color: var(--accent);
+      opacity: 1;
+    }
+
+    /* SUBURB AUTOCOMPLETE DROPDOWN */
+    .suburb-autocomplete-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .suburb-suggestions-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      z-index: 100;
+      max-height: 180px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .suburb-suggestion-row {
+      padding: 10px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--gray-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .suburb-suggestion-row:last-child { border-bottom: none; }
+    .suburb-suggestion-row:hover { background: var(--bg-ivory); }
+
+    /* BASKET DRAWER */
+    .cart-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(23, 23, 23, 0.45);
+      z-index: 50;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease;
+    }
+    .cart-backdrop.open { opacity: 1; visibility: visible; }
+
+    .cart-panel {
+      position: fixed;
+      top: 0;
+      right: -440px;
+      width: 100%;
+      max-width: 420px;
+      height: 100%;
+      background: var(--surface-card);
+      z-index: 51;
+      box-shadow: var(--shadow-drawer);
+      display: flex;
+      flex-direction: column;
+      transition: right 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .cart-backdrop.open .cart-panel { right: 0; }
+
+    .cart-panel-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cart-panel-header h3 { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .btn-close-drawer {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      color: var(--gray-muted);
+      cursor: pointer;
+    }
+
+    .cart-items-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .cart-item-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+
+    .cart-item-name { font-size: 13px; font-weight: 600; color: var(--charcoal); }
+    .cart-item-price { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 2px; }
+
+    .cart-qty-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-ivory);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 2px 8px;
+    }
+
+    .cart-qty-toggle button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--charcoal);
+    }
+
+    .cart-checkout-panel {
+      padding: 24px;
+      border-top: 1px solid var(--border-subtle);
+      background: #FAFAFA;
+    }
+
+    .receipt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--gray-muted); }
+    .receipt-total { display: flex; justify-content: space-between; font-size: 17px; font-weight: 800; margin: 12px 0 18px; color: var(--charcoal); padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+
+    .btn-solid-checkout {
+      width: 100%;
+      background: var(--accent);
+      color: #FFFFFF;
+      border: none;
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-solid-checkout:hover { background: var(--accent-hover); }
+
+    /* MODAL SYSTEM */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(23, 23, 23, 0.5);
+      z-index: 60;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      visibility: hidden;
+      transition: 0.2s ease;
+    }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+
+    .modal-window {
+      background: var(--surface-card);
+      width: 100%;
+      max-width: 480px;
+      border-radius: var(--radius);
+      padding: 28px;
+      position: relative;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+    }
+    .modal-window.wide { max-width: 760px; }
+
+    .modal-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+
+    .modal-header-row h3 { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-field-group { margin-bottom: 14px; }
+    .form-field-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.4px; }
+    
+    .input-clean {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      outline: none;
+      background: #FFFFFF;
+    }
+    .input-clean:focus { border-color: var(--charcoal); }
+
+    .order-tab-nav {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+    }
+    .order-tab-btn {
+      background: transparent;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-muted);
+      cursor: pointer;
+      padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+    }
+    .order-tab-btn.active {
+      color: var(--charcoal);
+      border-bottom-color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* FOOTER */
+    footer {
+      background: var(--bg-ivory);
+      border-top: 1px solid var(--border-subtle);
+      padding: 40px 24px 60px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--gray-muted);
+      margin-top: auto;
+    }
+
+    .footer-links-row {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 13px;
+    }
+
+    .footer-link-item {
+      color: var(--gray-muted);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    /* FULL SCREEN DETAIL VIEW */
+    #productDetailModal { padding: 0 !important; }
+    #productDetailModal .modal-window {
+      max-width: 100% !important;
+      width: 100% !important;
+      height: 100% !important;
+      max-height: 100vh !important;
+      border-radius: 0 !important;
+      padding: 24px 20px 60px !important;
+      background: var(--surface-card);
+    }
+
+    #productDetailModal .btn-close-drawer {
+      font-size: 24px !important;
+      font-weight: 700 !important;
+      color: var(--charcoal) !important;
+      background: var(--gray-light) !important;
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      border: 1px solid var(--border-subtle) !important;
+    }
+
+    @media (min-width: 768px) {
+      #pDetailGrid {
+        grid-template-columns: 1.1fr 1fr !important;
+        gap: 40px !important;
+        max-width: 1100px !important;
+        margin: 0 auto !important;
+        padding-top: 20px !important;
+      }
+      #productDetailModal .modal-header-row {
+        max-width: 1100px !important;
+        margin: 0 auto 20px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <div class="brand-block" onclick="filterCategory('cat-all')">
+        <img src="/logo.png" alt="MP Market" style="height: 38px; width: auto; object-fit: contain; display: block;">
+      </div>
+
+      <div class="search-container">
+        <div class="search-input-wrapper">
+          <svg class="search-icon-svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="What are you looking for?" oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)">
+          <button id="searchClearBtn" class="search-clear-btn" onclick="clearSearchInput()">✕</button>
+        </div>
+
+        <div id="searchDropdown" class="search-dropdown">
+          <div class="search-dropdown-section-title">Matching Products</div>
+          <div id="searchDropdownList"></div>
+          <div class="search-dropdown-footer" id="searchDropdownFooter" onclick="commitFullSearch()">View all results ➔</div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn-minimal" onclick="openMyOrdersModal()">My Orders</button>
+        <button class="btn-minimal btn-cart" onclick="toggleCart(true)">
+          Basket <span class="cart-badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+
+    <nav class="category-subnav" id="categorySubnav"></nav>
+  </header>
+
+  <main>
+    <section class="hero-section" id="heroSection">
+      <span class="hero-eyebrow">Local Sourcing Concierge</span>
+      <h1>Quality products.<br>Sourced locally.</h1>
+      <p>Browse carefully curated hardware, electronics, gaming gear, and homeware sourced close to home.</p>
+      <a class="hero-cta" onclick="document.getElementById('catalogArea').scrollIntoView({ behavior: 'smooth' })">Shop the catalogue →</a>
+    </section>
+
+    <div id="catalogArea">
+      <div class="section-meta">
+        <h2 class="section-title" id="catalogTitle">Catalogue</h2>
+        <span class="section-count" id="productCount"></span>
+      </div>
+
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+  </main>
+
+  <footer>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; max-width: 640px; width: 100%; margin: 0 auto; padding: 0 16px;">
+      <img src="/footer-badge.png" alt="Mitchell's Plain Marketplace" style="width: 100%; max-width: 580px; height: auto; object-fit: contain; border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin-bottom: 24px;">
+      <div class="footer-links-row">
+        <span class="footer-link-item" onclick="openReturnsModal()">🇿🇦 Warranty & Returns</span>
+        <span style="color: var(--border-subtle);">·</span>
+        <span class="footer-link-item" onclick="openTermsModal()">Sourcing & Delivery Terms</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FULL SCREEN PRODUCT DETAIL & MULTI-PHOTO SLIDER -->
+  <div class="modal-backdrop" id="productDetailModal">
+    <div class="modal-window wide">
+      <div class="modal-header-row">
+        <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--accent);" id="pDetailCategory">Product Overview</span>
+        <button class="btn-close-drawer" onclick="closeModal('productDetailModal')">&times;</button>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr; gap: 24px;" id="pDetailGrid">
+        <div>
+          <div class="detail-gallery-container">
+            <button class="gallery-arrow left" id="galleryPrevBtn" onclick="slideGallery(-1)">❮</button>
+            <img id="pDetailMainImg" class="detail-gallery-img" src="" alt="Product">
+            <button class="gallery-arrow right" id="galleryNextBtn" onclick="slideGallery(1)">❯</button>
+          </div>
+          <div class="gallery-thumbs-row" id="pDetailThumbsRow"></div>
+        </div>
+
+        <div>
+          <div style="font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; margin-bottom: 4px;" id="pDetailLeadTime">⚡ Dispatched in 24h</div>
+          <h2 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;" id="pDetailName">Product Name</h2>
+          
+          <div style="display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px;">
+            <span style="font-size: 22px; font-weight: 800;" id="pDetailPrice">R 0.00</span>
+            <span style="font-size: 12px; color: var(--gray-muted);" id="pDetailSupplier">Sourced from Local Partner</span>
+          </div>
+
+          <div class="badge-trust-delivery" style="margin-bottom: 16px;">Free Local Delivery Available</div>
+          <p style="font-size: 13px; color: var(--charcoal-secondary); line-height: 1.6; margin-bottom: 20px;" id="pDetailDesc"></p>
+
+          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px;">
+            <div class="cart-qty-toggle" style="padding: 6px 12px;">
+              <button onclick="updateDetailQty(-1)" style="font-size: 15px;">−</button>
+              <span id="detailQty" style="font-size: 14px; font-weight: 800;">1</span>
+              <button onclick="updateDetailQty(1)" style="font-size: 15px;">+</button>
+            </div>
+            <button class="btn-solid-checkout" id="detailAddToCartBtn" style="flex: 1;" onclick="addDetailToCart()">Add to Basket</button>
+          </div>
+
+          <hr style="border: none; border-top: 1px solid var(--border-subtle); margin-bottom: 18px;">
+          <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Customer Reviews</h3>
+          <div id="pDetailReviewsList" style="max-height: 140px; overflow-y: auto; margin-bottom: 16px;"></div>
+          <button class="btn-minimal" style="width: 100%; font-size: 12px;" onclick="openReviewPromptFromDetail()">+ Write a Review</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BASKET DRAWER -->
+  <div class="cart-backdrop" id="cartBackdrop" onclick="toggleCart(false)">
+    <div class="cart-panel" onclick="event.stopPropagation()">
+      <div class="cart-panel-header">
+        <h3>Your Basket</h3>
+        <button class="btn-close-drawer" onclick="toggleCart(false)">&times;</button>
+      </div>
+      <div class="cart-items-scroll" id="cartItemsList"></div>
+      <div class="cart-checkout-panel">
+        <div class="receipt-row"><span>Items Subtotal</span><span id="cartSubtotalLabel">R 0.00</span></div>
+        <div class="receipt-row"><span>Estimated Delivery</span><span>Calculated at checkout</span></div>
+        <div class="receipt-total"><span>Subtotal</span><span id="cartTotalLabel">R 0.00</span></div>
+        <button class="btn-solid-checkout" id="checkoutTriggerBtn" onclick="openCheckoutModal()">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT MODAL WITH LOCAL SUBURB AUTOCOMPLETE & ZONING -->
+  <div class="modal-backdrop" id="checkoutModal">
+    <div class="modal-window">
+      <div class="modal-header-row">
+        <h3>Delivery & Payment</h3>
+        <button class="btn-close-drawer" onclick="closeModal('checkoutModal')">&times;</button>
+      </div>
+      <form onsubmit="handleOrderSubmit(event)">
+        <div class="form-field-group">
+          <label>Full Name</label>
+          <input type="text" id="custName" class="input-clean" required placeholder="e.g. Sipho Nkosi">
+        </div>
+        <div class="form-field-group">
+          <label>Email Address</label>
+          <input type="email" id="custEmail" class="input-clean" required placeholder="e.g. sipho@example.com">
+        </div>
+        <div class="form-field-group">
+          <label>WhatsApp Contact (074... or +27...)</label>
+          <input type="tel" id="custWhatsapp" class="input-clean" required placeholder="e.g. 074 123 4567">
+        </div>
+
+        <!-- ADDRESS FORM LAYOUT -->
+        <div class="form-field-group">
+          <label>Street Address</label>
+          <input type="text" id="custStreet" class="input-clean" required placeholder="House number and street name">
+        </div>
+
+        <div class="form-field-group">
+          <label>Suburb / Area</label>
+          <div class="suburb-autocomplete-wrapper">
+            <input type="text" id="custSuburbInput" class="input-clean" autocomplete="off" required placeholder="Start typing suburb (e.g. Mitchells Plain, Ottery, Retreat...)" oninput="handleSuburbInput(event)">
+            <div id="suburbSuggestionsList" class="suburb-suggestions-dropdown"></div>
+          </div>
+          <div id="dispatchBadge" style="display:none; font-size:11px; font-weight:700; color:var(--primary); margin-top:6px;">🚗 Dispatched within 24 Hours</div>
+        </div>
+
+        <div class="form-field-group">
+          <label>City</label>
+          <input type="text" id="custCity" class="input-clean" value="Cape Town" readonly style="background:var(--gray-light); cursor:not-allowed; font-weight:700;">
+        </div>
+
+        <!-- COLLECTION RESTRICTION NOTICE BOX -->
+        <div id="collectionNoticeBox" style="display:none; background:#FEF3C7; border:1px solid #F59E0B; padding:12px; border-radius:var(--radius-sm); margin-bottom:14px; font-size:12px; color:#92400E; line-height:1.5;"></div>
+        
+        <div style="background:var(--bg-ivory); border:1px solid var(--border-subtle); padding:14px; border-radius:var(--radius-sm); margin-bottom:18px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:var(--gray-muted);"><span>Items:</span><strong id="modalSubtotal">R 0.00</strong></div>
+          <div style="display:flex; justify-content:space-between; margin-bottom:4px; color:var(--gray-muted);"><span>Delivery:</span><strong id="modalDelivery">Select Suburb</strong></div>
+          <hr style="border:none; border-top:1px solid var(--border-subtle); margin:8px 0;">
+          <div style="display:flex; justify-content:space-between; font-weight:800; font-size:15px; color:var(--charcoal);"><span>Total to Pay:</span><span id="modalTotal">R 0.00</span></div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 20px; font-size: 12px; color: var(--charcoal-secondary); line-height: 1.45;">
+          <input type="checkbox" id="termsConsentCheckbox" required style="margin-top: 3px; accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;">
+          <label for="termsConsentCheckbox" style="cursor: pointer;">
+            I agree to the <strong>Sourcing & Delivery Terms</strong>: Orders are sourced live from local shops. If an item is out of stock, it will be fully refunded. <span onclick="openTermsModal()" style="color: var(--accent); font-weight: 700; text-decoration: underline; cursor: pointer;">[Read Terms]</span>
+          </label>
+        </div>
+
+        <button type="submit" class="btn-solid-checkout" id="orderSubmitBtn">Pay with Card / Apple Pay</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MY ORDERS MODAL -->
+  <div class="modal-backdrop" id="myOrdersModal">
+    <div class="modal-window">
+      <div class="modal-header-row">
+        <h3>My Orders</h3>
+        <button class="btn-close-drawer" onclick="closeModal('myOrdersModal')">&times;</button>
+      </div>
+      <div class="form-field-group">
+        <label>WhatsApp Contact Number</label>
+        <div style="display:flex; gap:8px;">
+          <input type="tel" id="trackPhoneInput" class="input-clean" placeholder="0741234567">
+          <button class="btn-minimal" style="background:var(--charcoal); color:#fff;" onclick="loadCustomerOrders()">Sync</button>
+        </div>
+      </div>
+      <div class="order-tab-nav">
+        <button class="order-tab-btn active" id="btnActiveOrders" onclick="switchCustomerOrderTab('active')">Active Orders</button>
+        <button class="order-tab-btn" id="btnCompletedOrders" onclick="switchCustomerOrderTab('completed')">Completed Orders</button>
+      </div>
+      <div id="customerActiveOrdersContainer"></div>
+      <div id="customerCompletedOrdersContainer" style="display:none;"></div>
+      <div id="clearCompletedBtnArea" style="display:none; margin-top:14px;">
+        <button onclick="clearCompletedHistory()" class="btn-minimal" style="color:var(--gray-muted); width:100%; font-size:11px;">Clear Completed History From Device</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REVIEWS MODAL -->
+  <div class="modal-backdrop" id="reviewsModal">
+    <div class="modal-window">
+      <div class="modal-header-row">
+        <h3 id="reviewsProdTitle">Customer Feedback</h3>
+        <button class="btn-close-drawer" onclick="closeModal('reviewsModal')">&times;</button>
+      </div>
+      <form onsubmit="submitReview(event)">
+        <input type="hidden" id="reviewProdId">
+        <div class="form-field-group"><label>Your Name</label><input type="text" id="revName" class="input-clean" required placeholder="e.g. Thabo"></div>
+        <div class="form-field-group">
+          <label>Rating</label>
+          <select id="revRating" class="input-clean">
+            <option value="5">★★★★★ (5/5)</option><option value="4">★★★★☆ (4/5)</option><option value="3">★★★☆☆ (3/5)</option><option value="2">★★☆☆☆ (2/5)</option><option value="1">★☆☆☆☆ (1/5)</option>
+          </select>
+        </div>
+        <div class="form-field-group"><label>Comments</label><textarea id="revComment" class="input-clean" rows="2" required placeholder="Share your experience..."></textarea></div>
+        <button type="submit" class="btn-solid-checkout" style="padding:10px;">Post Review</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- WARRANTY & RETURNS MODAL -->
+  <div class="modal-backdrop" id="returnsModal">
+    <div class="modal-window wide">
+      <div class="modal-header-row">
+        <h3>Warranty & Returns</h3>
+        <button class="btn-close-drawer" onclick="closeModal('returnsModal')">&times;</button>
+      </div>
+      <div style="font-size:13px; color:var(--charcoal-secondary); line-height:1.6; max-height:60vh; overflow-y:auto; padding-right:8px;">
+        <h4 style="font-size:14px; font-weight:800; color:var(--charcoal); margin-bottom:4px;">1. Consumer Protection Act (CPA) Compliance</h4>
+        <p style="margin-bottom:12px;">MP Market's Returns Policy operates in accordance with the Consumer Protection Act, 2008 (CPA), and applicable South African consumer-protection legislation.</p>
+        <h4 style="font-size:14px; font-weight:800; color:var(--charcoal); margin-bottom:4px;">2. Returns & Defective Goods</h4>
+        <p><strong>Incorrectly Supplied Goods:</strong> Collection arranged at no additional delivery cost.<br><strong>Defective Goods:</strong> Inspected for statutory remedies (repair, replacement or refund).<br><strong>Supplier Warranty:</strong> Applicable manufacturer warranty terms apply.</p>
+        <h4 style="font-size:14px; font-weight:800; color:var(--charcoal); margin-bottom:4px; margin-top:12px;">3. Exclusions</h4>
+        <p>Misuse, negligence, electrical surges, normal wear & tear, or opened cosmetics and personal care body items.</p>
+        <h4 style="font-size:14px; font-weight:800; color:var(--charcoal); margin-bottom:4px; margin-top:12px;">4. Important</h4>
+        <p>Warranty coverage and duration may differ depending on the product and supplier.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOURCING TERMS MODAL -->
+  <div class="modal-backdrop" id="termsModal">
+    <div class="modal-window wide">
+      <div class="modal-header-row">
+        <h3>Sourcing & Delivery Terms</h3>
+        <button class="btn-close-drawer" onclick="closeModal('termsModal')">&times;</button>
+      </div>
+      <div style="font-size:13px; color:var(--charcoal-secondary); line-height:1.65; max-height:60vh; overflow-y:auto; padding-right:8px;">
+        <h4 style="font-size:14px; font-weight:800; color:var(--charcoal); margin-bottom:6px;">mp-market - Sourcing & Delivery Terms</h4>
+        <p>1. <strong>Personal Concierge:</strong> mp-market acts as your personal shopper and delivery concierge in Mitchells Plain.<br>
+        2. <strong>Out of Stock:</strong> Unfulfilled items will be 100% refunded immediately.<br>
+        3. <strong>Delivery Fees:</strong> Earned upon execution of completed delivery run.<br>
+        4. <strong>Collection Policy:</strong> Designated safety zones operate on a collection-only arrangement.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // ZONING & PRICING DATA
+    // -------------------------------------------------------------
+    const SUBURB_DATA = {
+      // Zone 1 (R30 Delivery)
+      "Mitchells Plain": { zone: 1, fee: 30, type: "delivery" },
+      "Strandfontein": { zone: 1, fee: 30, type: "delivery" },
+      "Wavecrest": { zone: 1, fee: 30, type: "delivery" },
+      "Bayview": { zone: 1, fee: 30, type: "delivery" },
+      "Colorado Park": { zone: 1, fee: 30, type: "delivery" },
+      "Lentegeur": { zone: 1, fee: 30, type: "delivery" },
+      "Rocklands": { zone: 1, fee: 30, type: "delivery" },
+      "Tafelsig": { zone: 1, fee: 30, type: "delivery" },
+      "Beacon Valley": { zone: 1, fee: 30, type: "delivery" },
+      "Eastridge": { zone: 1, fee: 30, type: "delivery" },
+      "Woodlands": { zone: 1, fee: 30, type: "delivery" },
+      "Westridge": { zone: 1, fee: 30, type: "delivery" },
+      "Portland": { zone: 1, fee: 30, type: "delivery" },
+      "Philippi East": { zone: 1, fee: 30, type: "delivery" },
+      "Mandalay": { zone: 1, fee: 30, type: "delivery" },
+      "Pelican Park": { zone: 1, fee: 30, type: "delivery" },
+
+      // Zone 2 (R55 Delivery)
+      "Ottery": { zone: 2, fee: 55, type: "delivery" },
+      "Kenwyn": { zone: 2, fee: 55, type: "delivery" },
+      "Wetton": { zone: 2, fee: 55, type: "delivery" },
+      "Lansdowne": { zone: 2, fee: 55, type: "delivery" },
+      "Rondebosch East": { zone: 2, fee: 55, type: "delivery" },
+      "Athlone": { zone: 2, fee: 55, type: "delivery" },
+      "Crawford": { zone: 2, fee: 55, type: "delivery" },
+      "Rylands": { zone: 2, fee: 55, type: "delivery" },
+      "Gatesville": { zone: 2, fee: 55, type: "delivery" },
+      "Belgravia": { zone: 2, fee: 55, type: "delivery" },
+      "Primrose Park": { zone: 2, fee: 55, type: "delivery" },
+      "Hanover Park": { zone: 2, fee: 55, type: "delivery" },
+      "Heideveld": { zone: 2, fee: 55, type: "delivery" },
+      "Eagle Park": { zone: 2, fee: 55, type: "delivery" },
+      "Lotus River": { zone: 2, fee: 55, type: "delivery" },
+      "Grassy Park": { zone: 2, fee: 55, type: "delivery" },
+      "Parkwood": { zone: 2, fee: 55, type: "delivery" },
+      "Seawinds": { zone: 2, fee: 55, type: "delivery" },
+      "Vrygrond": { zone: 2, fee: 55, type: "delivery" },
+      "Mfuleni": { zone: 2, fee: 55, type: "delivery" },
+      "Blue Downs": { zone: 2, fee: 55, type: "delivery" },
+      "Eerste River": { zone: 2, fee: 55, type: "delivery" },
+
+      // Zone 3 (R75 Delivery)
+      "Claremont": { zone: 3, fee: 75, type: "delivery" },
+      "Kenilworth": { zone: 3, fee: 75, type: "delivery" },
+      "Wynberg": { zone: 3, fee: 75, type: "delivery" },
+      "Plumstead": { zone: 3, fee: 75, type: "delivery" },
+      "Southfield": { zone: 3, fee: 75, type: "delivery" },
+      "Diep River": { zone: 3, fee: 75, type: "delivery" },
+      "Heathfield": { zone: 3, fee: 75, type: "delivery" },
+      "Retreat": { zone: 3, fee: 75, type: "delivery" },
+      "Steenberg": { zone: 3, fee: 75, type: "delivery" },
+      "Elfindale": { zone: 3, fee: 75, type: "delivery" },
+      "Rondebosch": { zone: 3, fee: 75, type: "delivery" },
+      "Newlands": { zone: 3, fee: 75, type: "delivery" },
+      "Rosebank": { zone: 3, fee: 75, type: "delivery" },
+      "Mowbray": { zone: 3, fee: 75, type: "delivery" },
+      "Observatory": { zone: 3, fee: 75, type: "delivery" },
+      "Pinelands": { zone: 3, fee: 75, type: "delivery" },
+      "Bonteheuwel": { zone: 3, fee: 75, type: "delivery" },
+      "Bishop Lavis": { zone: 3, fee: 75, type: "delivery" },
+      "Belhar": { zone: 3, fee: 75, type: "delivery" },
+      "Parow": { zone: 3, fee: 75, type: "delivery" },
+      "Goodwood": { zone: 3, fee: 75, type: "delivery" },
+      "Bellville": { zone: 3, fee: 75, type: "delivery" },
+      "Kuils River": { zone: 3, fee: 75, type: "delivery" },
+      "Cape Town CBD": { zone: 3, fee: 75, type: "delivery" },
+      "Strand": { zone: 3, fee: 75, type: "delivery" },
+
+      // COLLECTION ONLY ZONE (R0)
+      "Khayelitsha": { zone: 0, fee: 0, type: "collection" },
+      "Manenberg": { zone: 0, fee: 0, type: "collection" },
+      "Gugulethu": { zone: 0, fee: 0, type: "collection" },
+      "Nyanga": { zone: 0, fee: 0, type: "collection" },
+      "New Crossroads": { zone: 0, fee: 0, type: "collection" },
+      "Samora Machel": { zone: 0, fee: 0, type: "collection" },
+      "Browns Farm": { zone: 0, fee: 0, type: "collection" },
+      "Eisleben": { zone: 0, fee: 0, type: "collection" },
+      "Capricorn": { zone: 0, fee: 0, type: "collection" },
+      "Lavender Hill": { zone: 0, fee: 0, type: "collection" },
+      "Delft": { zone: 0, fee: 0, type: "collection" },
+      "Elsies River": { zone: 0, fee: 0, type: "collection" },
+      "Matroosfontein": { zone: 0, fee: 0, type: "collection" }
+    };
+
+    let categories = [], products = [], cart = [];
+    let selectedCategory = 'cat-all';
+    let currentDetailProduct = null;
+    let currentDetailQuantity = 1;
+    let currentGalleryIndex = 0;
+    let currentGalleryImages = [];
+    let selectedSuburbInfo = null;
+    let searchDebounceTimer = null;
+
+    const cleanCategoryMap = {
+      'cat-all': 'All Products',
+      'cat-new-arrivals': 'New Arrivals',
+      'cat-electronics': 'Electronics',
+      'cat-home': 'Home & Living',
+      'cat-hardware': 'Hardware & DIY',
+      'cat-gaming': 'Gaming',
+      'cat-beauty': 'Personal Care',
+      'cat-clothing': 'Clothing',
+      'cat-gifts': 'Gifts & More'
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      loadCart();
+      await fetchCategories();
+      await fetchProducts();
+      autoPopulateCustomer();
+      checkPaymentReturn();
+
+      document.addEventListener('click', (e) => {
+        const searchBox = document.querySelector('.search-container');
+        if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
+
+        const suburbBox = document.querySelector('.suburb-autocomplete-wrapper');
+        if (suburbBox && !suburbBox.contains(e.target)) {
+          document.getElementById('suburbSuggestionsList').style.display = 'none';
+        }
+      });
+    });
+
+    async function checkPaymentReturn() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentStatus = urlParams.get('payment');
+      const orderNumber = urlParams.get('order');
+
+      if (paymentStatus === 'success' && orderNumber) {
+        cart = [];
+        saveCart();
+        try {
+          await fetch('/api/orders/confirm-payment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_number: orderNumber })
+          });
+          alert(`🎉 Payment Successful!\nYour Order Number is #${orderNumber}.\nA confirmation receipt has been emailed to you.`);
+          openMyOrdersModal();
+        } catch (err) {}
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    async function fetchCategories() {
+      try {
+        const res = await fetch('/api/categories');
+        categories = await res.json();
+        renderCategories();
+      } catch (e) {
+        categories = Object.keys(cleanCategoryMap).map(id => ({ id, name: cleanCategoryMap[id] }));
+        renderCategories();
+      }
+    }
+
+    function renderCategories() {
+      const nav = document.getElementById('categorySubnav');
+      nav.innerHTML = categories.map(c => {
+        const cleanName = cleanCategoryMap[c.id] || c.name.replace(/[^a-zA-Z &]/g, '').trim();
+        return `
+          <button class="cat-link ${c.id === selectedCategory ? 'active' : ''}" onclick="filterCategory('${c.id}')">
+            ${c.id === 'cat-new-arrivals' ? '✨ ' : ''}${cleanName}
+          </button>
+        `;
+      }).join('');
+    }
+
+    async function fetchProducts() {
+      try {
+        const query = document.getElementById('searchInput').value.trim();
+        let url = `/api/products`;
+
+        if (query) {
+          url += `?search=${encodeURIComponent(query)}`;
+          document.getElementById('catalogTitle').innerText = `Search results for "${query}"`;
+        } else if (selectedCategory === 'cat-new-arrivals') {
+          url += `?new_arrivals=1`;
+          document.getElementById('catalogTitle').innerText = `New Arrivals`;
+        } else {
+          url += `?category=${selectedCategory}`;
+          document.getElementById('catalogTitle').innerText = selectedCategory === 'cat-all' ? 'Catalogue' : (cleanCategoryMap[selectedCategory] || 'Catalogue');
+        }
+
+        const res = await fetch(url);
+        products = await res.json();
+        renderProducts();
+      } catch (e) {}
+    }
+
+    function parseProductImages(imgUrl) {
+      if (!imgUrl) return [];
+      try {
+        if (imgUrl.startsWith('[')) return JSON.parse(imgUrl);
+      } catch (e) {}
+      return [imgUrl];
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      document.getElementById('productCount').innerText = `${products.length} products`;
+
+      if (products.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 60px 20px; background:var(--surface-card); border:1px solid var(--border-subtle); border-radius:var(--radius);">No products found in this selection.</div>`;
+        return;
+      }
+
+      grid.innerHTML = products.map(p => {
+        const imgs = parseProductImages(p.image_url);
+        const primaryImg = imgs.length > 0 ? imgs[0] : '';
+        return `
+          <div class="product-card" onclick="openProductDetail('${p.id}')">
+            <div class="product-image-container">
+              <span class="badge-origin">Local Sourcing</span>
+              ${p.is_new_arrival ? '<span class="badge-new-arrival">✨ New</span>' : ''}
+              ${primaryImg ? `<img src="${primaryImg}" class="product-image" alt="${p.name}">` : '<span style="font-size:20px; font-weight:800; color:#A3A3A3;">MP</span>'}
+            </div>
+            <div class="sourcing-lead-time">⚡ ${p.sourcing_time || 'Dispatched in 24h'}</div>
+            <h3 class="product-name">${p.name}</h3>
+            <div class="rating-summary">
+              <span class="star-icon">★</span> <span>${p.avg_rating ? Number(p.avg_rating).toFixed(1) : '5.0'} (${p.review_count || 0})</span>
+            </div>
+            <p class="product-description">${p.description || 'Quality locally sourced product.'}</p>
+            <div class="product-card-footer">
+              <div class="price-and-btn-row">
+                <div>
+                  <div class="product-price-tag">R ${Number(p.price).toFixed(2)}</div>
+                  <div class="product-sourcing-origin">Sourced from ${p.supplier_name || 'Local Partner'}</div>
+                </div>
+                <button class="btn-add-item" onclick="event.stopPropagation(); addToCart('${p.id}')" ${p.is_available === 0 ? 'disabled' : ''}>
+                  ${p.is_available === 1 ? '+ Add' : 'Unavailable'}
+                </button>
+              </div>
+              <div class="badge-trust-delivery">Free Local Delivery Available</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterCategory(id) {
+      selectedCategory = id;
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchClearBtn').style.display = 'none';
+      hideSearchDropdown();
+      renderCategories();
+      fetchProducts();
+    }
+
+    // MULTI-PHOTO GALLERY SLIDER
+    async function openProductDetail(productId) {
+      const p = products.find(x => x.id === productId);
+      if (!p) return;
+      currentDetailProduct = p;
+      currentDetailQuantity = 1;
+      document.getElementById('detailQty').innerText = '1';
+
+      document.getElementById('pDetailCategory').innerText = cleanCategoryMap[p.category_id] || 'Product Overview';
+      document.getElementById('pDetailName').innerText = p.name;
+      document.getElementById('pDetailLeadTime').innerText = `⚡ ${p.sourcing_time || 'Dispatched in 24h'}`;
+      document.getElementById('pDetailPrice').innerText = `R ${Number(p.price).toFixed(2)}`;
+      document.getElementById('pDetailSupplier').innerText = `Sourced from ${p.supplier_name || 'Local Partner'}`;
+      document.getElementById('pDetailDesc').innerText = p.description || 'Authentic locally sourced product.';
+
+      currentGalleryImages = parseProductImages(p.image_url);
+      currentGalleryIndex = 0;
+      updateGalleryDisplay();
+
+      document.getElementById('detailAddToCartBtn').disabled = p.is_available === 0;
+      document.getElementById('detailAddToCartBtn').innerText = p.is_available === 1 ? 'Add to Basket' : 'Unavailable';
+
+      const revsRes = await fetch(`/api/reviews/${p.id}`);
+      const revs = await revsRes.json();
+      const list = document.getElementById('pDetailReviewsList');
+      if (revs.length === 0) {
+        list.innerHTML = `<p style="font-size:12px; color:var(--gray-muted);">No reviews yet for this product.</p>`;
+      } else {
+        list.innerHTML = revs.map(r => `
+          <div style="margin-bottom:8px; padding-bottom:8px; border-bottom:1px solid var(--border-subtle); font-size:12px;">
+            <div style="display:flex; justify-content:space-between; font-weight:700;">
+              <span>${r.customer_name}</span>
+              <span style="color:var(--gold);">${'★'.repeat(r.rating)}</span>
+            </div>
+            <p style="color:var(--gray-muted); margin-top:2px;">"${r.comment}"</p>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('productDetailModal').classList.add('open');
+    }
+
+    function updateGalleryDisplay() {
+      const mainImg = document.getElementById('pDetailMainImg');
+      const prevBtn = document.getElementById('galleryPrevBtn');
+      const nextBtn = document.getElementById('galleryNextBtn');
+      const thumbsRow = document.getElementById('pDetailThumbsRow');
+
+      if (currentGalleryImages.length > 0) {
+        mainImg.src = currentGalleryImages[currentGalleryIndex];
+        mainImg.style.display = 'block';
+      } else {
+        mainImg.style.display = 'none';
+      }
+
+      if (currentGalleryImages.length > 1) {
+        prevBtn.style.display = 'flex';
+        nextBtn.style.display = 'flex';
+        thumbsRow.innerHTML = currentGalleryImages.map((src, idx) => `
+          <img src="${src}" class="gallery-thumb-item ${idx === currentGalleryIndex ? 'active' : ''}" onclick="setGalleryIndex(${idx})">
+        `).join('');
+        thumbsRow.style.display = 'flex';
+      } else {
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        thumbsRow.style.display = 'none';
+      }
+    }
+
+    function slideGallery(delta) {
+      if (currentGalleryImages.length <= 1) return;
+      currentGalleryIndex = (currentGalleryIndex + delta + currentGalleryImages.length) % currentGalleryImages.length;
+      updateGalleryDisplay();
+    }
+
+    function setGalleryIndex(idx) {
+      currentGalleryIndex = idx;
+      updateGalleryDisplay();
+    }
+
+    function updateDetailQty(delta) {
+      currentDetailQuantity = Math.max(1, currentDetailQuantity + delta);
+      document.getElementById('detailQty').innerText = currentDetailQuantity;
+    }
+
+    function addDetailToCart() {
+      if (!currentDetailProduct || currentDetailProduct.is_available === 0) return;
+      const ex = cart.find(x => x.id === currentDetailProduct.id);
+      if (ex) ex.quantity += currentDetailQuantity;
+      else cart.push({ id: currentDetailProduct.id, name: currentDetailProduct.name, price: currentDetailProduct.price, quantity: currentDetailQuantity });
+      saveCart();
+      closeModal('productDetailModal');
+      toggleCart(true);
+    }
+
+    function openReviewPromptFromDetail() {
+      if (!currentDetailProduct) return;
+      document.getElementById('reviewProdId').value = currentDetailProduct.id;
+      document.getElementById('reviewsProdTitle').innerText = currentDetailProduct.name;
+      document.getElementById('reviewsModal').classList.add('open');
+    }
+
+    // -------------------------------------------------------------
+    // SUBURB AUTOCOMPLETE & DYNAMIC ZONING ENGINE
+    // -------------------------------------------------------------
+    function handleSuburbInput(e) {
+      const val = e.target.value.trim().toLowerCase();
+      const list = document.getElementById('suburbSuggestionsList');
+
+      if (!val) {
+        list.style.display = 'none';
+        selectedSuburbInfo = null;
+        updateCheckoutTotals();
+        return;
+      }
+
+      const matches = Object.keys(SUBURB_DATA).filter(sub => sub.toLowerCase().includes(val));
+
+      if (matches.length === 0) {
+        list.innerHTML = `<div style="padding:10px 14px; font-size:12px; color:var(--gray-muted);">No matching Cape Town area found. Please select from valid zones.</div>`;
+        list.style.display = 'block';
+        selectedSuburbInfo = null;
+        updateCheckoutTotals();
+        return;
+      }
+
+      list.innerHTML = matches.map(suburb => {
+        const info = SUBURB_DATA[suburb];
+        const label = info.type === 'collection' ? 'Collection Only (R0)' : `Zone ${info.zone} (R${info.fee})`;
+        return `
+          <div class="suburb-suggestion-row" onclick="selectSuburb('${suburb.replace(/'/g, "\\'")}')">
+            <span>${suburb}</span>
+            <span style="font-size:11px; font-weight:700; color:${info.type === 'collection' ? '#92400E' : 'var(--accent)'};">${label}</span>
+          </div>
+        `;
+      }).join('');
+      list.style.display = 'block';
+    }
+
+    function selectSuburb(suburbName) {
+      document.getElementById('custSuburbInput').value = suburbName;
+      document.getElementById('suburbSuggestionsList').style.display = 'none';
+      selectedSuburbInfo = { name: suburbName, ...SUBURB_DATA[suburbName] };
+      updateCheckoutTotals();
+    }
+
+    function updateCheckoutTotals() {
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const dispatchBadge = document.getElementById('dispatchBadge');
+      const noticeBox = document.getElementById('collectionNoticeBox');
+      const deliveryLabel = document.getElementById('modalDelivery');
+      const totalLabel = document.getElementById('modalTotal');
+
+      if (!selectedSuburbInfo) {
+        dispatchBadge.style.display = 'none';
+        noticeBox.style.display = 'none';
+        deliveryLabel.innerText = 'Select Suburb';
+        totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
+        return;
+      }
+
+      if (selectedSuburbInfo.type === 'collection') {
+        dispatchBadge.style.display = 'none';
+        noticeBox.style.display = 'block';
+        noticeBox.innerHTML = `⚠️ <strong>Notice:</strong> We do not offer home delivery to <strong>${selectedSuburbInfo.name}</strong> due to logistical safety restrictions. This order will be processed for <strong>COLLECTION ONLY</strong> from Mitchells Plain. Please contact us via WhatsApp to arrange your collection time.`;
+        deliveryLabel.innerText = 'Collection Only (R 0.00)';
+        totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
+      } else {
+        noticeBox.style.display = 'none';
+        dispatchBadge.style.display = 'block';
+        dispatchBadge.innerText = '🚗 Dispatched within 24 Hours';
+        deliveryLabel.innerText = `Zone ${selectedSuburbInfo.zone} (R ${selectedSuburbInfo.fee.toFixed(2)})`;
+        totalLabel.innerText = `R ${(subtotal + selectedSuburbInfo.fee).toFixed(2)}`;
+      }
+    }
+
+    // CHECKOUT SUBMISSION
+    async function handleOrderSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('orderSubmitBtn');
+
+      if (!document.getElementById('termsConsentCheckbox').checked) {
+        alert('Please agree to the Sourcing & Delivery Terms.');
+        return;
+      }
+
+      if (!selectedSuburbInfo) {
+        alert('Please type and click a valid Suburb / Area from the suggestions list.');
+        return;
+      }
+
+      const name = document.getElementById('custName').value.trim();
+      const email = document.getElementById('custEmail').value.trim();
+      const rawPhone = document.getElementById('custWhatsapp').value.trim();
+      const street = document.getElementById('custStreet').value.trim();
+      const city = "Cape Town";
+
+      // NORMALIZE PHONE NUMBER (Auto-adds +27, removes 0)
+      let cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+      if (cleanPhone.startsWith('0')) cleanPhone = '27' + cleanPhone.slice(1);
+      else if (!cleanPhone.startsWith('27')) cleanPhone = '27' + cleanPhone;
+
+      const fullAddress = `${street}, ${selectedSuburbInfo.name}, ${city}`;
+      const deliveryFee = selectedSuburbInfo.type === 'collection' ? 0 : selectedSuburbInfo.fee;
+      const isCollection = selectedSuburbInfo.type === 'collection';
+
+      btn.disabled = true;
+      btn.innerText = 'Creating Secure Payment Session...';
+
+      try {
+        const res = await fetch('/api/orders/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_name: name,
+            customer_email: email,
+            customer_whatsapp: cleanPhone,
+            delivery_address: fullAddress,
+            delivery_fee: deliveryFee,
+            is_collection: isCollection,
+            items: cart.map(i => ({ id: i.id, quantity: i.quantity }))
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert('Checkout Error: ' + (data.error || 'Could not initiate checkout.'));
+          btn.disabled = false;
+          btn.innerText = 'Pay with Card / Apple Pay';
+          return;
+        }
+
+        localStorage.setItem('mp_customer_phone', cleanPhone);
+        localStorage.setItem('mp_customer_name', name);
+        localStorage.setItem('mp_customer_email', email);
+        localStorage.setItem('mp_customer_address', fullAddress);
+
+        btn.innerText = 'Redirecting to Yoco...';
+        window.location.href = data.redirect_url;
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = 'Pay with Card / Apple Pay';
+      }
+    }
+
+    // CART PERSISTENCE
+    function loadCart() {
+      try { cart = JSON.parse(localStorage.getItem('mp_cart') || '[]'); } catch (e) { cart = []; }
+      updateCartUI();
+    }
+    function saveCart() {
+      localStorage.setItem('mp_cart', JSON.stringify(cart));
+      updateCartUI();
+    }
+    window.addEventListener('storage', (e) => { if (e.key === 'mp_cart') loadCart(); });
+
+    function addToCart(id) {
+      const p = products.find(x => x.id === id);
+      if (!p || p.is_available === 0) return;
+      const ex = cart.find(x => x.id === id);
+      if (ex) ex.quantity += 1;
+      else cart.push({ id: p.id, name: p.name, price: p.price, quantity: 1 });
+      saveCart();
+      toggleCart(true);
+    }
+
+    function updateCartQty(id, d) {
+      const it = cart.find(x => x.id === id);
+      if (!it) return;
+      it.quantity += d;
+      if (it.quantity <= 0) cart = cart.filter(x => x.id !== id);
+      saveCart();
+    }
+
+    function updateCartUI() {
+      const totalCount = cart.reduce((s, i) => s + i.quantity, 0);
+      document.getElementById('cartCount').innerText = totalCount;
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+
+      document.getElementById('cartSubtotalLabel').innerText = `R ${subtotal.toFixed(2)}`;
+      document.getElementById('cartTotalLabel').innerText = `R ${subtotal.toFixed(2)}`;
+
+      const container = document.getElementById('cartItemsList');
+      if (cart.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:50px 0; color:var(--gray-muted); font-size:13px;">Your basket is empty.</div>`;
+        document.getElementById('checkoutTriggerBtn').disabled = true;
+        return;
+      }
+
+      document.getElementById('checkoutTriggerBtn').disabled = false;
+      container.innerHTML = cart.map(i => `
+        <div class="cart-item-row">
+          <div style="flex:1;">
+            <div class="cart-item-name">${i.name}</div>
+            <div class="cart-item-price">R ${Number(i.price).toFixed(2)}</div>
+          </div>
+          <div class="cart-qty-toggle">
+            <button onclick="updateCartQty('${i.id}', -1)">−</button>
+            <span style="font-size:12px; font-weight:700;">${i.quantity}</span>
+            <button onclick="updateCartQty('${i.id}', 1)">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleCart(open) { document.getElementById('cartBackdrop').classList.toggle('open', open); }
+
+    function openCheckoutModal() {
+      toggleCart(false);
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      document.getElementById('modalSubtotal').innerText = `R ${subtotal.toFixed(2)}`;
+      document.getElementById('termsConsentCheckbox').checked = false;
+      updateCheckoutTotals();
+      document.getElementById('checkoutModal').classList.add('open');
+    }
+
+    function autoPopulateCustomer() {
+      const phone = localStorage.getItem('mp_customer_phone');
+      const name = localStorage.getItem('mp_customer_name');
+      const email = localStorage.getItem('mp_customer_email');
+      if (phone) {
+        document.getElementById('custWhatsapp').value = phone;
+        document.getElementById('trackPhoneInput').value = phone;
+      }
+      if (name) document.getElementById('custName').value = name;
+      if (email) document.getElementById('custEmail').value = email;
+    }
+
+    function openMyOrdersModal() {
+      document.getElementById('myOrdersModal').classList.add('open');
+      const phone = localStorage.getItem('mp_customer_phone');
+      if (phone) {
+        document.getElementById('trackPhoneInput').value = phone;
+        loadCustomerOrders();
+      }
+    }
+
+    function switchCustomerOrderTab(tab) {
+      document.getElementById('btnActiveOrders').classList.toggle('active', tab === 'active');
+      document.getElementById('btnCompletedOrders').classList.toggle('active', tab === 'completed');
+      document.getElementById('customerActiveOrdersContainer').style.display = tab === 'active' ? 'block' : 'none';
+      document.getElementById('customerCompletedOrdersContainer').style.display = tab === 'completed' ? 'block' : 'none';
+      document.getElementById('clearCompletedBtnArea').style.display = tab === 'completed' ? 'block' : 'none';
+    }
+
+    async function loadCustomerOrders() {
+      let phone = document.getElementById('trackPhoneInput').value.trim().replace(/[^0-9]/g, '');
+      if (phone.startsWith('0')) phone = '27' + phone.slice(1);
+      else if (!phone.startsWith('27')) phone = '27' + phone;
+
+      const res = await fetch(`/api/orders/customer/${encodeURIComponent(phone)}`);
+      const orders = await res.json();
+
+      const clearedIds = JSON.parse(localStorage.getItem('mp_cleared_orders') || '[]');
+      const visibleOrders = orders.filter(o => !clearedIds.includes(o.id));
+      const activeOrders = visibleOrders.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled');
+      const completedOrders = visibleOrders.filter(o => o.status === 'Delivered' || o.status === 'Cancelled');
+
+      const activeContainer = document.getElementById('customerActiveOrdersContainer');
+      const completedContainer = document.getElementById('customerCompletedOrdersContainer');
+
+      activeContainer.innerHTML = activeOrders.length === 0 ? `<p style="font-size:13px; color:var(--gray-muted); padding:10px 0;">No active orders in progress.</p>` : activeOrders.map(o => `
+        <div style="background:var(--bg-ivory); border:1px solid var(--border-subtle); padding:14px; border-radius:var(--radius-sm); margin-bottom:12px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; font-weight:800;">
+            <span>${o.order_number}</span>
+            <span style="color:var(--accent);">${o.status}</span>
+          </div>
+          <div style="color:var(--gray-muted); margin:4px 0;">Total: R ${Number(o.total_amount).toFixed(2)} (Delivery: ${o.delivery_fee === 0 ? 'Collection' : 'R ' + Number(o.delivery_fee).toFixed(2)})</div>
+          <div style="font-size:12px;">Items: ${o.items.map(i => `${i.quantity}x ${i.product_name}`).join(', ')}</div>
+        </div>
+      `).join('');
+
+      completedContainer.innerHTML = completedOrders.length === 0 ? `<p style="font-size:13px; color:var(--gray-muted); padding:10px 0;">No completed orders on this device.</p>` : completedOrders.map(o => `
+        <div style="background:#FAFAFA; border:1px solid var(--border-subtle); padding:14px; border-radius:var(--radius-sm); margin-bottom:12px; font-size:13px;">
+          <div style="display:flex; justify-content:space-between; font-weight:800;">
+            <span>${o.order_number}</span>
+            <span style="color:#137333;">✓ Delivered</span>
+          </div>
+          <div style="color:var(--gray-muted); margin:4px 0;">Total: R ${Number(o.total_amount).toFixed(2)}</div>
+        </div>
+      `).join('');
+    }
+
+    function clearCompletedHistory() {
+      if (!confirm('Clear completed orders history from this device?')) return;
+      let phone = document.getElementById('trackPhoneInput').value.trim().replace(/[^0-9]/g, '');
+      if (phone.startsWith('0')) phone = '27' + phone.slice(1);
+      fetch(`/api/orders/customer/${encodeURIComponent(phone)}`)
+        .then(r => r.json())
+        .then(orders => {
+          const completedIds = orders.filter(o => o.status === 'Delivered' || o.status === 'Cancelled').map(o => o.id);
+          const current = JSON.parse(localStorage.getItem('mp_cleared_orders') || '[]');
+          localStorage.setItem('mp_cleared_orders', JSON.stringify(Array.from(new Set([...current, ...completedIds]))));
+          loadCustomerOrders();
+        });
+    }
+
+    // SEARCH & AUTOCOMPLETE
+    function handleSearchInput(e) {
+      const query = e.target.value.trim();
+      document.getElementById('searchClearBtn').style.display = query.length > 0 ? 'block' : 'none';
+      clearTimeout(searchDebounceTimer);
+      if (!query) { hideSearchDropdown(); fetchProducts(); return; }
+      searchDebounceTimer = setTimeout(async () => {
+        await executeAutocomplete(query);
+        await fetchProducts();
+      }, 250);
+    }
+
+    async function executeAutocomplete(query) {
+      if (query.length < 2) { hideSearchDropdown(); return; }
+      try {
+        const res = await fetch(`/api/products?search=${encodeURIComponent(query)}`);
+        const matching = await res.json();
+        const dropdown = document.getElementById('searchDropdown');
+        const list = document.getElementById('searchDropdownList');
+
+        if (matching.length === 0) {
+          list.innerHTML = `<div style="padding:14px 16px; font-size:12px; color:var(--gray-muted);">No matching products found.</div>`;
+        } else {
+          list.innerHTML = matching.slice(0, 4).map(p => {
+            const imgs = parseProductImages(p.image_url);
+            const thumb = imgs.length > 0 ? imgs[0] : '';
+            return `
+              <div class="search-dropdown-item" onclick="selectSearchSuggestion('${p.id}')">
+                <div class="search-dropdown-thumb">${thumb ? `<img src="${thumb}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;">` : 'MP'}</div>
+                <div class="search-dropdown-info">
+                  <div class="search-dropdown-name">${p.name}</div>
+                  <div class="search-dropdown-sub">${p.supplier_name || 'Local Partner'} · ${cleanCategoryMap[p.category_id] || 'General'}</div>
+                </div>
+                <div class="search-dropdown-price">R ${Number(p.price).toFixed(2)}</div>
+              </div>
+            `;
+          }).join('');
+        }
+        dropdown.style.display = 'block';
+      } catch (err) {}
+    }
+
+    function selectSearchSuggestion(id) { hideSearchDropdown(); openProductDetail(id); }
+    function commitFullSearch() { hideSearchDropdown(); document.getElementById('catalogArea').scrollIntoView({ behavior: 'smooth' }); }
+    function handleSearchKeydown(e) { if (e.key === 'Enter') commitFullSearch(); else if (e.key === 'Escape') hideSearchDropdown(); }
+    function clearSearchInput() { document.getElementById('searchInput').value = ''; document.getElementById('searchClearBtn').style.display = 'none'; hideSearchDropdown(); fetchProducts(); }
+    function hideSearchDropdown() { document.getElementById('searchDropdown').style.display = 'none'; }
+
+    async function submitReview(e) {
+      e.preventDefault();
+      const pid = document.getElementById('reviewProdId').value;
+      await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: pid,
+          customer_name: document.getElementById('revName').value.trim(),
+          rating: document.getElementById('revRating').value,
+          comment: document.getElementById('revComment').value.trim()
+        })
+      });
+      closeModal('reviewsModal');
+      alert('Review posted!');
+      fetchProducts();
+      if (currentDetailProduct && currentDetailProduct.id === pid) openProductDetail(pid);
+    }
+
+    function openReturnsModal() { document.getElementById('returnsModal').classList.add('open'); }
+    function openTermsModal() { document.getElementById('termsModal').classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  </script>
+</body>
+</html>
