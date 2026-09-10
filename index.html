@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MP Market — Quality products. Sourced locally.</title>
-  
+  <!-- GOOGLE SEARCH ICON & BROWSER TAB FAVICON -->
+<link rel="icon" href="/logo.jpg" type="image/jpeg">
+<link rel="apple-touch-icon" href="/logo.jpg">
   <link rel="preload" as="image" href="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=1600&auto=format&fit=crop" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -187,10 +189,13 @@
 
   <header>
     <div class="header-top">
+      
+      <!-- LOGO (FORCED TO TOP LEFT) -->
       <div class="brand-block" onclick="filterCategory('cat-all')">
         <img src="/logo.jpg" alt="MP Market" style="height: 38px; width: auto; object-fit: contain; display: block;">
       </div>
 
+      <!-- SEARCH BAR (MIDDLE ON DESKTOP, BOTTOM ROW ON MOBILE) -->
       <div class="search-container">
         <div class="search-input-wrapper">
           <svg class="search-icon-svg" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -200,6 +205,7 @@
           <input type="text" id="searchInput" class="search-input" placeholder="What are you looking for?" oninput="handleSearchInput(event)" onkeydown="handleSearchKeydown(event)">
           <button id="searchClearBtn" class="search-clear-btn" onclick="clearSearchInput()">✕</button>
         </div>
+
         <div id="searchDropdown" class="search-dropdown">
           <div class="search-dropdown-section-title">Matching Products</div>
           <div id="searchDropdownList"></div>
@@ -207,17 +213,18 @@
         </div>
       </div>
 
+      <!-- CART & ORDERS BUTTONS (FORCED TO TOP RIGHT) -->
       <div class="nav-actions">
         <button class="btn-minimal" onclick="openMyOrdersModal()">My Orders</button>
         <button class="btn-minimal btn-cart" onclick="toggleCart(true)">
           Basket <span class="cart-badge" id="cartCount">0</span>
         </button>
       </div>
+
     </div>
 
     <nav class="category-subnav" id="categorySubnav"></nav>
   </header>
-
   <main>
     <section class="hero-section" id="heroSection">
       <span class="hero-eyebrow">Local Sourcing Concierge</span>
