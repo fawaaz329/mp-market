@@ -10,9 +10,9 @@
     "directory": "."
   },
 
-  // PERMANENT ENVIRONMENT VARIABLES
+  // PERMANENT ENVIRONMENT VARIABLES (LIVE PRODUCTION)
   "vars": {
-    "YOCO_PUBLIC_KEY": "pk_test_055cf35bnZ2ZA2j27eb4",
+    "YOCO_PUBLIC_KEY": "pk_live_9974c248nZ2ZA2j1e204",
     "OWNER_NOTIFICATION_EMAIL": "docfloweditor@gmail.com",
     "SENDER_EMAIL": "orders@mp-marketplace.co.za",
     "SENDER_NAME": "MP Market"
