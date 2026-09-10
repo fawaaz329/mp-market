@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS categories;
 DROP TABLE IF EXISTS settings;
+DROP TABLE IF EXISTS areas;
 
 CREATE TABLE settings (
     key TEXT PRIMARY KEY,
@@ -25,6 +26,7 @@ CREATE TABLE categories (
 INSERT INTO categories (id, name, icon) VALUES 
 ('cat-all', 'All Products', ''),
 ('cat-new-arrivals', 'New Arrivals', ''),
+('cat-stationery', 'Stationery & Office', ''),
 ('cat-hardware', 'Hardware & DIY', ''),
 ('cat-electronics', 'Electronics & Gadgets', ''),
 ('cat-home', 'Home & Living', ''),
@@ -38,7 +40,9 @@ CREATE TABLE products (
     name TEXT NOT NULL,
     description TEXT,
     price REAL NOT NULL,
-    supplier_name TEXT NOT NULL DEFAULT 'Local Partner',
+    public_source TEXT NOT NULL DEFAULT 'Local Partner',
+    internal_supplier TEXT NOT NULL DEFAULT 'Local Partner',
+    available_sizes TEXT DEFAULT '',
     is_available INTEGER NOT NULL DEFAULT 1,
     is_new_arrival INTEGER NOT NULL DEFAULT 0,
     sourcing_time TEXT NOT NULL DEFAULT 'Dispatched in 24h',
@@ -60,7 +64,7 @@ CREATE TABLE orders (
     total_amount REAL NOT NULL,
     status TEXT NOT NULL DEFAULT 'Pending Sourcing',
     payment_status TEXT NOT NULL DEFAULT 'Pending',
-    payment_method TEXT NOT NULL DEFAULT 'Cash/EFT on Delivery',
+    payment_method TEXT NOT NULL DEFAULT 'Yoco Online',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -69,7 +73,8 @@ CREATE TABLE order_items (
     order_id TEXT NOT NULL,
     product_id TEXT NOT NULL,
     product_name TEXT NOT NULL,
-    supplier_name TEXT NOT NULL DEFAULT 'Local Partner',
+    selected_size TEXT DEFAULT '',
+    internal_supplier TEXT NOT NULL DEFAULT 'Local Partner',
     unit_price REAL NOT NULL,
     quantity INTEGER NOT NULL,
     subtotal REAL NOT NULL
@@ -90,5 +95,14 @@ CREATE TABLE inquiries (
     last_name TEXT NOT NULL,
     email TEXT NOT NULL,
     message TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE areas (
+    id TEXT PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    zone_name TEXT,
+    fee REAL NOT NULL DEFAULT 0,
+    is_collection INTEGER NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
