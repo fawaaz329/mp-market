@@ -39,7 +39,8 @@
 
     header { position: sticky; top: 0; z-index: 40; background: rgba(247, 244, 239, 0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); }
     .header-top { max-width: 1240px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
-    .brand-block { text-decoration: none; color: var(--charcoal); cursor: pointer; display: flex; flex-direction: column; flex-shrink: 0; }
+    .brand-block { text-decoration: none; color: var(--charcoal); cursor: pointer; display: flex; align-items: center; gap: 8px; flex-shrink: 0; margin-right: auto; }
+.brand-text { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--charcoal); }
 
     .search-container { flex: 1; max-width: 500px; position: relative; }
     .search-input-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
@@ -74,7 +75,8 @@
 
     @media (max-width: 768px) {
       .header-top { display: grid !important; grid-template-columns: 1fr auto !important; grid-template-rows: auto auto !important; gap: 12px 0 !important; padding: 12px 16px !important; }
-      .brand-block { grid-column: 1 !important; grid-row: 1 !important; }
+      .brand-block { grid-column: 1 !important; grid-row: 1 !important; justify-self: start !important; }
+.brand-text { font-size: 13px !important; letter-spacing: 0px !important; }
       .nav-actions { grid-column: 2 !important; grid-row: 1 !important; justify-self: end !important; }
       .search-container { grid-column: 1 / -1 !important; grid-row: 2 !important; width: 100% !important; max-width: 100% !important; }
       .search-input { width: 100% !important; height: 44px !important; }
@@ -192,7 +194,9 @@
       
       <!-- LOGO (FORCED TO TOP LEFT) -->
       <div class="brand-block" onclick="filterCategory('cat-all')">
-        <img src="/logo.jpg" alt="MP Market" style="height: 38px; width: auto; object-fit: contain; display: block;">
+        <!-- mix-blend-mode removes the white box background, margin pulls it tight left -->
+        <img src="/logo.jpg" alt="MP Market" style="height: 36px; width: auto; object-fit: contain; display: block; mix-blend-mode: multiply; margin-left: -8px;">
+        <span class="brand-text">MP-MARKETPLACE</span>
       </div>
 
       <!-- SEARCH BAR (MIDDLE ON DESKTOP, BOTTOM ROW ON MOBILE) -->
