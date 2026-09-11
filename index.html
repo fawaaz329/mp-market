@@ -541,14 +541,21 @@
     list = [imgUrl];
   }
 
-  return list.map(url => {
-    if (!url) return '';
-    // Strip leading slashes, url-encoded %2F, and duplicated products/ prefixes
-    let clean = url.replace(/^[\/\%2F]+/, '').replace(/^products\/products\//, 'products/');
-    if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('/api/images/')) {
-      return clean;
-    }
-    return `/api/images/${clean}`;
+  return list.map(item => {
+    if (!item || typeof item !== 'string') return '';
+    let str = item.trim();
+    if (str.startsWith('http://') || str.startsWith('https://')) return str;
+
+    // Decode any %2F into a normal slash
+    try { str = decodeURIComponent(str); } catch (e) {}
+
+    // Clean off any redundant prefixes or double slashes
+    str = str.replace(/^\/?api\/images\//, '');
+    str = str.replace(/^\/?products\//, '');
+    str = str.replace(/^[\/\%2F]+/, '');
+
+    // Return the clean, single /api/images/ route
+    return `/api/images/products/${str}`.replace(/\/products\/products\//, '/products/');
   });
     }
 
