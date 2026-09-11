@@ -532,11 +532,24 @@
     }
 
     function parseProductImages(imgUrl) {
-      if (!imgUrl) return [];
-      try {
-        if (imgUrl.startsWith('[')) return JSON.parse(imgUrl);
-      } catch (e) {}
-      return [imgUrl];
+  if (!imgUrl) return [];
+  let list = [];
+  try {
+    if (imgUrl.startsWith('[')) list = JSON.parse(imgUrl);
+    else list = [imgUrl];
+  } catch (e) {
+    list = [imgUrl];
+  }
+
+  return list.map(url => {
+    if (!url) return '';
+    // Strip leading slashes, url-encoded %2F, and duplicated products/ prefixes
+    let clean = url.replace(/^[\/\%2F]+/, '').replace(/^products\/products\//, 'products/');
+    if (clean.startsWith('http://') || clean.startsWith('https://') || clean.startsWith('/api/images/')) {
+      return clean;
+    }
+    return `/api/images/${clean}`;
+  });
     }
 
     function renderProducts() {
