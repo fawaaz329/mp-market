@@ -369,7 +369,7 @@
           deliveryLabel.innerHTML = `<span style="color:var(--primary); font-weight:700;">FREE</span> <small style="color:var(--gray-muted); text-decoration:line-through;">(R ${selectedSuburbInfo.fee.toFixed(2)})</small>`;
           totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
         } else {
-          dispatchBadge.innerText = '🚗 Dispatched within 24 Hours';
+          dispatchBadge.innerText = '🚗 Dispatched within 48 Hours';
           deliveryLabel.innerText = `Zone ${selectedSuburbInfo.zone} (R ${selectedSuburbInfo.fee.toFixed(2)})`;
           totalLabel.innerText = `R ${(subtotal + selectedSuburbInfo.fee).toFixed(2)}`;
         }
