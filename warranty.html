@@ -124,18 +124,25 @@
     </div>
   </main>
 
-  <footer>
-<div class="footer-links-row">
-  <a href="/" class="footer-link-item">← Storefront</a>
-  <span style="color: var(--border-subtle);">·</span>
-  <a href="/about.html" class="footer-link-item">About Us</a>
-  <span style="color: var(--border-subtle);">·</span>
-  <a href="/warranty.html" class="footer-link-item">🇿🇦 Warranty & Returns</a>
-  <span style="color: var(--border-subtle);">·</span>
-  <a href="/terms.html" class="footer-link-item">Terms & Conditions</a>
-</div>
-  </div>
-  </footer>
+<footer>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; max-width: 640px; width: 100%; margin: 0 auto; padding: 0 16px;">
+      
+      <!-- FOOTER BADGE IMAGE -->
+      <img src="/footer-badge.jpg" alt="Mitchell's Plain Marketplace" loading="lazy" decoding="async" style="width: 100%; max-width: 580px; height: auto; object-fit: contain; border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin-bottom: 24px;">
+
+      <!-- FOOTER LINKS -->
+      <div class="footer-links-row">
+        <a href="/about.html" class="footer-link-item">About Us</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/warranty.html" class="footer-link-item">🇿🇦 Warranty & Returns</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/terms.html" class="footer-link-item">Sourcing & Delivery Terms</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <span class="footer-link-item" onclick="openContactModal()">Contact Us</span>
+      </div>
+
+    </div>
+</footer>
 
 </body>
 </html>
