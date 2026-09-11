@@ -228,7 +228,7 @@
             </div>
 
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-              <div class="form-group"><label>Sourcing Time</label><input type="text" id="pSourcingTime" class="form-control" value="Dispatched in 24h"></div>
+              <div class="form-group"><label>Sourcing Time</label><input type="text" id="pSourcingTime" class="form-control" value="Dispatched in 48h"></div>
               <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-top:22px;">
                 <input type="checkbox" id="pIsNewArrival" style="width:18px; height:18px; accent-color:var(--accent); cursor:pointer;">
                 <label for="pIsNewArrival" style="margin:0; cursor:pointer; font-size:12px; font-weight:700;">✨ Mark as New Arrival</label>
@@ -616,7 +616,7 @@
 
       document.getElementById('pPublicSource').value = p.public_source || 'Local Partner';
       document.getElementById('pInternalSupplier').value = p.internal_supplier || 'Local Partner';
-      document.getElementById('pSourcingTime').value = p.sourcing_time || 'Dispatched in 24h';
+      document.getElementById('pSourcingTime').value = p.sourcing_time || 'Dispatched in 48h';
       document.getElementById('pIsNewArrival').checked = p.is_new_arrival === 1;
       document.getElementById('pDesc').value = p.description || '';
 
@@ -638,7 +638,7 @@
       document.getElementById('pPrice').value = '';
       document.getElementById('pPublicSource').value = 'Local Partner';
       document.getElementById('pInternalSupplier').value = 'Local Partner';
-      document.getElementById('pSourcingTime').value = 'Dispatched in 24h';
+      document.getElementById('pSourcingTime').value = 'Dispatched in 48h';
       document.getElementById('pIsNewArrival').checked = false;
       document.getElementById('pDesc').value = '';
       document.getElementById('pImageFiles').value = '';
@@ -682,7 +682,7 @@
         public_source: document.getElementById('pPublicSource').value.trim() || 'Local Partner',
         internal_supplier: document.getElementById('pInternalSupplier').value.trim() || 'Local Partner',
         available_sizes: sizesJson,
-        sourcing_time: document.getElementById('pSourcingTime').value.trim() || 'Dispatched in 24h',
+        sourcing_time: document.getElementById('pSourcingTime').value.trim() || 'Dispatched in 48h',
         is_new_arrival: document.getElementById('pIsNewArrival').checked,
         description: document.getElementById('pDesc').value.trim(),
         image_url: imageUrlsJson
