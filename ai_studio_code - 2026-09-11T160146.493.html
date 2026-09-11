@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Express Checkout — MP Market</title>
+  <link rel="icon" href="/logo.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-ivory: #F7F4EF;
+      --surface-card: #FFFFFF;
+      --charcoal: #171717;
+      --charcoal-secondary: #404040;
+      --gray-muted: #737373;
+      --gray-light: #EAE6DF;
+      --border-subtle: #E8E3DA;
+      --accent: #C45A2C;
+      --accent-hover: #A8481E;
+      --primary: #087A58;
+      --radius-sm: 4px;
+      --radius: 8px;
+      --shadow-subtle: 0 4px 20px -4px rgba(23, 23, 23, 0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-ivory); color: var(--charcoal); display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    header { background: #FFFFFF; border-bottom: 1px solid var(--border-subtle); }
+    .header-top { max-width: 1040px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .brand-block { text-decoration: none; color: var(--charcoal); display: flex; align-items: center; gap: 8px; }
+    .brand-text { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .btn-return { background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 8px 16px; border-radius: var(--radius-sm); text-decoration: none; color: var(--charcoal); font-size: 12px; font-weight: 700; }
+    .btn-return:hover { border-color: var(--charcoal); }
+
+    main { max-width: 1040px; margin: 32px auto 80px; padding: 0 24px; width: 100%; flex: 1; }
+    .checkout-grid { display: grid; grid-template-columns: 1fr; gap: 28px; }
+    @media (min-width: 860px) { .checkout-grid { grid-template-columns: 1.25fr 1fr; gap: 36px; } }
+
+    .card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-subtle); }
+    .card-title { font-size: 16px; font-weight: 800; text-transform: uppercase; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px; }
+
+    .form-field-group { margin-bottom: 16px; }
+    .form-field-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .input-clean { width: 100%; padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: #FFFFFF; }
+    .input-clean:focus { border-color: var(--charcoal); }
+
+    .suburb-autocomplete-wrapper { position: relative; width: 100%; }
+    .suburb-suggestions-dropdown { position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 100; max-height: 200px; overflow-y: auto; display: none; }
+    .suburb-suggestion-row { padding: 10px 14px; font-size: 13px; cursor: pointer; border-bottom: 1px solid var(--gray-light); display: flex; justify-content: space-between; align-items: center; }
+    .suburb-suggestion-row:hover { background: var(--bg-ivory); }
+
+    .order-items-scroll { max-height: 260px; overflow-y: auto; margin-bottom: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .order-item-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--gray-light); font-size: 13px; }
+
+    .receipt-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px; color: var(--gray-muted); }
+    .receipt-total { display: flex; justify-content: space-between; font-size: 18px; font-weight: 800; margin: 16px 0 20px; color: var(--charcoal); padding-top: 14px; border-top: 1px solid var(--border-subtle); }
+    .btn-solid-checkout { width: 100%; background: var(--accent); color: #FFFFFF; border: none; padding: 14px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px; transition: 0.2s; }
+    .btn-solid-checkout:hover { background: var(--accent-hover); }
+    .btn-solid-checkout:disabled { background: var(--gray-muted); cursor: not-allowed; }
+
+    #emptyCartNotice { display: none; text-align: center; padding: 60px 20px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <a href="/" class="brand-block">
+        <img src="/logo.jpg" alt="MP Market" style="height: 36px; width: auto; object-fit: contain; display: block; mix-blend-mode: multiply; margin-left: -8px;">
+        <span class="brand-text">MP-MARKETPLACE</span>
+      </a>
+      <a href="/" class="btn-return">← Continue Shopping</a>
+    </div>
+  </header>
+
+  <main>
+    <div id="emptyCartNotice" class="card">
+      <h2 style="font-size: 20px; margin-bottom: 8px;">Your Basket is Empty</h2>
+      <p style="color:var(--gray-muted); font-size:13px; margin-bottom:20px;">You haven't added any products to your basket yet.</p>
+      <a href="/" class="btn-solid-checkout" style="display:inline-block; max-width:240px; text-decoration:none;">Go to Catalogue</a>
+    </div>
+
+    <div class="checkout-grid" id="checkoutMainGrid">
+      
+      <!-- LEFT: CUSTOMER & DELIVERY FORM -->
+      <div class="card">
+        <div class="card-title">1. Delivery Details</div>
+        <form onsubmit="handleOrderSubmit(event)">
+          <div class="form-field-group"><label>Full Name</label><input type="text" id="custName" class="input-clean" required placeholder="e.g. Sipho Nkosi"></div>
+          <div class="form-field-group"><label>Email Address</label><input type="email" id="custEmail" class="input-clean" required placeholder="e.g. sipho@example.com"></div>
+          <div class="form-field-group"><label>WhatsApp Contact Number</label><input type="tel" id="custWhatsapp" class="input-clean" required placeholder="e.g. 074 123 4567"></div>
+          <div class="form-field-group"><label>Street Address</label><input type="text" id="custStreet" class="input-clean" required placeholder="House number and street name"></div>
+
+          <div class="form-field-group">
+            <label>Cape Town Suburb / Area</label>
+            <div class="suburb-autocomplete-wrapper">
+              <input type="text" id="custSuburbInput" class="input-clean" autocomplete="off" required placeholder="Start typing suburb (e.g. Mitchells Plain, Ottery, Retreat...)" oninput="handleSuburbInput(event)">
+              <div id="suburbSuggestionsList" class="suburb-suggestions-dropdown"></div>
+            </div>
+            <div id="dispatchBadge" style="display:none; font-size:11px; font-weight:700; color:var(--primary); margin-top:6px;">🚗 Dispatched within 24 Hours</div>
+          </div>
+
+          <div class="form-field-group">
+            <label>City</label>
+            <input type="text" id="custCity" class="input-clean" value="Cape Town" readonly style="background:var(--gray-light); cursor:not-allowed; font-weight:700;">
+          </div>
+
+          <div id="collectionNoticeBox" style="display:none; background:#FEF3C7; border:1px solid #F59E0B; padding:12px; border-radius:var(--radius-sm); margin-bottom:14px; font-size:12px; color:#92400E; line-height:1.5;"></div>
+
+          <div style="display: flex; align-items: flex-start; gap: 10px; margin-top: 20px; font-size: 12px; color: var(--charcoal-secondary); line-height: 1.45;">
+            <input type="checkbox" id="termsConsentCheckbox" required style="margin-top: 3px; accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer;">
+            <label for="termsConsentCheckbox" style="cursor: pointer;">
+              I agree to the <strong>Sourcing & Delivery Terms</strong> and <a href="/warranty.html" target="_blank" style="color: var(--accent); font-weight: 700;">Warranty Policy</a>.
+            </label>
+          </div>
+
+          <div style="margin-top: 24px;">
+            <button type="submit" class="btn-solid-checkout" id="orderSubmitBtn">Pay with Card / Apple Pay</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- RIGHT: ORDER SUMMARY -->
+      <div class="card" style="height: fit-content;">
+        <div class="card-title">2. Order Summary</div>
+        <div class="order-items-scroll" id="checkoutItemsList"></div>
+
+        <div style="background:var(--bg-ivory); border:1px solid var(--border-subtle); padding:16px; border-radius:var(--radius-sm);">
+          <div class="receipt-row"><span>Subtotal</span><strong id="summarySubtotal">R 0.00</strong></div>
+          <div class="receipt-row"><span>Delivery Fee</span><strong id="summaryDelivery">Select Suburb</strong></div>
+          <div class="receipt-total"><span>Total Due</span><span id="summaryTotal">R 0.00</span></div>
+        </div>
+
+        <div style="margin-top: 16px; font-size: 11px; color: var(--gray-muted); text-align: center;">
+          🔒 Secure 256-bit bank encrypted payment via <strong>Yoco</strong>.
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    let SUBURB_DATA = {
+      "Mitchells Plain": { zone: 1, fee: 30, type: "delivery" },
+      "Strandfontein": { zone: 1, fee: 30, type: "delivery" },
+      "Wavecrest": { zone: 1, fee: 30, type: "delivery" },
+      "Bayview": { zone: 1, fee: 30, type: "delivery" },
+      "Colorado Park": { zone: 1, fee: 30, type: "delivery" },
+      "Lentegeur": { zone: 1, fee: 30, type: "delivery" },
+      "Rocklands": { zone: 1, fee: 30, type: "delivery" },
+      "Tafelsig": { zone: 1, fee: 30, type: "delivery" },
+      "Beacon Valley": { zone: 1, fee: 30, type: "delivery" },
+      "Eastridge": { zone: 1, fee: 30, type: "delivery" },
+      "Woodlands": { zone: 1, fee: 30, type: "delivery" },
+      "Westridge": { zone: 1, fee: 30, type: "delivery" },
+      "Portland": { zone: 1, fee: 30, type: "delivery" },
+      "Philippi East": { zone: 1, fee: 30, type: "delivery" },
+      "Mandalay": { zone: 1, fee: 30, type: "delivery" },
+      "Pelican Park": { zone: 1, fee: 30, type: "delivery" },
+      "Ottery": { zone: 2, fee: 55, type: "delivery" },
+      "Kenwyn": { zone: 2, fee: 55, type: "delivery" },
+      "Wetton": { zone: 2, fee: 55, type: "delivery" },
+      "Lansdowne": { zone: 2, fee: 55, type: "delivery" },
+      "Rondebosch East": { zone: 2, fee: 55, type: "delivery" },
+      "Athlone": { zone: 2, fee: 55, type: "delivery" },
+      "Crawford": { zone: 2, fee: 55, type: "delivery" },
+      "Rylands": { zone: 2, fee: 55, type: "delivery" },
+      "Gatesville": { zone: 2, fee: 55, type: "delivery" },
+      "Belgravia": { zone: 2, fee: 55, type: "delivery" },
+      "Primrose Park": { zone: 2, fee: 55, type: "delivery" },
+      "Hanover Park": { zone: 2, fee: 55, type: "delivery" },
+      "Heideveld": { zone: 2, fee: 55, type: "delivery" },
+      "Eagle Park": { zone: 2, fee: 55, type: "delivery" },
+      "Lotus River": { zone: 2, fee: 55, type: "delivery" },
+      "Grassy Park": { zone: 2, fee: 55, type: "delivery" },
+      "Parkwood": { zone: 2, fee: 55, type: "delivery" },
+      "Seawinds": { zone: 2, fee: 55, type: "delivery" },
+      "Vrygrond": { zone: 2, fee: 55, type: "delivery" },
+      "Mfuleni": { zone: 2, fee: 55, type: "delivery" },
+      "Blue Downs": { zone: 2, fee: 55, type: "delivery" },
+      "Eerste River": { zone: 2, fee: 55, type: "delivery" },
+      "Claremont": { zone: 3, fee: 75, type: "delivery" },
+      "Kenilworth": { zone: 3, fee: 75, type: "delivery" },
+      "Wynberg": { zone: 3, fee: 75, type: "delivery" },
+      "Plumstead": { zone: 3, fee: 75, type: "delivery" },
+      "Southfield": { zone: 3, fee: 75, type: "delivery" },
+      "Diep River": { zone: 3, fee: 75, type: "delivery" },
+      "Heathfield": { zone: 3, fee: 75, type: "delivery" },
+      "Retreat": { zone: 3, fee: 75, type: "delivery" },
+      "Steenberg": { zone: 3, fee: 75, type: "delivery" },
+      "Elfindale": { zone: 3, fee: 75, type: "delivery" },
+      "Rondebosch": { zone: 3, fee: 75, type: "delivery" },
+      "Newlands": { zone: 3, fee: 75, type: "delivery" },
+      "Rosebank": { zone: 3, fee: 75, type: "delivery" },
+      "Mowbray": { zone: 3, fee: 75, type: "delivery" },
+      "Observatory": { zone: 3, fee: 75, type: "delivery" },
+      "Pinelands": { zone: 3, fee: 75, type: "delivery" },
+      "Bonteheuwel": { zone: 3, fee: 75, type: "delivery" },
+      "Bishop Lavis": { zone: 3, fee: 75, type: "delivery" },
+      "Belhar": { zone: 3, fee: 75, type: "delivery" },
+      "Parow": { zone: 3, fee: 75, type: "delivery" },
+      "Goodwood": { zone: 3, fee: 75, type: "delivery" },
+      "Bellville": { zone: 3, fee: 75, type: "delivery" },
+      "Kuils River": { zone: 3, fee: 75, type: "delivery" },
+      "Cape Town CBD": { zone: 3, fee: 75, type: "delivery" },
+      "Strand": { zone: 3, fee: 75, type: "delivery" },
+      "Khayelitsha": { zone: 0, fee: 0, type: "collection" },
+      "Manenberg": { zone: 0, fee: 0, type: "collection" },
+      "Gugulethu": { zone: 0, fee: 0, type: "collection" },
+      "Nyanga": { zone: 0, fee: 0, type: "collection" },
+      "New Crossroads": { zone: 0, fee: 0, type: "collection" },
+      "Samora Machel": { zone: 0, fee: 0, type: "collection" },
+      "Browns Farm": { zone: 0, fee: 0, type: "collection" },
+      "Eisleben": { zone: 0, fee: 0, type: "collection" },
+      "Capricorn": { zone: 0, fee: 0, type: "collection" },
+      "Lavender Hill": { zone: 0, fee: 0, type: "collection" },
+      "Delft": { zone: 0, fee: 0, type: "collection" },
+      "Elsies River": { zone: 0, fee: 0, type: "collection" },
+      "Matroosfontein": { zone: 0, fee: 0, type: "collection" }
+    };
+
+    let cart = [];
+    let storeConfig = { delivery_base_fee: 30, free_delivery_threshold: 600 };
+    let selectedSuburbInfo = null;
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      try { cart = JSON.parse(localStorage.getItem('mp_cart') || '[]'); } catch (e) { cart = []; }
+
+      if (cart.length === 0) {
+        document.getElementById('checkoutMainGrid').style.display = 'none';
+        document.getElementById('emptyCartNotice').style.display = 'block';
+        return;
+      }
+
+      await fetchStoreConfig();
+      await fetchCustomAreas();
+      renderOrderSummary();
+      autoPopulateCustomer();
+
+      document.addEventListener('click', (e) => {
+        const suburbBox = document.querySelector('.suburb-autocomplete-wrapper');
+        if (suburbBox && !suburbBox.contains(e.target)) {
+          document.getElementById('suburbSuggestionsList').style.display = 'none';
+        }
+      });
+    });
+
+    async function fetchStoreConfig() {
+      try {
+        const res = await fetch('/api/config');
+        storeConfig = await res.json();
+      } catch (e) {}
+    }
+
+    async function fetchCustomAreas() {
+      try {
+        const res = await fetch('/api/areas');
+        const dbAreas = await res.json();
+        dbAreas.forEach(a => {
+          SUBURB_DATA[a.name] = {
+            zone: a.zone_name || 1,
+            fee: Number(a.fee),
+            type: a.is_collection ? 'collection' : 'delivery'
+          };
+        });
+      } catch (e) {}
+    }
+
+    function renderOrderSummary() {
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      document.getElementById('summarySubtotal').innerText = `R ${subtotal.toFixed(2)}`;
+      document.getElementById('summaryTotal').innerText = `R ${subtotal.toFixed(2)}`;
+
+      const list = document.getElementById('checkoutItemsList');
+      list.innerHTML = cart.map(i => `
+        <div class="order-item-row">
+          <div>
+            <strong>${i.quantity}x</strong> ${i.name}
+          </div>
+          <div><strong>R ${(i.price * i.quantity).toFixed(2)}</strong></div>
+        </div>
+      `).join('');
+    }
+
+    function autoPopulateCustomer() {
+      const phone = localStorage.getItem('mp_customer_phone');
+      const name = localStorage.getItem('mp_customer_name');
+      const email = localStorage.getItem('mp_customer_email');
+      if (phone) document.getElementById('custWhatsapp').value = phone;
+      if (name) document.getElementById('custName').value = name;
+      if (email) document.getElementById('custEmail').value = email;
+    }
+
+    function handleSuburbInput(e) {
+      const val = e.target.value.trim().toLowerCase();
+      const list = document.getElementById('suburbSuggestionsList');
+
+      if (!val) {
+        list.style.display = 'none';
+        selectedSuburbInfo = null;
+        updateTotals();
+        return;
+      }
+
+      const matches = Object.keys(SUBURB_DATA).filter(sub => sub.toLowerCase().includes(val));
+
+      if (matches.length === 0) {
+        list.innerHTML = `<div style="padding:10px 14px; font-size:12px; color:var(--gray-muted);">No matching area found. Please select from valid zones.</div>`;
+        list.style.display = 'block';
+        selectedSuburbInfo = null;
+        updateTotals();
+        return;
+      }
+
+      list.innerHTML = matches.map(suburb => {
+        const info = SUBURB_DATA[suburb];
+        const label = info.type === 'collection' ? 'Collection Only (R0)' : `Zone ${info.zone} (R${info.fee})`;
+        return `
+          <div class="suburb-suggestion-row" onclick="selectSuburb('${suburb.replace(/'/g, "\\'")}')">
+            <span>${suburb}</span>
+            <span style="font-size:11px; font-weight:700; color:${info.type === 'collection' ? '#92400E' : 'var(--accent)'};">${label}</span>
+          </div>
+        `;
+      }).join('');
+      list.style.display = 'block';
+    }
+
+    function selectSuburb(suburbName) {
+      document.getElementById('custSuburbInput').value = suburbName;
+      document.getElementById('suburbSuggestionsList').style.display = 'none';
+      selectedSuburbInfo = { name: suburbName, ...SUBURB_DATA[suburbName] };
+      updateTotals();
+    }
+
+    function updateTotals() {
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const freeThreshold = storeConfig.free_delivery_threshold || 600;
+      const isFree = subtotal >= freeThreshold;
+
+      const dispatchBadge = document.getElementById('dispatchBadge');
+      const noticeBox = document.getElementById('collectionNoticeBox');
+      const deliveryLabel = document.getElementById('summaryDelivery');
+      const totalLabel = document.getElementById('summaryTotal');
+
+      if (!selectedSuburbInfo) {
+        dispatchBadge.style.display = 'none';
+        noticeBox.style.display = 'none';
+        deliveryLabel.innerText = 'Select Suburb';
+        totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
+        return;
+      }
+
+      if (selectedSuburbInfo.type === 'collection') {
+        dispatchBadge.style.display = 'none';
+        noticeBox.style.display = 'block';
+        noticeBox.innerHTML = `⚠️ <strong>Notice:</strong> We do not offer direct home delivery to <strong>${selectedSuburbInfo.name}</strong> due to safety courier restrictions. This order will be processed for <strong>COLLECTION ONLY</strong> from Mitchells Plain.`;
+        deliveryLabel.innerText = 'Collection Only (R 0.00)';
+        totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
+      } else {
+        noticeBox.style.display = 'none';
+        dispatchBadge.style.display = 'block';
+
+        if (isFree) {
+          dispatchBadge.innerText = '🎉 Free Delivery Unlocked · 🚗 Dispatched within 24 Hours';
+          deliveryLabel.innerHTML = `<span style="color:var(--primary); font-weight:700;">FREE</span> <small style="color:var(--gray-muted); text-decoration:line-through;">(R ${selectedSuburbInfo.fee.toFixed(2)})</small>`;
+          totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
+        } else {
+          dispatchBadge.innerText = '🚗 Dispatched within 24 Hours';
+          deliveryLabel.innerText = `Zone ${selectedSuburbInfo.zone} (R ${selectedSuburbInfo.fee.toFixed(2)})`;
+          totalLabel.innerText = `R ${(subtotal + selectedSuburbInfo.fee).toFixed(2)}`;
+        }
+      }
+    }
+
+    async function handleOrderSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('orderSubmitBtn');
+
+      if (!document.getElementById('termsConsentCheckbox').checked) {
+        alert('Please agree to the Sourcing & Delivery Terms.');
+        return;
+      }
+
+      if (!selectedSuburbInfo) {
+        alert('Please select a valid Suburb / Area from the suggestions list.');
+        return;
+      }
+
+      const name = document.getElementById('custName').value.trim();
+      const email = document.getElementById('custEmail').value.trim();
+      const rawPhone = document.getElementById('custWhatsapp').value.trim();
+      const street = document.getElementById('custStreet').value.trim();
+      const city = "Cape Town";
+
+      let cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+      if (cleanPhone.startsWith('0')) cleanPhone = '27' + cleanPhone.slice(1);
+      else if (!cleanPhone.startsWith('27')) cleanPhone = '27' + cleanPhone;
+
+      const fullAddress = `${street}, ${selectedSuburbInfo.name}, ${city}`;
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+      const freeThreshold = storeConfig.free_delivery_threshold || 600;
+      const isFree = subtotal >= freeThreshold;
+      const isCollection = selectedSuburbInfo.type === 'collection';
+      const deliveryFee = (isCollection || isFree) ? 0 : selectedSuburbInfo.fee;
+
+      btn.disabled = true;
+      btn.innerText = 'Creating Secure Payment Session...';
+
+      try {
+        const res = await fetch('/api/orders/create-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customer_name: name,
+            customer_email: email,
+            customer_whatsapp: cleanPhone,
+            delivery_address: fullAddress,
+            delivery_fee: deliveryFee,
+            is_collection: isCollection,
+            items: cart.map(i => ({ id: i.id, size: i.size || '', quantity: i.quantity }))
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert('Checkout Error: ' + (data.error || 'Could not initiate checkout.'));
+          btn.disabled = false;
+          btn.innerText = 'Pay with Card / Apple Pay';
+          return;
+        }
+
+        localStorage.setItem('mp_customer_phone', cleanPhone);
+        localStorage.setItem('mp_customer_name', name);
+        localStorage.setItem('mp_customer_email', email);
+        localStorage.setItem('mp_customer_address', fullAddress);
+
+        btn.innerText = 'Redirecting to Yoco...';
+        window.location.href = data.redirect_url;
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+        btn.disabled = false;
+        btn.innerText = 'Pay with Card / Apple Pay';
+      }
+    }
+  </script>
+</body>
+</html>
