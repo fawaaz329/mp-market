@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us — MP Market</title>
+  <link rel="icon" href="/logo.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-ivory: #F7F4EF;
+      --surface-card: #FFFFFF;
+      --charcoal: #171717;
+      --charcoal-secondary: #404040;
+      --gray-muted: #737373;
+      --gray-light: #EAE6DF;
+      --border-subtle: #E8E3DA;
+      --accent: #C45A2C;
+      --accent-hover: #A8481E;
+      --radius-sm: 4px;
+      --radius: 8px;
+      --shadow-subtle: 0 4px 20px -4px rgba(23, 23, 23, 0.05);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-ivory); color: var(--charcoal); display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+    header { position: sticky; top: 0; z-index: 40; background: rgba(247, 244, 239, 0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); }
+    .header-top { max-width: 1000px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .brand-block { text-decoration: none; color: var(--charcoal); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .brand-text { font-size: 16px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--charcoal); }
+    .btn-back-store { background: var(--surface-card); border: 1px solid var(--border-subtle); padding: 8px 16px; border-radius: var(--radius-sm); text-decoration: none; color: var(--charcoal); font-size: 13px; font-weight: 700; transition: 0.2s; }
+    .btn-back-store:hover { border-color: var(--charcoal); background: #fff; }
+
+    main { max-width: 900px; margin: 32px auto 80px; padding: 0 24px; width: 100%; flex: 1; }
+    .policy-card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 36px 32px; box-shadow: var(--shadow-subtle); }
+    
+    .page-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 800; color: var(--accent); margin-bottom: 8px; display: block; }
+    h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 20px; line-height: 1.3; }
+
+    .story-section { margin-bottom: 28px; }
+    .story-section h2 { font-size: 16px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; color: var(--charcoal); letter-spacing: 0.3px; }
+    .story-section p { font-size: 14px; color: var(--charcoal-secondary); line-height: 1.75; margin-bottom: 12px; }
+    
+    .feature-list { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 14px; }
+    .feature-list li { font-size: 14px; color: var(--charcoal-secondary); line-height: 1.7; padding-left: 24px; position: relative; }
+    .feature-list li::before { content: "•"; position: absolute; left: 8px; color: var(--accent); font-weight: 800; font-size: 18px; line-height: 1; top: 0; }
+    .feature-list li strong { color: var(--charcoal); }
+
+    .highlight-box { background: var(--bg-ivory); border-left: 4px solid var(--accent); padding: 16px 20px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin: 24px 0; font-size: 14px; line-height: 1.7; color: var(--charcoal); font-weight: 500; }
+
+    footer { background: var(--bg-ivory); border-top: 1px solid var(--border-subtle); padding: 40px 24px 60px; text-align: center; font-size: 12px; color: var(--gray-muted); margin-top: auto; }
+    .footer-links-row { margin-top: 16px; display: flex; justify-content: center; gap: 20px; font-size: 13px; flex-wrap: wrap; }
+    .footer-link-item { color: var(--gray-muted); text-decoration: none; font-weight: 600; cursor: pointer; }
+    .footer-link-item:hover { color: var(--charcoal); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <a href="/" class="brand-block">
+        <img src="/logo.jpg" alt="MP Market" style="height: 36px; width: auto; object-fit: contain; display: block; mix-blend-mode: multiply; margin-left: -8px;">
+        <span class="brand-text">MP-MARKETPLACE</span>
+      </a>
+      <a href="/" class="btn-back-store">← Return to Store</a>
+    </div>
+  </header>
+
+  <main>
+    <div class="policy-card">
+      <span class="page-eyebrow">Local Sourcing & Community</span>
+      <h1>Our Story: Bringing Trending Finds Straight to Your Door 🇿🇦</h1>
+
+      <div class="story-section">
+        <p>MP Market was born out of a hustle to solve a real problem.</p>
+        <p>We all know those incredibly smart local traders who sell the coolest, most useful imported goods—everything from viral gadgets and homeware hacks to trending lifestyle items. They have fantastic products, but unless you have the time to go out, walk past their stalls, or hunt them down on social media, you miss out on the best deals.</p>
+      </div>
+
+      <div class="story-section">
+        <h2>Enter MP Market – Your Digital Bridge</h2>
+        <p>We decided to change the game. We created this webapp to hand-pick the best, fast-selling imported products from local traders and put them into one easy-to-use digital marketplace.</p>
+        <p>Think of us as your personal sourcing and delivery concierge. We do the running around, check the stalls, verify the items, and handle the logistics so that you can enjoy the most popular trending products without ever leaving your house.</p>
+      </div>
+
+      <div class="story-section">
+        <h2>Our 48-Hour Door-to-Door Delivery Promise</h2>
+        <p>Convenience and safety are our absolute top priorities. That is why we operate on a strict delivery-only model:</p>
+        
+        <ul class="feature-list">
+          <li>
+            <strong>Straight to Your Door:</strong> You don't have to travel, commute, or go searching for these items. You order on the app, and we bring it straight to your doorstep.
+          </li>
+          <li>
+            <strong>48-Hour Turnaround:</strong> We buy the item directly from the local supplier and deliver it to you within 48 hours. While we are proudly based in Mitchell's Plain, our delivery network extends to surrounding Cape Town areas. <em>(Note: To keep our drivers safe, we only deliver to secure zones. Your delivery availability will be automatically verified once you enter your area at checkout).</em>
+          </li>
+          <li>
+            <strong>Zero-Risk Guarantee:</strong> If a local seller runs out of stock, we won't make you wait. You get a 100% immediate refund, no questions asked.
+          </li>
+        </ul>
+      </div>
+
+      <div class="highlight-box">
+        We are making trending shopping faster, easier, and safer for our communities. Thank you for supporting a local business that supports our local trading community!
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; max-width: 640px; width: 100%; margin: 0 auto; padding: 0 16px;">
+      <img src="/footer-badge.jpg" alt="Mitchell's Plain Marketplace" loading="lazy" decoding="async" style="width: 100%; max-width: 580px; height: auto; object-fit: contain; border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin-bottom: 24px;">
+      <div class="footer-links-row">
+        <a href="/" class="footer-link-item">← Storefront</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/about.html" class="footer-link-item" style="color:var(--charcoal); font-weight:700;">About Us</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/warranty.html" class="footer-link-item">🇿🇦 Warranty & Returns</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/terms.html" class="footer-link-item">Terms & Conditions</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
