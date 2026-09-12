@@ -76,6 +76,7 @@ async function sendSystemEmail(env, { to, toName, subject, htmlContent }) {
       },
       body: JSON.stringify({
         sender: { name: fromName, email: fromEmail },
+        replyTo: { email: "docfloweditor@gmail.com", name: fromName }, // <-- CUSTOMER REPLIES GO HERE
         to: [{ email: to, name: toName || to }],
         subject: subject,
         htmlContent: htmlContent
