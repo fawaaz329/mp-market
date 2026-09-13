@@ -71,6 +71,29 @@
     .cart-badge { background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; border-radius: 9999px; padding: 2px 6px; }
 
     .user-profile-pill { display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid var(--border-subtle); border-radius: 20px; padding: 4px 10px 4px 6px; font-size: 12px; font-weight: 700; }
+    /* SLEEK MINIMALIST PROFILE BUTTON */
+    .btn-profile {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--charcoal);
+      transition: all 0.2s ease;
+    }
+    .btn-profile:hover {
+      background: var(--surface-card);
+      border-color: var(--charcoal);
+    }
+    @media (max-width: 480px) {
+      .profile-label-text { display: none; } /* Shows sleek icon only on compact mobile */
+      .btn-profile { padding: 8px 10px; }
+    }
     .user-profile-avatar { width: 24px; height: 24px; border-radius: 50%; object-fit: cover; }
     .btn-signout-text { background: none; border: none; color: var(--gray-muted); font-size: 11px; font-weight: 700; cursor: pointer; margin-left: 4px; }
     .btn-signout-text:hover { color: var(--danger); }
@@ -588,30 +611,33 @@
       }
     }
 
+    // SLEEK PROFILE ICON WHEN LOGGED OUT
+    function renderHeaderLoggedOut() {
+      const container = document.getElementById('headerAuthContainer');
+      container.innerHTML = `
+        <button type="button" class="btn-minimal btn-profile" onclick="openMyOrdersModal()" title="Sign In with Google">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <span class="profile-label-text">Sign In</span>
+        </button>
+      `;
+    }
+
+    // USER PROFILE AVATAR WHEN LOGGED IN
     function renderHeaderLoggedIn(user) {
       const container = document.getElementById('headerAuthContainer');
       const avatarSrc = user.picture || '/logo.jpg';
       const firstName = user.given_name || user.name.split(' ')[0] || 'Customer';
 
       container.innerHTML = `
-        <div class="user-profile-pill">
+        <div class="user-profile-pill" onclick="openMyOrdersModal()" style="cursor: pointer;" title="View Account & Orders">
           <img src="${avatarSrc}" class="user-profile-avatar" alt="User">
-          <span>${firstName}</span>
-          <button onclick="handleSignOut()" class="btn-signout-text" title="Sign Out">✕</button>
+          <span class="profile-label-text">${firstName}</span>
+          <button type="button" onclick="event.stopPropagation(); handleSignOut()" class="btn-signout-text" title="Sign Out">✕</button>
         </div>
       `;
-    }
-
-    function renderHeaderLoggedOut() {
-      const container = document.getElementById('headerAuthContainer');
-      container.innerHTML = `<div id="headerGoogleBtn"></div>`;
-
-      if (window.google) {
-        google.accounts.id.renderButton(
-          document.getElementById('headerGoogleBtn'),
-          { theme: 'outline', size: 'medium', type: 'standard', shape: 'rectangular' }
-        );
-      }
     }
 
     function handleSignOut() {
