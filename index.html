@@ -133,7 +133,7 @@
     .product-card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; position: relative; cursor: pointer; }
     .product-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: #D6CFBE; }
     .product-image-container { width: 100%; height: 180px; background: #F3EFE9; border-radius: var(--radius-sm); overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 14px; }
-    .product-image { width: 100%; height: 100%; object-fit: cover; }
+    .product-image { width: 100%; height: 100%; object-fit: contain; }
     .badge-origin { position: absolute; top: 10px; left: 10px; background: rgba(23, 23, 23, 0.88); color: #FFFFFF; font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: 3px; text-transform: uppercase; }
     .badge-new-arrival { position: absolute; top: 10px; right: 10px; background: var(--accent); color: #FFFFFF; font-size: 9px; font-weight: 800; padding: 3px 7px; border-radius: 3px; text-transform: uppercase; }
     .sourcing-lead-time { font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 4px; text-transform: uppercase; }
@@ -155,7 +155,7 @@
     .size-pill-btn.active { background: var(--accent); color: #FFFFFF; border-color: var(--accent); }
 
     .detail-gallery-container { position: relative; width: 100%; height: 320px; background: #F3EFE9; border-radius: var(--radius-sm); overflow: hidden; display: flex; align-items: center; justify-content: center; }
-    .detail-gallery-img { width: 100%; height: 100%; object-fit: cover; }
+    .detail-gallery-img { width: 100%; height: 100%; object-fit: contain; background: #FFFFFF; }
     .gallery-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(23, 23, 23, 0.7); color: #fff; border: none; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 16px; z-index: 10; }
     .gallery-arrow.left { left: 10px; }
     .gallery-arrow.right { right: 10px; }
