@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Community Directory — Mitchell's Plain Marketplace</title>
+  <link rel="icon" href="/logo.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    :root {
+      --bg-ivory: #F7F4EF; --surface-card: #FFFFFF; --charcoal: #171717; --charcoal-secondary: #404040;
+      --gray-muted: #737373; --gray-light: #EAE6DF; --border-subtle: #E8E3DA; --accent: #C45A2C; 
+      --accent-hover: #A8481E; --primary: #087A58; --primary-hover: #066246; --gold: #D97706; 
+      --danger: #B91C1C; --radius-sm: 4px; --radius: 8px; 
+      --shadow-subtle: 0 4px 20px -4px rgba(23, 23, 23, 0.05);
+      --shadow-card-hover: 0 12px 30px -6px rgba(23, 23, 23, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-ivory); color: var(--charcoal); display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    header { position: sticky; top: 0; z-index: 40; background: rgba(247, 244, 239, 0.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); }
+    .header-top { max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand-block { text-decoration: none; color: var(--charcoal); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .brand-text { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .nav-btn-group { display: flex; align-items: center; gap: 10px; }
+    .btn-minimal { background: transparent; border: 1px solid var(--border-subtle); padding: 8px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; color: var(--charcoal); cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .btn-minimal:hover { background: var(--surface-card); border-color: var(--charcoal); }
+    .btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); padding: 8px 16px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    main { max-width: 1240px; margin: 0 auto; padding: 24px 24px 80px; flex: 1; width: 100%; }
+
+    .community-notice-banner { background: #FEF3C7; border: 1px solid #F59E0B; border-left: 5px solid #D97706; padding: 14px 18px; border-radius: var(--radius-sm); font-size: 13px; color: #92400E; line-height: 1.5; margin-bottom: 24px; }
+    .community-notice-banner a { color: #92400E; font-weight: 800; text-decoration: underline; }
+
+    .search-filter-section { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-subtle); margin-bottom: 28px; }
+    .search-input-wrapper { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 240px; background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; outline: none; }
+    .search-input:focus { border-color: var(--charcoal); background: #fff; }
+    .suburb-select { background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; outline: none; }
+
+    .category-pills-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+    .category-pills-row::-webkit-scrollbar { display: none; }
+    .cat-pill { background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; color: var(--charcoal-secondary); }
+    .cat-pill.active { background: var(--charcoal); color: #fff; border-color: var(--charcoal); }
+
+    /* DIRECTORY HOME CARDS */
+    .directory-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 768px) { .directory-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1080px) { .directory-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .vendor-card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+    .vendor-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: #D6CFBE; }
+    
+    .vendor-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .vendor-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: var(--bg-ivory); border: 1px solid var(--border-subtle); flex-shrink: 0; }
+    .vendor-title { font-size: 16px; font-weight: 800; color: var(--charcoal); line-height: 1.25; }
+    
+    .rating-badge { font-size: 11px; font-weight: 700; color: var(--gold); display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+    .vendor-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .badge-suburb { background: #EFECE6; color: var(--charcoal); font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+    .badge-cat { background: var(--bg-ivory); border: 1px solid var(--border-subtle); color: var(--accent); font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; }
+
+    .vendor-bio { font-size: 13px; color: var(--charcoal-secondary); line-height: 1.5; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .btn-view-shop { background: var(--bg-ivory); color: var(--charcoal); border: 1px solid var(--border-subtle); padding: 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; margin-top: auto; transition: 0.2s; }
+    .btn-view-shop:hover { background: var(--charcoal); color: #fff; }
+
+    /* MODAL SETTINGS */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(23, 23, 23, 0.6); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: 0.2s; backdrop-filter: blur(4px); }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal-window { background: var(--surface-card); width: 100%; max-width: 540px; border-radius: var(--radius); max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    
+    .modal-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; }
+    .modal-header-row h3 { font-size: 16px; font-weight: 800; text-transform: uppercase; }
+    .btn-close-drawer { background: rgba(0,0,0,0.5); color: #fff; border: none; font-size: 18px; cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .btn-close-drawer:hover { background: var(--charcoal); }
+
+    /* 🏪 E-COMMERCE STYLE SHOP PROFILE */
+    .modal-window.wide-profile { max-width: 1100px; padding: 0; background: var(--bg-ivory); }
+    .profile-cover { height: 180px; background-size: cover; background-position: center; position: relative; border-radius: var(--radius) var(--radius) 0 0; }
+    .profile-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.7)); border-radius: var(--radius) var(--radius) 0 0; }
+    .profile-content { padding: 0 32px 32px; position: relative; margin-top: -55px; text-align: center; max-width: 1000px; margin-left: auto; margin-right: auto; }
+    .profile-logo { width: 110px; height: 110px; border-radius: 50%; border: 4px solid #fff; object-fit: cover; background: #fff; box-shadow: 0 4px 14px rgba(0,0,0,0.1); position: relative; z-index: 2; margin: 0 auto; cursor: pointer; transition: transform 0.2s; }
+    .profile-logo:hover { transform: scale(1.05); }
+    
+    .btn-whatsapp-order { background: var(--primary); color: #fff; border: none; padding: 14px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 800; cursor: pointer; text-decoration: none; text-align: center; display: inline-block; min-width: 280px; margin: 16px auto 30px; transition: 0.2s; box-shadow: 0 4px 14px rgba(8, 122, 88, 0.2); }
+    .btn-whatsapp-order:hover { background: var(--primary-hover); transform: translateY(-2px); }
+
+    /* E-COMMERCE PRODUCT GRID INSIDE PROFILE */
+    .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; text-align: left; }
+    @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; } }
+    @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 28px; } }
+
+    .product-card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
+    .product-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: #D6CFBE; }
+    .product-image-container { width: 100%; height: 180px; background: #FFFFFF; border-radius: var(--radius-sm); overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; margin-bottom: 14px; cursor: pointer; border: 1px solid var(--gray-light); }
+    .product-image { width: 100%; height: 100%; object-fit: contain; }
+    .product-name { font-size: 14px; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 38px; }
+    .product-card-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+    .price-and-btn-row { display: flex; align-items: center; justify-content: space-between; }
+    .product-price-tag { font-size: 16px; font-weight: 800; color: var(--accent); }
+    .btn-add-item { background: var(--gray-light); color: var(--charcoal); border: 1px solid var(--border-subtle); padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; }
+    .btn-add-item:hover { background: var(--charcoal); color: #FFFFFF; }
+
+    /* IMAGE LIGHTBOX ZOOM */
+    .lightbox-img { max-width: 100%; max-height: 85vh; border-radius: 8px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+
+    /* FORM STYLES */
+    .form-group { margin-bottom: 14px; text-align: left; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: #fff; }
+    .form-control:focus { border-color: var(--charcoal); }
+
+    footer { background: var(--bg-ivory); border-top: 1px solid var(--border-subtle); padding: 40px 24px 60px; text-align: center; font-size: 12px; color: var(--gray-muted); margin-top: auto; }
+    .footer-links-row { margin-top: 16px; display: flex; justify-content: center; gap: 20px; font-size: 13px; flex-wrap: wrap; }
+    .footer-link-item { color: var(--gray-muted); text-decoration: none; font-weight: 600; }
+    .footer-link-item:hover { color: var(--charcoal); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <a href="/" class="brand-block">
+        <img src="/logo.jpg" alt="MP Market" style="height: 36px; width: auto; object-fit: contain; mix-blend-mode: multiply; margin-left: -8px;">
+        <span class="brand-text">MP-MARKETPLACE</span>
+      </a>
+      
+      <!-- DYNAMIC SELLER AUTH HEADER -->
+      <div class="nav-btn-group">
+        <a href="/" class="btn-minimal" style="border:none;">← Express Store</a>
+        <div id="sellerAuthContainer"><button class="btn-primary" style="opacity:0.5;">Loading...</button></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="community-notice-banner">
+      <div><strong>Community Notice:</strong> Directory sellers operate independently via WhatsApp. For MP Market guaranteed products backed by our 48-hour delivery, shop our <a href="/">Express Catalogue →</a></div>
+    </div>
+
+    <div class="search-filter-section">
+      <div class="search-input-wrapper">
+        <input type="text" id="dirSearchInput" class="search-input" placeholder="Search by Shop Name, Area (e.g. Rocklands), or Item..." oninput="handleSearchInput()">
+        <select id="suburbFilterSelect" class="suburb-select" onchange="handleFilterChange()">
+          <option value="ALL">📍 All Suburbs / Areas</option>
+        </select>
+      </div>
+
+      <div class="category-pills-row" id="categoryPills">
+        <button class="cat-pill active" onclick="selectCategory('ALL', this)">All Categories</button>
+        <button class="cat-pill" onclick="selectCategory('Food & Baking', this)">🍪 Food & Baking</button>
+        <button class="cat-pill" onclick="selectCategory('Clothing & Sewing', this)">👗 Clothing & Sewing</button>
+        <button class="cat-pill" onclick="selectCategory('Beauty & Hair', this)">💅 Beauty & Hair</button>
+        <button class="cat-pill" onclick="selectCategory('Trades & Services', this)">🛠️ Trades & Services</button>
+        <button class="cat-pill" onclick="selectCategory('Crafts & Gifts', this)">🎨 Crafts & Gifts</button>
+      </div>
+    </div>
+
+    <!-- MAIN DIRECTORY GRID -->
+    <div class="directory-grid" id="directoryGrid"></div>
+  </main>
+
+  <!-- 🏪 THE BEAUTIFUL SHOP PROFILE MODAL (E-COMMERCE STYLE) -->
+  <div class="modal-backdrop" id="shopProfileModal">
+    <div class="modal-window wide-profile">
+      
+      <!-- COVER BANNER & CLOSE BUTTON -->
+      <div id="spCover" class="profile-cover">
+        <button class="btn-close-drawer" onclick="closeModal('shopProfileModal')" style="position: absolute; top: 16px; right: 16px; z-index: 10;">&times;</button>
+      </div>
+      
+      <!-- PROFILE CONTENT -->
+      <div class="profile-content">
+        <img id="spLogo" src="/logo.jpg" class="profile-logo" onclick="openImageLightbox(this.src)" title="Click to enlarge">
+        
+        <h2 id="spName" style="font-size: 28px; font-weight: 800; color: var(--charcoal); margin: 12px 0 8px;">Shop Name</h2>
+        
+        <div style="display: flex; justify-content: center; gap: 8px; margin-bottom: 14px;">
+          <span id="spSuburb" class="badge-suburb" style="font-size: 12px;">📍 Suburb</span>
+          <span id="spCategory" class="badge-cat" style="font-size: 12px;">Category</span>
+        </div>
+
+        <!-- RATE SHOP BUTTON (Triggers Review Modal) -->
+        <div id="spRating" class="rating-badge" style="justify-content: center; font-size: 14px; margin-bottom: 16px; display: inline-flex; background: #FFF9C4; padding: 6px 14px; border-radius: 20px; border: 1px solid #FBC02D;" onclick="openReviewsFromProfile()">
+          <span>★</span> <span id="spRatingText">5.0 (0 reviews)</span> <span style="font-weight: 800; margin-left: 6px;">| ⭐ Rate This Shop</span>
+        </div>
+
+        <p id="spBio" style="font-size: 14px; color: var(--charcoal-secondary); line-height: 1.6; margin-bottom: 16px; padding: 0 10px; max-width: 700px; margin-left: auto; margin-right: auto;"></p>
+
+        <!-- BIG WHATSAPP BUTTON (GENERAL SHOP CHAT) -->
+        <a id="spWhatsappBtn" href="#" target="_blank" class="btn-whatsapp-order">
+          💬 Message Seller on WhatsApp
+        </a>
+
+        <!-- E-COMMERCE STYLE PRODUCT GRID INSIDE PROFILE -->
+        <div style="text-align: left;">
+          <h3 id="spProductsLabel" style="font-size: 16px; font-weight: 800; text-transform: uppercase; color: var(--charcoal); border-bottom: 2px solid var(--charcoal); padding-bottom: 8px; margin-bottom: 20px; display: none;">Shop Products & Services</h3>
+          <div id="spProductsGrid" class="product-grid"></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 12px; border-top: 1px solid var(--border-subtle); padding-top: 16px;">
+          <button class="btn-tool-link" id="spCopyBtn" style="font-size: 12px;">🔗 Copy Profile Link</button>
+          <a id="spReportBtn" href="#" class="btn-tool-link" style="color: var(--danger); font-size: 12px;">🚩 Report Shop</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 🔍 FULL SCREEN IMAGE LIGHTBOX -->
+  <div class="modal-backdrop" id="imageLightboxModal" onclick="closeModal('imageLightboxModal')">
+    <div style="position: relative; max-width: 90%; max-height: 90%; display: flex; align-items: center; justify-content: center;">
+      <button onclick="closeModal('imageLightboxModal')" style="position: absolute; top: -15px; right: -15px; background: var(--charcoal); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10;">&times;</button>
+      <img id="lightboxImageSrc" src="" class="lightbox-img" onclick="event.stopPropagation()">
+    </div>
+  </div>
+
+  <!-- ⭐ REVIEWS MODAL -->
+  <div class="modal-backdrop" id="reviewsModal">
+    <div class="modal-window" style="padding: 24px;">
+      <div class="modal-header-row">
+        <h3 id="reviewsModalTitle">Shop Reviews</h3>
+        <button class="btn-close-drawer" style="color:var(--charcoal); background:var(--gray-light);" onclick="closeModal('reviewsModal')">&times;</button>
+      </div>
+      <div id="reviewsListContainer" style="max-height:220px; overflow-y:auto; margin-bottom:18px; border-bottom:1px solid var(--border-subtle); padding-bottom:12px;"></div>
+
+      <h4 style="font-size:13px; font-weight:800; text-transform:uppercase; margin-bottom:10px;">Leave a Rating for this Shop</h4>
+      <form onsubmit="handleReviewSubmit(event)">
+        <input type="hidden" id="dirReviewListingId">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="revCustomerName" class="form-control" required placeholder="e.g. Nazlie">
+        </div>
+        <div class="form-group">
+          <label>Star Rating *</label>
+          <select id="revStarRating" class="form-control" required>
+            <option value="5">★★★★★ (5 Stars - Excellent)</option>
+            <option value="4">★★★★☆ (4 Stars - Very Good)</option>
+            <option value="3">★★★☆☆ (3 Stars - Average)</option>
+            <option value="2">★★☆☆☆ (2 Stars - Below Average)</option>
+            <option value="1">★☆☆☆☆ (1 Star - Poor)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Comment (Optional - You can submit rating only)</label>
+          <textarea id="revCommentText" class="form-control" rows="2" placeholder="Write feedback about the shop (optional)..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; padding: 12px;" id="submitRevBtn">Post Rating</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 📝 SELLER REGISTRATION & MANAGEMENT MODAL -->
+  <div class="modal-backdrop" id="listingModal">
+    <div class="modal-window" style="padding: 24px;">
+      <div class="modal-header-row">
+        <h3 id="listingModalTitle">List Your Local Business</h3>
+        <button class="btn-close-drawer" style="color:var(--charcoal); background:var(--gray-light);" onclick="closeModal('listingModal')">&times;</button>
+      </div>
+
+      <form id="businessListingForm" onsubmit="handleListingSubmit(event)">
+        <div style="background: #E6F4EA; border: 1px solid #137333; color: #137333; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 16px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span>Account: <strong id="ownerEmailLabel"></strong></span>
+          <span style="font-weight: 700;">✓ Verified</span>
+        </div>
+
+        <div class="form-group">
+          <label>Business / Shop Name *</label>
+          <input type="text" id="bName" class="form-control" required placeholder="e.g. Fatima's Home Bakes">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="bCategory" class="form-control" required>
+              <option value="Food & Baking">🍪 Food & Baking</option>
+              <option value="Clothing & Sewing">👗 Clothing & Sewing</option>
+              <option value="Beauty & Hair">💅 Beauty & Hair</option>
+              <option value="Trades & Services">🛠️ Trades & Services</option>
+              <option value="Crafts & Gifts">🎨 Crafts & Gifts</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Suburb / Area * (Type your area)</label>
+            <input type="text" id="bSuburb" class="form-control" required placeholder="e.g. Rocklands">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>WhatsApp Number *</label>
+          <input type="tel" id="bWhatsapp" class="form-control" required placeholder="e.g. 082 123 4567">
+        </div>
+
+        <div class="form-group">
+          <label>About Your Business / Service</label>
+          <textarea id="bAbout" class="form-control" rows="3" placeholder="Tell your neighborhood what you specialize in..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Logo / Profile Photo</label>
+          <input type="file" id="bLogoFile" class="form-control" accept="image/*">
+        </div>
+
+        <!-- SHOWCASE ITEMS (UP TO 5) -->
+        <div style="background: var(--bg-ivory); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 16px;">
+          <label style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block;">Showcase Products / Services (Photo & Price):</label>
+          
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item1Title" class="form-control" placeholder="Item 1 Title">
+              <input type="number" step="0.01" id="item1Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item1File" class="form-control" accept="image/*">
+          </div>
+
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item2Title" class="form-control" placeholder="Item 2 Title">
+              <input type="number" step="0.01" id="item2Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item2File" class="form-control" accept="image/*">
+          </div>
+
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item3Title" class="form-control" placeholder="Item 3 Title">
+              <input type="number" step="0.01" id="item3Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item3File" class="form-control" accept="image/*">
+          </div>
+
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item4Title" class="form-control" placeholder="Item 4 Title">
+              <input type="number" step="0.01" id="item4Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item4File" class="form-control" accept="image/*">
+          </div>
+
+          <div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item5Title" class="form-control" placeholder="Item 5 Title">
+              <input type="number" step="0.01" id="item5Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item5File" class="form-control" accept="image/*">
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; font-size: 12px; color: var(--charcoal-secondary); line-height: 1.5; background: #FEF3C7; border: 1px solid #F59E0B; padding: 12px; border-radius: var(--radius-sm);">
+          <input type="checkbox" id="directoryConsentCheckbox" required style="margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;">
+          <label for="directoryConsentCheckbox" style="cursor: pointer;">
+            I agree that my business details, contact information, and photos will be stored and displayed publicly on the MP Market directory. If I wish to update or delete my listing, I can request deletion at any time via the <strong>Contact Us</strong> page on MP Market.
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary" id="saveListingBtn" style="width: 100%; padding: 12px; font-size: 13px;">Submit Business for Free Review</button>
+        <button type="button" onclick="handleSignOut()" style="width: 100%; margin-top: 10px; background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 700; cursor: pointer;">Sign Out of Account</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; max-width: 640px; width: 100%; margin: 0 auto; padding: 0 16px;">
+      <a href="/" style="display: block; width: 100%; max-width: 580px;">
+        <img src="/footer-badge.jpg" alt="Mitchell's Plain Marketplace" loading="lazy" decoding="async" style="width: 100%; max-width: 580px; height: auto; object-fit: contain; border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin-bottom: 24px; cursor: pointer;">
+      </a>
+      <div class="footer-links-row">
+        <a href="/" class="footer-link-item">← Express Store</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/about.html" class="footer-link-item">About Us</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/warranty.html" class="footer-link-item">🇿🇦 Warranty & Returns</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/terms.html" class="footer-link-item">Terms & Conditions</a>
+        <span style="color: var(--border-subtle);">·</span>
+        <a href="/privacy.html" class="footer-link-item">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const GOOGLE_CLIENT_ID = "1091285001207-n6gpbe3s1d20tcgqqo6enj3ukm827vc9.apps.googleusercontent.com";
+
+    let allListings = [];
+    let selectedCat = "ALL";
+    let searchDebounceTimer = null;
+    let verifiedOwnerUser = null;
+    let currentOwnerListing = null;
+    let currentlyViewingProfileId = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      fetchListings();
+      checkDirectShareLink();
+      initSellerAuthHeader();
+    });
+
+    // -------------------------------------------------------------
+    // DYNAMIC SELLER HEADER
+    // -------------------------------------------------------------
+    function initSellerAuthHeader() {
+      const savedUser = JSON.parse(localStorage.getItem('mp_user') || 'null');
+      const container = document.getElementById('sellerAuthContainer');
+
+      if (!savedUser) {
+        container.innerHTML = `<div id="headerSellerGoogleBtn"></div>`;
+        if (window.google) {
+          google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleSellerResponse });
+          google.accounts.id.renderButton(document.getElementById('headerSellerGoogleBtn'), { theme: 'outline', size: 'medium', type: 'standard' });
+        } else {
+          setTimeout(initSellerAuthHeader, 500);
+        }
+      } else {
+        verifiedOwnerUser = savedUser;
+        checkSellerListingStatus();
+      }
+    }
+
+    async function handleGoogleSellerResponse(response) {
+      try {
+        const res = await fetch('/api/auth/google', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential: response.credential }) });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('mp_user', JSON.stringify(data.user));
+          verifiedOwnerUser = data.user;
+          checkSellerListingStatus();
+        }
+      } catch (e) {}
+    }
+
+    async function checkSellerListingStatus() {
+      const container = document.getElementById('sellerAuthContainer');
+      container.innerHTML = `<button class="btn-primary" style="opacity:0.5;">Loading...</button>`;
+      
+      try {
+        const res = await fetch('/api/directory/my-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: verifiedOwnerUser.email })
+        });
+        const existing = await res.json();
+
+        if (existing) {
+          currentOwnerListing = existing;
+          container.innerHTML = `<button onclick="openListingModal()" class="btn-primary" style="background:var(--charcoal); border-color:var(--charcoal);">⚙️ Manage My Shop</button>`;
+        } else {
+          container.innerHTML = `<button onclick="openListingModal()" class="btn-primary">+ Create My Shop</button>`;
+        }
+      } catch(e) {
+        container.innerHTML = `<button onclick="handleSignOut()" class="btn-primary" style="background:var(--danger); border-color:var(--danger);">Error - Sign Out</button>`;
+      }
+    }
+
+    function handleSignOut() {
+      localStorage.removeItem('mp_user');
+      verifiedOwnerUser = null;
+      currentOwnerListing = null;
+      closeModal('listingModal');
+      initSellerAuthHeader();
+    }
+
+    // -------------------------------------------------------------
+    // FETCH & RENDER SMALL CARDS (DIRECTORY HOME)
+    // -------------------------------------------------------------
+    async function fetchListings() {
+      try {
+        const res = await fetch("/api/directory/listings");
+        const data = await res.json();
+        allListings = data.listings || [];
+        populateSuburbFilter(data.suburbs || []);
+        renderListings(allListings);
+        checkDirectShareLink();
+      } catch (e) {}
+    }
+
+    function populateSuburbFilter(suburbs) {
+      const select = document.getElementById("suburbFilterSelect");
+      const current = select.value;
+      select.innerHTML = `<option value="ALL">📍 All Suburbs / Areas</option>` + 
+        suburbs.map(s => `<option value="${s}" ${s === current ? 'selected' : ''}>📍 ${s}</option>`).join('');
+    }
+
+    function renderListings(listings) {
+      const grid = document.getElementById("directoryGrid");
+      if (listings.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; background: #fff; border: 1px solid var(--border-subtle); border-radius: var(--radius); color: var(--gray-muted);">No community listings found in this selection.</div>`;
+        return;
+      }
+
+      grid.innerHTML = listings.map(v => `
+        <div class="vendor-card" id="shop-${v.slug}" onclick="openVendorProfile('${v.id}')" title="Click to View Full Profile">
+          <div class="vendor-header">
+            <img src="${v.logo_url || '/logo.jpg'}" class="vendor-logo" alt="${v.business_name}" loading="lazy" decoding="async">
+            <div>
+              <h3 class="vendor-title">${v.business_name}</h3>
+              <div class="rating-badge">
+                <span>★</span> <span>${Number(v.avg_rating || 5.0).toFixed(1)} (${v.review_count || 0} reviews)</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="vendor-badges">
+            <span class="badge-suburb">📍 ${v.suburb}</span>
+            <span class="badge-cat">${v.category}</span>
+          </div>
+
+          <p class="vendor-bio">${v.about_text || 'Local Mitchell\'s Plain community business.'}</p>
+
+          <button class="btn-view-shop">View Shop Profile</button>
+        </div>
+      `).join('');
+    }
+
+    // -------------------------------------------------------------
+    // ⭐ THE BEAUTIFUL SHOP PROFILE MODAL
+    // -------------------------------------------------------------
+    function openVendorProfile(id) {
+      const v = allListings.find(x => x.id === id);
+      if (!v) return;
+
+      currentlyViewingProfileId = v.id;
+
+      const cover = document.getElementById('spCover');
+      cover.style.backgroundImage = `url(${v.logo_url || '/logo.jpg'})`;
+
+      document.getElementById('spLogo').src = v.logo_url || '/logo.jpg';
+      document.getElementById('spName').innerText = v.business_name;
+      document.getElementById('spSuburb').innerText = `📍 ${v.suburb}`;
+      document.getElementById('spCategory').innerText = v.category;
+      document.getElementById('spRatingText').innerText = `${Number(v.avg_rating || 5.0).toFixed(1)} (${v.review_count || 0} reviews)`;
+      document.getElementById('spBio').innerText = v.about_text || '';
+
+      document.getElementById('spWhatsappBtn').href = `/api/directory/contact/${v.id}`;
+      document.getElementById('spReportBtn').href = `mailto:orders@mp-marketplace.co.za?subject=Report Listing: ${encodeURIComponent(v.business_name)}`;
+      
+      document.getElementById('spCopyBtn').onclick = () => {
+        const shareUrl = `${window.location.origin}/directory.html?shop=${v.slug}`;
+        navigator.clipboard.writeText(shareUrl).then(() => alert("✓ Profile Link copied to clipboard!"));
+      };
+
+      let items = [];
+      try { items = JSON.parse(v.showcase_items || '[]'); } catch(e) {}
+      
+      const productsGrid = document.getElementById('spProductsGrid');
+      const productsLabel = document.getElementById('spProductsLabel');
+      
+      if (items.length > 0) {
+        productsLabel.style.display = 'block';
+        productsGrid.innerHTML = items.map(it => `
+          <div class="product-card">
+            <div class="product-image-container" onclick="openImageLightbox('${it.img || '/logo.jpg'}')" title="Click to enlarge">
+              <img src="${it.img || '/logo.jpg'}" class="product-image" alt="${it.title}" loading="lazy" decoding="async">
+            </div>
+            <h3 class="product-name">${it.title}</h3>
+            <div class="product-card-footer">
+              <div class="price-and-btn-row">
+                <div class="product-price-tag">${it.price ? 'R ' + Number(it.price).toFixed(2) : ''}</div>
+                <a href="/api/directory/contact/${v.id}?item=${encodeURIComponent(it.title)}&price=${it.price || ''}" target="_blank" class="btn-add-item" style="text-decoration:none;">💬 Order</a>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } else {
+        productsLabel.style.display = 'none';
+        productsGrid.innerHTML = '';
+      }
+
+      document.getElementById('shopProfileModal').classList.add('open');
+    }
+
+    function openImageLightbox(src) {
+      document.getElementById('lightboxImageSrc').src = src;
+      document.getElementById('imageLightboxModal').classList.add('open');
+    }
+
+    // -------------------------------------------------------------
+    // SEARCH & FILTER
+    // -------------------------------------------------------------
+    function handleSearchInput() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(filterListings, 200);
+    }
+    function handleFilterChange() { filterListings(); }
+    function selectCategory(cat, btn) {
+      selectedCat = cat;
+      document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterListings();
+    }
+    function filterListings() {
+      const searchVal = document.getElementById('dirSearchInput').value.trim().toLowerCase();
+      const suburbVal = document.getElementById('suburbFilterSelect').value.toLowerCase();
+      const filtered = allListings.filter(v => {
+        const matchesCat = (selectedCat === "ALL" || v.category === selectedCat);
+        const matchesSuburb = (suburbVal === "all" || v.suburb.toLowerCase() === suburbVal);
+        let matchesSearch = true;
+        if (searchVal) {
+          const inName = (v.business_name || '').toLowerCase().includes(searchVal);
+          const inSuburb = (v.suburb || '').toLowerCase().includes(searchVal);
+          const inCat = (v.category || '').toLowerCase().includes(searchVal);
+          const inAbout = (v.about_text || '').toLowerCase().includes(searchVal);
+          const inItems = (v.showcase_items || '').toLowerCase().includes(searchVal);
+          matchesSearch = inName || inSuburb || inCat || inAbout || inItems;
+        }
+        return matchesCat && matchesSuburb && matchesSearch;
+      });
+      renderListings(filtered);
+    }
+
+    function checkDirectShareLink() {
+      const params = new URLSearchParams(window.location.search);
+      const shopSlug = params.get('shop');
+      if (shopSlug) {
+        setTimeout(() => {
+          const target = allListings.find(x => x.slug === shopSlug || x.id === shopSlug);
+          if (target) {
+            openVendorProfile(target.id);
+          }
+        }, 300);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // ⭐ SHOP REVIEWS SUBMISSION
+    // -------------------------------------------------------------
+    function openReviewsFromProfile() {
+      if (!currentlyViewingProfileId) return;
+      const v = allListings.find(x => x.id === currentlyViewingProfileId);
+      openReviewsModal(v.id, v.business_name);
+    }
+
+    async function openReviewsModal(listingId, shopName) {
+      document.getElementById('dirReviewListingId').value = listingId;
+      document.getElementById('reviewsModalTitle').innerText = `${shopName} — Reviews`;
+      document.getElementById('reviewsListContainer').innerHTML = `<p style="font-size:12px; color:var(--gray-muted);">Loading reviews...</p>`;
+      document.getElementById('reviewsModal').classList.add('open');
+
+      try {
+        const res = await fetch(`/api/directory/reviews/${listingId}`);
+        const revs = await res.json();
+        const container = document.getElementById('reviewsListContainer');
+
+        if (revs.length === 0) {
+          container.innerHTML = `<p style="font-size:12px; color:var(--gray-muted); padding:10px 0;">No reviews yet. Be the first to rate this shop!</p>`;
+        } else {
+          container.innerHTML = revs.map(r => `
+            <div style="margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border-subtle); font-size:12px;">
+              <div style="display:flex; justify-content:space-between; font-weight:700;">
+                <span>${r.customer_name}</span>
+                <span style="color:var(--gold);">${'★'.repeat(r.rating)}</span>
+              </div>
+              ${r.comment ? `<p style="color:var(--charcoal-secondary); margin-top:2px;">"${r.comment}"</p>` : ''}
+            </div>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function handleReviewSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitRevBtn');
+      btn.disabled = true;
+      btn.innerText = 'Posting...';
+
+      const listingId = document.getElementById('dirReviewListingId').value;
+      const name = document.getElementById('revCustomerName').value.trim();
+      const rating = document.getElementById('revStarRating').value;
+      const comment = document.getElementById('revCommentText').value.trim();
+
+      try {
+        const res = await fetch('/api/directory/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listing_id: listingId, customer_name: name, rating, comment })
+        });
+        if (res.ok) {
+          alert('✓ Thank you! Your shop review has been posted.');
+          closeModal('reviewsModal');
+          document.getElementById('revCustomerName').value = '';
+          document.getElementById('revCommentText').value = '';
+          document.getElementById('revStarRating').value = '5';
+          await fetchListings(); 
+          if(currentlyViewingProfileId === listingId) openVendorProfile(listingId);
+        } else {
+          alert('Could not post review.');
+        }
+      } catch (err) { alert('Network error.'); }
+      
+      btn.disabled = false;
+      btn.innerText = 'Post Rating';
+    }
+
+    // -------------------------------------------------------------
+    // SELLER LISTING FORM
+    // -------------------------------------------------------------
+    function openListingModal() {
+      if (!verifiedOwnerUser) return;
+      document.getElementById('listingModal').classList.add('open');
+      document.getElementById('businessListingForm').style.display = 'block';
+      document.getElementById('ownerEmailLabel').innerText = verifiedOwnerUser.email;
+
+      if (currentOwnerListing) {
+        document.getElementById('listingModalTitle').innerText = `Manage Shop: ${currentOwnerListing.business_name}`;
+        document.getElementById('bName').value = currentOwnerListing.business_name;
+        document.getElementById('bCategory').value = currentOwnerListing.category;
+        document.getElementById('bSuburb').value = currentOwnerListing.suburb;
+        document.getElementById('bWhatsapp').value = currentOwnerListing.whatsapp_number;
+        document.getElementById('bAbout').value = currentOwnerListing.about_text || '';
+        document.getElementById('saveListingBtn').innerText = 'Update Business Details';
+
+        let items = [];
+        try { items = JSON.parse(currentOwnerListing.showcase_items || '[]'); } catch(e) {}
+        if (items[0]) { document.getElementById('item1Title').value = items[0].title || ''; document.getElementById('item1Price').value = items[0].price || ''; }
+        if (items[1]) { document.getElementById('item2Title').value = items[1].title || ''; document.getElementById('item2Price').value = items[1].price || ''; }
+        if (items[2]) { document.getElementById('item3Title').value = items[2].title || ''; document.getElementById('item3Price').value = items[2].price || ''; }
+        if (items[3]) { document.getElementById('item4Title').value = items[3].title || ''; document.getElementById('item4Price').value = items[3].price || ''; }
+        if (items[4]) { document.getElementById('item5Title').value = items[4].title || ''; document.getElementById('item5Price').value = items[4].price || ''; }
+      }
+    }
+
+    async function uploadSingleFile(fileInput) {
+      const file = fileInput.files[0];
+      if (!file) return null;
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/directory/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      return data.imageUrl || null;
+    }
+
+    async function handleListingSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveListingBtn');
+
+      if (!document.getElementById('directoryConsentCheckbox').checked) {
+        alert('Please agree to the directory information notice.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Uploading Photos & Saving...';
+
+      try {
+        let logoUrl = currentOwnerListing ? currentOwnerListing.logo_url : '';
+        const uploadedLogo = await uploadSingleFile(document.getElementById('bLogoFile'));
+        if (uploadedLogo) logoUrl = uploadedLogo;
+
+        let oldItems = [];
+        try { oldItems = JSON.parse(currentOwnerListing?.showcase_items || '[]'); } catch(e) {}
+        const showcaseItems = [];
+
+        const extractItem = async (num, index) => {
+          const t = document.getElementById(`item${num}Title`).value.trim();
+          const p = document.getElementById(`item${num}Price`).value.trim();
+          const img = (await uploadSingleFile(document.getElementById(`item${num}File`))) || (oldItems[index]?.img || '');
+          if (t) showcaseItems.push({ title: t, price: p ? parseFloat(p) : null, img: img });
+        };
+
+        await extractItem(1, 0); await extractItem(2, 1); await extractItem(3, 2); await extractItem(4, 3); await extractItem(5, 4);
+
+        const payload = {
+          owner_email: verifiedOwnerUser.email,
+          business_name: document.getElementById('bName').value.trim(),
+          category: document.getElementById('bCategory').value,
+          suburb: document.getElementById('bSuburb').value.trim(),
+          whatsapp_number: document.getElementById('bWhatsapp').value.trim(),
+          about_text: document.getElementById('bAbout').value.trim(),
+          logo_url: logoUrl,
+          showcase_items: showcaseItems,
+          consent_agreed: true
+        };
+
+        const res = await fetch('/api/directory/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert('🎉 Thank you! Your shop details have been saved.\nOur team will review your photos and approve it shortly.');
+          closeModal('listingModal');
+          initSellerAuthHeader();
+        } else {
+          alert('Submission Error.');
+        }
+      } catch (err) {
+        alert('Network Error.');
+      }
+      btn.disabled = false;
+      btn.innerText = 'Submit Business for Free Review';
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  </script>
+</body>
+</html>
