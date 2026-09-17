@@ -167,22 +167,21 @@
 
   <script>
     let SUBURB_DATA = {
-      "Mitchells Plain": { zone: 1, fee: 30, type: "delivery" },
-      "Strandfontein": { zone: 1, fee: 30, type: "delivery" },
-      "Wavecrest": { zone: 1, fee: 30, type: "delivery" },
-      "Bayview": { zone: 1, fee: 30, type: "delivery" },
-      "Colorado Park": { zone: 1, fee: 30, type: "delivery" },
-      "Lentegeur": { zone: 1, fee: 30, type: "delivery" },
-      "Rocklands": { zone: 1, fee: 30, type: "delivery" },
-      "Tafelsig": { zone: 1, fee: 30, type: "delivery" },
-      "Beacon Valley": { zone: 1, fee: 30, type: "delivery" },
-      "Eastridge": { zone: 1, fee: 30, type: "delivery" },
-      "Woodlands": { zone: 1, fee: 30, type: "delivery" },
-      "Westridge": { zone: 1, fee: 30, type: "delivery" },
-      "Portland": { zone: 1, fee: 30, type: "delivery" },
-      "Philippi East": { zone: 1, fee: 30, type: "delivery" },
-      "Mandalay": { zone: 1, fee: 30, type: "delivery" },
-      "Pelican Park": { zone: 1, fee: 30, type: "delivery" },
+      "Mitchells Plain": { zone: 1, fee: 40, type: "delivery" },
+      "Strandfontein": { zone: 1, fee: 40, type: "delivery" },
+      "Wavecrest": { zone: 1, fee: 40, type: "delivery" },
+      "Bayview": { zone: 1, fee: 40, type: "delivery" },
+      "Colorado Park": { zone: 1, fee: 40, type: "delivery" },
+      "Lentegeur": { zone: 1, fee: 40, type: "delivery" },
+      "Rocklands": { zone: 1, fee: 40, type: "delivery" },
+      "Tafelsig": { zone: 1, fee: 40, type: "delivery" },
+      "Beacon Valley": { zone: 1, fee: 40, type: "delivery" },
+      "Eastridge": { zone: 1, fee: 40, type: "delivery" },
+      "Woodlands": { zone: 1, fee: 40, type: "delivery" },
+      "Westridge": { zone: 1, fee: 40, type: "delivery" },
+      "Portland": { zone: 1, fee: 40, type: "delivery" },
+      "Mandalay": { zone: 1, fee: 40, type: "delivery" },
+      "Pelican Park": { zone: 1, fee: 40, type: "delivery" },
       "Ottery": { zone: 2, fee: 55, type: "delivery" },
       "Kenwyn": { zone: 2, fee: 55, type: "delivery" },
       "Wetton": { zone: 2, fee: 55, type: "delivery" },
@@ -201,10 +200,7 @@
       "Grassy Park": { zone: 2, fee: 55, type: "delivery" },
       "Parkwood": { zone: 2, fee: 55, type: "delivery" },
       "Seawinds": { zone: 2, fee: 55, type: "delivery" },
-      "Vrygrond": { zone: 2, fee: 55, type: "delivery" },
-      "Mfuleni": { zone: 2, fee: 55, type: "delivery" },
       "Blue Downs": { zone: 2, fee: 55, type: "delivery" },
-      "Eerste River": { zone: 2, fee: 55, type: "delivery" },
       "Claremont": { zone: 3, fee: 75, type: "delivery" },
       "Kenilworth": { zone: 3, fee: 75, type: "delivery" },
       "Wynberg": { zone: 3, fee: 75, type: "delivery" },
@@ -230,6 +226,10 @@
       "Kuils River": { zone: 3, fee: 75, type: "delivery" },
       "Cape Town CBD": { zone: 3, fee: 75, type: "delivery" },
       "Strand": { zone: 3, fee: 75, type: "delivery" },
+      "Philippi East": { zone: 0, fee: 0, type: "collection" },
+      "Vrygrond": { zone: 0, fee: 0, type: "collection" },
+      "Mfuleni": { zone: 0, fee: 0, type: "collection" },
+      "Eerste River": { zone: 0, fee: 0, type: "collection" },
       "Khayelitsha": { zone: 0, fee: 0, type: "collection" },
       "Manenberg": { zone: 0, fee: 0, type: "collection" },
       "Gugulethu": { zone: 0, fee: 0, type: "collection" },
@@ -244,7 +244,6 @@
       "Elsies River": { zone: 0, fee: 0, type: "collection" },
       "Matroosfontein": { zone: 0, fee: 0, type: "collection" }
     };
-
     let cart = [];
     let storeConfig = { delivery_base_fee: 30, free_delivery_threshold: 600 };
     let selectedSuburbInfo = null;
