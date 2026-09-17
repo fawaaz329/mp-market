@@ -370,7 +370,11 @@
         <div class="receipt-row"><span>Items Subtotal</span><span id="cartSubtotalLabel">R 0.00</span></div>
         <div class="receipt-row"><span>Estimated Delivery</span><span>Calculated at checkout</span></div>
         <div class="receipt-total"><span>Subtotal</span><span id="cartTotalLabel">R 0.00</span></div>
-
+<!-- ⚠️ MINIMUM ORDER AMOUNT NOTICE (NEVER ABBREVIATED) -->
+        <div id="minOrderNoticeBox" style="display: none; background: #FEF3C7; border: 1px solid #F59E0B; border-left: 4px solid #D97706; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 12px; color: #92400E; margin-bottom: 12px; line-height: 1.45;">
+          <strong>⚠️ Minimum Order Amount: R 200.00</strong><br>
+          <span id="minOrderRemainingText">Please add R 200.00 more to your basket to proceed to checkout.</span>
+        </div>
         <!-- BUTTON SHOWN WHEN SIGNED IN -->
         <a href="/checkout.html" class="btn-solid-checkout" id="checkoutTriggerBtn" style="display: none;">Proceed to Checkout</a>
 
@@ -565,6 +569,70 @@
           body: JSON.stringify({ credential })
         });
 
+        const MINIMUM_ORDER_AMOUNT = 200.00; // Configured minimum order amount
+
+    function renderCartAuthState() {
+      const savedUser = JSON.parse(localStorage.getItem('mp_user') || 'null');
+      const checkoutBtn = document.getElementById('checkoutTriggerBtn');
+      const authBox = document.getElementById('cartAuthNoticeBox');
+      const minOrderBox = document.getElementById('minOrderNoticeBox');
+      const minOrderText = document.getElementById('minOrderRemainingText');
+
+      if (!checkoutBtn || !authBox || !minOrderBox) return;
+
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+
+      // 1. EMPTY CART
+      if (cart.length === 0) {
+        checkoutBtn.style.display = 'block';
+        checkoutBtn.style.pointerEvents = 'none';
+        checkoutBtn.style.opacity = '0.5';
+        authBox.style.display = 'none';
+        minOrderBox.style.display = 'none';
+        return;
+      }
+
+      // 2. BELOW MINIMUM ORDER AMOUNT (BELOW R 200.00)
+      if (subtotal < MINIMUM_ORDER_AMOUNT) {
+        const difference = (MINIMUM_ORDER_AMOUNT - subtotal).toFixed(2);
+        minOrderText.innerText = `Please add R ${difference} more to your basket to proceed to checkout.`;
+        minOrderBox.style.display = 'block';
+
+        // Hide checkout buttons completely until minimum order amount is met
+        checkoutBtn.style.display = 'none';
+        authBox.style.display = 'none';
+        return;
+      }
+
+      // 3. MINIMUM ORDER AMOUNT MET (R 200.00 OR MORE)
+      minOrderBox.style.display = 'none';
+
+      if (savedUser) {
+        checkoutBtn.style.display = 'block';
+        checkoutBtn.style.pointerEvents = 'auto';
+        checkoutBtn.style.opacity = '1';
+renderCartAuthState();
+    }
+
+    async function handleGoogleAuthResponse(response) {
+      const cred = response.credential;
+      localStorage.setItem('mp_auth_cred', cred);
+      await verifyGoogleSession(cred, false);
+
+      const cartDrawer = document.getElementById('cartBackdrop');
+      if (cartDrawer && cartDrawer.classList.contains('open')) {
+        window.location.href = '/checkout.html';
+      }
+    }
+
+    async function verifyGoogleSession(credential, openModalOnSuccess = false) {
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential })
+        });
+
         const data = await res.json();
         if (res.ok) {
           localStorage.setItem('mp_user', JSON.stringify(data.user));
@@ -587,20 +655,46 @@
       }
     }
 
+    // -------------------------------------------------------------
+    // 🛒 BASKET CONTROLS & MINIMUM ORDER AMOUNT CHECK (R 200.00)
+    // -------------------------------------------------------------
+    const MINIMUM_ORDER_AMOUNT = 200.00;
+
     function renderCartAuthState() {
       const savedUser = JSON.parse(localStorage.getItem('mp_user') || 'null');
       const checkoutBtn = document.getElementById('checkoutTriggerBtn');
       const authBox = document.getElementById('cartAuthNoticeBox');
+      const minOrderBox = document.getElementById('minOrderNoticeBox');
+      const minOrderText = document.getElementById('minOrderRemainingText');
 
-      if (!checkoutBtn || !authBox) return;
+      if (!checkoutBtn || !authBox || !minOrderBox) return;
 
+      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+
+      // 1. EMPTY CART
       if (cart.length === 0) {
         checkoutBtn.style.display = 'block';
         checkoutBtn.style.pointerEvents = 'none';
         checkoutBtn.style.opacity = '0.5';
         authBox.style.display = 'none';
+        minOrderBox.style.display = 'none';
         return;
       }
+
+      // 2. BELOW MINIMUM ORDER AMOUNT (BELOW R 200.00)
+      if (subtotal < MINIMUM_ORDER_AMOUNT) {
+        const difference = (MINIMUM_ORDER_AMOUNT - subtotal).toFixed(2);
+        minOrderText.innerText = `Please add R ${difference} more to your basket to proceed to checkout.`;
+        minOrderBox.style.display = 'block';
+
+        // Block checkout until minimum is reached
+        checkoutBtn.style.display = 'none';
+        authBox.style.display = 'none';
+        return;
+      }
+
+      // 3. MINIMUM ORDER AMOUNT MET (R 200.00 OR MORE)
+      minOrderBox.style.display = 'none';
 
       if (savedUser) {
         checkoutBtn.style.display = 'block';
@@ -619,21 +713,6 @@
         }
       }
     }
-
-    function renderHeaderLoggedIn(user) {
-      const container = document.getElementById('headerAuthContainer');
-      const avatarSrc = user.picture || '/logo.jpg';
-      const firstName = user.given_name || user.name.split(' ')[0] || 'Customer';
-
-      container.innerHTML = `
-        <div class="user-profile-pill">
-          <img src="${avatarSrc}" class="user-profile-avatar" alt="User">
-          <span>${firstName}</span>
-          <button onclick="handleSignOut()" class="btn-signout-text" title="Sign Out">✕</button>
-        </div>
-      `;
-    }
-
     function renderHeaderLoggedOut() {
       const container = document.getElementById('headerAuthContainer');
       container.innerHTML = `
