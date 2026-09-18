@@ -173,348 +173,357 @@
     </div>
   </main>
 
-  <script>
-    const MIN_ORDER_AMOUNT = 200.0;
+  <!-- In checkout.html, replace the script section with this updated logic -->
+<script>
+  const MIN_ORDER_AMOUNT = 200.0;
 
-    let SUBURB_DATA = {
-      "Mitchells Plain": { zone: 1, fee: 40, type: "delivery" },
-      "Strandfontein": { zone: 1, fee: 40, type: "delivery" },
-      "Wavecrest": { zone: 1, fee: 40, type: "delivery" },
-      "Bayview": { zone: 1, fee: 40, type: "delivery" },
-      "Colorado Park": { zone: 1, fee: 40, type: "delivery" },
-      "Lentegeur": { zone: 1, fee: 40, type: "delivery" },
-      "Rocklands": { zone: 1, fee: 40, type: "delivery" },
-      "Tafelsig": { zone: 1, fee: 40, type: "delivery" },
-      "Beacon Valley": { zone: 1, fee: 40, type: "delivery" },
-      "Eastridge": { zone: 1, fee: 40, type: "delivery" },
-      "Woodlands": { zone: 1, fee: 40, type: "delivery" },
-      "Westridge": { zone: 1, fee: 40, type: "delivery" },
-      "Portland": { zone: 1, fee: 40, type: "delivery" },
-      "Mandalay": { zone: 1, fee: 40, type: "delivery" },
-      "Pelican Park": { zone: 1, fee: 40, type: "delivery" },
-      "Ottery": { zone: 2, fee: 55, type: "delivery" },
-      "Kenwyn": { zone: 2, fee: 55, type: "delivery" },
-      "Wetton": { zone: 2, fee: 55, type: "delivery" },
-      "Lansdowne": { zone: 2, fee: 55, type: "delivery" },
-      "Rondebosch East": { zone: 2, fee: 55, type: "delivery" },
-      "Athlone": { zone: 2, fee: 55, type: "delivery" },
-      "Crawford": { zone: 2, fee: 55, type: "delivery" },
-      "Rylands": { zone: 2, fee: 55, type: "delivery" },
-      "Gatesville": { zone: 2, fee: 55, type: "delivery" },
-      "Belgravia": { zone: 2, fee: 55, type: "delivery" },
-      "Primrose Park": { zone: 2, fee: 55, type: "delivery" },
-      "Hanover Park": { zone: 2, fee: 55, type: "delivery" },
-      "Heideveld": { zone: 2, fee: 55, type: "delivery" },
-      "Eagle Park": { zone: 2, fee: 55, type: "delivery" },
-      "Lotus River": { zone: 2, fee: 55, type: "delivery" },
-      "Grassy Park": { zone: 2, fee: 55, type: "delivery" },
-      "Parkwood": { zone: 2, fee: 55, type: "delivery" },
-      "Seawinds": { zone: 2, fee: 55, type: "delivery" },
-      "Blue Downs": { zone: 2, fee: 55, type: "delivery" },
-      "Claremont": { zone: 3, fee: 75, type: "delivery" },
-      "Kenilworth": { zone: 3, fee: 75, type: "delivery" },
-      "Wynberg": { zone: 3, fee: 75, type: "delivery" },
-      "Plumstead": { zone: 3, fee: 75, type: "delivery" },
-      "Southfield": { zone: 3, fee: 75, type: "delivery" },
-      "Diep River": { zone: 3, fee: 75, type: "delivery" },
-      "Heathfield": { zone: 3, fee: 75, type: "delivery" },
-      "Retreat": { zone: 3, fee: 75, type: "delivery" },
-      "Steenberg": { zone: 3, fee: 75, type: "delivery" },
-      "Elfindale": { zone: 3, fee: 75, type: "delivery" },
-      "Rondebosch": { zone: 3, fee: 75, type: "delivery" },
-      "Newlands": { zone: 3, fee: 75, type: "delivery" },
-      "Rosebank": { zone: 3, fee: 75, type: "delivery" },
-      "Mowbray": { zone: 3, fee: 75, type: "delivery" },
-      "Observatory": { zone: 3, fee: 75, type: "delivery" },
-      "Pinelands": { zone: 3, fee: 75, type: "delivery" },
-      "Bonteheuwel": { zone: 3, fee: 75, type: "delivery" },
-      "Bishop Lavis": { zone: 3, fee: 75, type: "delivery" },
-      "Belhar": { zone: 3, fee: 75, type: "delivery" },
-      "Parow": { zone: 3, fee: 75, type: "delivery" },
-      "Goodwood": { zone: 3, fee: 75, type: "delivery" },
-      "Bellville": { zone: 3, fee: 75, type: "delivery" },
-      "Kuils River": { zone: 3, fee: 75, type: "delivery" },
-      "Cape Town CBD": { zone: 3, fee: 75, type: "delivery" },
-      "Strand": { zone: 3, fee: 75, type: "delivery" },
-      "Philippi East": { zone: 0, fee: 0, type: "collection" },
-      "Vrygrond": { zone: 0, fee: 0, type: "collection" },
-      "Mfuleni": { zone: 0, fee: 0, type: "collection" },
-      "Eerste River": { zone: 0, fee: 0, type: "collection" },
-      "Khayelitsha": { zone: 0, fee: 0, type: "collection" },
-      "Manenberg": { zone: 0, fee: 0, type: "collection" },
-      "Gugulethu": { zone: 0, fee: 0, type: "collection" },
-      "Nyanga": { zone: 0, fee: 0, type: "collection" },
-      "New Crossroads": { zone: 0, fee: 0, type: "collection" },
-      "Samora Machel": { zone: 0, fee: 0, type: "collection" },
-      "Browns Farm": { zone: 0, fee: 0, type: "collection" },
-      "Eisleben": { zone: 0, fee: 0, type: "collection" },
-      "Capricorn": { zone: 0, fee: 0, type: "collection" },
-      "Lavender Hill": { zone: 0, fee: 0, type: "collection" },
-      "Delft": { zone: 0, fee: 0, type: "collection" },
-      "Elsies River": { zone: 0, fee: 0, type: "collection" },
-      "Matroosfontein": { zone: 0, fee: 0, type: "collection" }
-    };
-    let cart = [];
-    let storeConfig = { delivery_base_fee: 30, free_delivery_threshold: 600 };
-    let selectedSuburbInfo = null;
+  // List of Mitchell's Plain neighborhoods
+  const MITCHELLS_PLAIN_SUBURBS = [
+    "Mitchells Plain", "Strandfontein", "Wavecrest", "Bayview",
+    "Colorado Park", "Lentegeur", "Rocklands", "Tafelsig",
+    "Beacon Valley", "Eastridge", "Woodlands", "Westridge",
+    "Portland", "Mandalay", "Pelican Park"
+  ];
 
-    window.addEventListener('DOMContentLoaded', async () => {
-      try { cart = JSON.parse(localStorage.getItem('mp_cart') || '[]'); } catch (e) { cart = []; }
+  let ALL_SUBURBS = {
+    "Mitchells Plain": { zone: 1, fee: 40, type: "delivery" },
+    "Strandfontein": { zone: 1, fee: 40, type: "delivery" },
+    "Wavecrest": { zone: 1, fee: 40, type: "delivery" },
+    "Bayview": { zone: 1, fee: 40, type: "delivery" },
+    "Colorado Park": { zone: 1, fee: 40, type: "delivery" },
+    "Lentegeur": { zone: 1, fee: 40, type: "delivery" },
+    "Rocklands": { zone: 1, fee: 40, type: "delivery" },
+    "Tafelsig": { zone: 1, fee: 40, type: "delivery" },
+    "Beacon Valley": { zone: 1, fee: 40, type: "delivery" },
+    "Eastridge": { zone: 1, fee: 40, type: "delivery" },
+    "Woodlands": { zone: 1, fee: 40, type: "delivery" },
+    "Westridge": { zone: 1, fee: 40, type: "delivery" },
+    "Portland": { zone: 1, fee: 40, type: "delivery" },
+    "Mandalay": { zone: 1, fee: 40, type: "delivery" },
+    "Pelican Park": { zone: 1, fee: 40, type: "delivery" },
+    "Ottery": { zone: 2, fee: 55, type: "delivery" },
+    "Kenwyn": { zone: 2, fee: 55, type: "delivery" },
+    "Wetton": { zone: 2, fee: 55, type: "delivery" },
+    "Lansdowne": { zone: 2, fee: 55, type: "delivery" },
+    "Rondebosch East": { zone: 2, fee: 55, type: "delivery" },
+    "Athlone": { zone: 2, fee: 55, type: "delivery" },
+    "Crawford": { zone: 2, fee: 55, type: "delivery" },
+    "Rylands": { zone: 2, fee: 55, type: "delivery" },
+    "Gatesville": { zone: 2, fee: 55, type: "delivery" },
+    "Belgravia": { zone: 2, fee: 55, type: "delivery" },
+    "Primrose Park": { zone: 2, fee: 55, type: "delivery" },
+    "Hanover Park": { zone: 2, fee: 55, type: "delivery" },
+    "Heideveld": { zone: 2, fee: 55, type: "delivery" },
+    "Eagle Park": { zone: 2, fee: 55, type: "delivery" },
+    "Lotus River": { zone: 2, fee: 55, type: "delivery" },
+    "Grassy Park": { zone: 2, fee: 55, type: "delivery" },
+    "Parkwood": { zone: 2, fee: 55, type: "delivery" },
+    "Seawinds": { zone: 2, fee: 55, type: "delivery" },
+    "Blue Downs": { zone: 2, fee: 55, type: "delivery" },
+    "Claremont": { zone: 3, fee: 75, type: "delivery" },
+    "Kenilworth": { zone: 3, fee: 75, type: "delivery" },
+    "Wynberg": { zone: 3, fee: 75, type: "delivery" },
+    "Plumstead": { zone: 3, fee: 75, type: "delivery" },
+    "Southfield": { zone: 3, fee: 75, type: "delivery" },
+    "Diep River": { zone: 3, fee: 75, type: "delivery" },
+    "Heathfield": { zone: 3, fee: 75, type: "delivery" },
+    "Retreat": { zone: 3, fee: 75, type: "delivery" },
+    "Steenberg": { zone: 3, fee: 75, type: "delivery" },
+    "Elfindale": { zone: 3, fee: 75, type: "delivery" },
+    "Rondebosch": { zone: 3, fee: 75, type: "delivery" },
+    "Newlands": { zone: 3, fee: 75, type: "delivery" },
+    "Rosebank": { zone: 3, fee: 75, type: "delivery" },
+    "Mowbray": { zone: 3, fee: 75, type: "delivery" },
+    "Observatory": { zone: 3, fee: 75, type: "delivery" },
+    "Pinelands": { zone: 3, fee: 75, type: "delivery" },
+    "Bonteheuwel": { zone: 3, fee: 75, type: "delivery" },
+    "Bishop Lavis": { zone: 3, fee: 75, type: "delivery" },
+    "Belhar": { zone: 3, fee: 75, type: "delivery" },
+    "Parow": { zone: 3, fee: 75, type: "delivery" },
+    "Goodwood": { zone: 3, fee: 75, type: "delivery" },
+    "Bellville": { zone: 3, fee: 75, type: "delivery" },
+    "Kuils River": { zone: 3, fee: 75, type: "delivery" },
+    "Cape Town CBD": { zone: 3, fee: 75, type: "delivery" },
+    "Strand": { zone: 3, fee: 75, type: "delivery" }
+  };
 
-      if (cart.length === 0) {
-        document.getElementById('checkoutMainGrid').style.display = 'none';
-        document.getElementById('emptyCartNotice').style.display = 'block';
-        return;
+  let SUBURB_DATA = {};
+  let cart = [];
+  let storeConfig = { delivery_base_fee: 30, free_delivery_threshold: 600, mitchells_plain_only: 0 };
+  let selectedSuburbInfo = null;
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    try { cart = JSON.parse(localStorage.getItem('mp_cart') || '[]'); } catch (e) { cart = []; }
+
+    if (cart.length === 0) {
+      document.getElementById('checkoutMainGrid').style.display = 'none';
+      document.getElementById('emptyCartNotice').style.display = 'block';
+      return;
+    }
+
+    await fetchStoreConfig();
+    setupActiveSuburbs();
+    await fetchCustomAreas();
+    renderOrderSummary();
+    populateVerifiedCustomer();
+    validateMinOrderConstraint();
+
+    document.addEventListener('click', (e) => {
+      const suburbBox = document.querySelector('.suburb-autocomplete-wrapper');
+      if (suburbBox && !suburbBox.contains(e.target)) {
+        document.getElementById('suburbSuggestionsList').style.display = 'none';
       }
-
-      await fetchStoreConfig();
-      await fetchCustomAreas();
-      renderOrderSummary();
-      populateVerifiedCustomer();
-      validateMinOrderConstraint();
-
-      document.addEventListener('click', (e) => {
-        const suburbBox = document.querySelector('.suburb-autocomplete-wrapper');
-        if (suburbBox && !suburbBox.contains(e.target)) {
-          document.getElementById('suburbSuggestionsList').style.display = 'none';
-        }
-      });
     });
+  });
 
-    function validateMinOrderConstraint() {
-      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-      const warningBox = document.getElementById('checkoutMinOrderWarning');
-      const submitBtn = document.getElementById('orderSubmitBtn');
-
-      if (subtotal < MIN_ORDER_AMOUNT) {
-        warningBox.style.display = 'block';
-        document.getElementById('minOrderWarningCurrent').innerText = `R ${subtotal.toFixed(2)}`;
-        submitBtn.disabled = true;
-        submitBtn.style.opacity = '0.6';
-        submitBtn.style.cursor = 'not-allowed';
-        submitBtn.innerText = `Min. Order R${MIN_ORDER_AMOUNT.toFixed(0)} Required`;
-      } else {
-        warningBox.style.display = 'none';
-        submitBtn.disabled = false;
-        submitBtn.style.opacity = '1';
-        submitBtn.style.cursor = 'pointer';
-        submitBtn.innerText = 'Pay with Card / Apple Pay';
-      }
+  function setupActiveSuburbs() {
+    if (storeConfig.mitchells_plain_only === 1 || storeConfig.mitchells_plain_only === "1") {
+      SUBURB_DATA = {};
+      MITCHELLS_PLAIN_SUBURBS.forEach(s => {
+        if (ALL_SUBURBS[s]) SUBURB_DATA[s] = ALL_SUBURBS[s];
+        else SUBURB_DATA[s] = { zone: 1, fee: 40, type: "delivery" };
+      });
+      document.getElementById('custSuburbInput').placeholder = "Start typing Mitchell's Plain area (e.g. Rocklands, Portland, Tafelsig...)";
+    } else {
+      SUBURB_DATA = { ...ALL_SUBURBS };
     }
+  }
 
-    function populateVerifiedCustomer() {
-      const savedUser = JSON.parse(localStorage.getItem('mp_user') || 'null');
-      
-      if (savedUser) {
-        document.getElementById('verifiedUserText').innerText = `${savedUser.name} (${savedUser.email})`;
-        const nameInput = document.getElementById('custName');
-        const emailInput = document.getElementById('custEmail');
+  function validateMinOrderConstraint() {
+    const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    const warningBox = document.getElementById('checkoutMinOrderWarning');
+    const submitBtn = document.getElementById('orderSubmitBtn');
 
-        nameInput.value = savedUser.name || '';
-        emailInput.value = savedUser.email || '';
-        emailInput.readOnly = true;
-        emailInput.style.background = 'var(--gray-light)';
-        emailInput.style.cursor = 'not-allowed';
-      }
-
-      const phone = localStorage.getItem('mp_customer_phone');
-      if (phone) document.getElementById('custWhatsapp').value = phone;
+    if (subtotal < MIN_ORDER_AMOUNT) {
+      warningBox.style.display = 'block';
+      document.getElementById('minOrderWarningCurrent').innerText = `R ${subtotal.toFixed(2)}`;
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.6';
+      submitBtn.style.cursor = 'not-allowed';
+      submitBtn.innerText = `Min. Order R${MIN_ORDER_AMOUNT.toFixed(0)} Required`;
+    } else {
+      warningBox.style.display = 'none';
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+      submitBtn.style.cursor = 'pointer';
+      submitBtn.innerText = 'Pay with Card / Apple Pay';
     }
+  }
 
-    async function fetchStoreConfig() {
-      try {
-        const res = await fetch('/api/config');
-        storeConfig = await res.json();
-      } catch (e) {}
+  function populateVerifiedCustomer() {
+    const savedUser = JSON.parse(localStorage.getItem('mp_user') || 'null');
+    if (savedUser) {
+      document.getElementById('verifiedUserText').innerText = `${savedUser.name} (${savedUser.email})`;
+      const nameInput = document.getElementById('custName');
+      const emailInput = document.getElementById('custEmail');
+      nameInput.value = savedUser.name || '';
+      emailInput.value = savedUser.email || '';
+      emailInput.readOnly = true;
+      emailInput.style.background = 'var(--gray-light)';
+      emailInput.style.cursor = 'not-allowed';
     }
+    const phone = localStorage.getItem('mp_customer_phone');
+    if (phone) document.getElementById('custWhatsapp').value = phone;
+  }
 
-    async function fetchCustomAreas() {
-      try {
-        const res = await fetch('/api/areas');
-        const dbAreas = await res.json();
-        dbAreas.forEach(a => {
+  async function fetchStoreConfig() {
+    try {
+      const res = await fetch('/api/config');
+      storeConfig = await res.json();
+    } catch (e) {}
+  }
+
+  async function fetchCustomAreas() {
+    try {
+      const res = await fetch('/api/areas');
+      const dbAreas = await res.json();
+      dbAreas.forEach(a => {
+        // Only include custom areas if they match MP filter or if filter is inactive
+        if (storeConfig.mitchells_plain_only !== 1 && storeConfig.mitchells_plain_only !== "1") {
           SUBURB_DATA[a.name] = {
             zone: a.zone_name || 1,
             fee: Number(a.fee),
             type: a.is_collection ? 'collection' : 'delivery'
           };
-        });
-      } catch (e) {}
-    }
+        }
+      });
+    } catch (e) {}
+  }
 
-    function renderOrderSummary() {
-      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-      document.getElementById('summarySubtotal').innerText = `R ${subtotal.toFixed(2)}`;
-      document.getElementById('summaryTotal').innerText = `R ${subtotal.toFixed(2)}`;
+  function renderOrderSummary() {
+    const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    document.getElementById('summarySubtotal').innerText = `R ${subtotal.toFixed(2)}`;
+    document.getElementById('summaryTotal').innerText = `R ${subtotal.toFixed(2)}`;
 
-      const list = document.getElementById('checkoutItemsList');
-      list.innerHTML = cart.map(i => `
-        <div class="order-item-row">
-          <div>
-            <strong>${i.quantity}x</strong> ${i.name}
-          </div>
-          <div><strong>R ${(i.price * i.quantity).toFixed(2)}</strong></div>
-        </div>
-      `).join('');
-    }
+    const list = document.getElementById('checkoutItemsList');
+    list.innerHTML = cart.map(i => `
+      <div class="order-item-row">
+        <div><strong>${i.quantity}x</strong> ${i.name}</div>
+        <div><strong>R ${(i.price * i.quantity).toFixed(2)}</strong></div>
+      </div>
+    `).join('');
+  }
 
-    function handleSuburbInput(e) {
-      const val = e.target.value.trim().toLowerCase();
-      const list = document.getElementById('suburbSuggestionsList');
+  function handleSuburbInput(e) {
+    const val = e.target.value.trim().toLowerCase();
+    const list = document.getElementById('suburbSuggestionsList');
 
-      if (!val) {
-        list.style.display = 'none';
-        selectedSuburbInfo = null;
-        updateTotals();
-        return;
-      }
-
-      const matches = Object.keys(SUBURB_DATA).filter(sub => sub.toLowerCase().includes(val));
-
-      if (matches.length === 0) {
-        list.innerHTML = `<div style="padding:10px 14px; font-size:12px; color:var(--gray-muted);">No matching area found. Please select from valid zones.</div>`;
-        list.style.display = 'block';
-        selectedSuburbInfo = null;
-        updateTotals();
-        return;
-      }
-
-      list.innerHTML = matches.map(suburb => {
-        const info = SUBURB_DATA[suburb];
-        const label = info.type === 'collection' ? 'Collection Only (R0)' : `Zone ${info.zone} (R${info.fee})`;
-        return `
-          <div class="suburb-suggestion-row" onclick="selectSuburb('${suburb.replace(/'/g, "\\'")}')">
-            <span>${suburb}</span>
-            <span style="font-size:11px; font-weight:700; color:${info.type === 'collection' ? '#92400E' : 'var(--accent)'};">${label}</span>
-          </div>
-        `;
-      }).join('');
-      list.style.display = 'block';
-    }
-
-    function selectSuburb(suburbName) {
-      document.getElementById('custSuburbInput').value = suburbName;
-      document.getElementById('suburbSuggestionsList').style.display = 'none';
-      selectedSuburbInfo = { name: suburbName, ...SUBURB_DATA[suburbName] };
+    if (!val) {
+      list.style.display = 'none';
+      selectedSuburbInfo = null;
       updateTotals();
+      return;
     }
 
-    function updateTotals() {
-      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-      const freeThreshold = storeConfig.free_delivery_threshold || 600;
-      const isFree = subtotal >= freeThreshold;
+    const matches = Object.keys(SUBURB_DATA).filter(sub => sub.toLowerCase().includes(val));
 
-      const dispatchBadge = document.getElementById('dispatchBadge');
-      const noticeBox = document.getElementById('collectionNoticeBox');
-      const deliveryLabel = document.getElementById('summaryDelivery');
-      const totalLabel = document.getElementById('summaryTotal');
+    if (matches.length === 0) {
+      const isMpOnly = (storeConfig.mitchells_plain_only === 1 || storeConfig.mitchells_plain_only === "1");
+      const msg = isMpOnly ? 'Currently delivering strictly to Mitchell\'s Plain areas only.' : 'No matching area found. Please select from valid zones.';
+      list.innerHTML = `<div style="padding:10px 14px; font-size:12px; color:var(--accent); font-weight:bold;">${msg}</div>`;
+      list.style.display = 'block';
+      selectedSuburbInfo = null;
+      updateTotals();
+      return;
+    }
 
-      if (!selectedSuburbInfo) {
-        dispatchBadge.style.display = 'none';
-        noticeBox.style.display = 'none';
-        deliveryLabel.innerText = 'Select Suburb';
-        totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
-        validateMinOrderConstraint();
-        return;
-      }
+    list.innerHTML = matches.map(suburb => {
+      const info = SUBURB_DATA[suburb];
+      const label = info.type === 'collection' ? 'Collection Only (R0)' : `Zone ${info.zone} (R${info.fee})`;
+      return `
+        <div class="suburb-suggestion-row" onclick="selectSuburb('${suburb.replace(/'/g, "\\'")}')">
+          <span>${suburb}</span>
+          <span style="font-size:11px; font-weight:700; color:${info.type === 'collection' ? '#92400E' : 'var(--accent)'};">${label}</span>
+        </div>
+      `;
+    }).join('');
+    list.style.display = 'block';
+  }
 
-      if (selectedSuburbInfo.type === 'collection') {
-        dispatchBadge.style.display = 'none';
-        noticeBox.style.display = 'block';
-        noticeBox.innerHTML = `⚠️ <strong>Notice:</strong> We do not offer direct home delivery to <strong>${selectedSuburbInfo.name}</strong> due to safety courier restrictions. This order will be processed for <strong>COLLECTION ONLY</strong> from Mitchells Plain.`;
-        deliveryLabel.innerText = 'Collection Only (R 0.00)';
+  function selectSuburb(suburbName) {
+    document.getElementById('custSuburbInput').value = suburbName;
+    document.getElementById('suburbSuggestionsList').style.display = 'none';
+    selectedSuburbInfo = { name: suburbName, ...SUBURB_DATA[suburbName] };
+    updateTotals();
+  }
+
+  function updateTotals() {
+    const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    const freeThreshold = storeConfig.free_delivery_threshold || 600;
+    const isFree = subtotal >= freeThreshold;
+
+    const dispatchBadge = document.getElementById('dispatchBadge');
+    const noticeBox = document.getElementById('collectionNoticeBox');
+    const deliveryLabel = document.getElementById('summaryDelivery');
+    const totalLabel = document.getElementById('summaryTotal');
+
+    if (!selectedSuburbInfo) {
+      dispatchBadge.style.display = 'none';
+      noticeBox.style.display = 'none';
+      deliveryLabel.innerText = 'Select Suburb';
+      totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
+      validateMinOrderConstraint();
+      return;
+    }
+
+    if (selectedSuburbInfo.type === 'collection') {
+      dispatchBadge.style.display = 'none';
+      noticeBox.style.display = 'block';
+      noticeBox.innerHTML = `⚠️ <strong>Notice:</strong> We do not offer direct home delivery to <strong>${selectedSuburbInfo.name}</strong> due to safety courier restrictions. This order will be processed for <strong>COLLECTION ONLY</strong> from Mitchells Plain.`;
+      deliveryLabel.innerText = 'Collection Only (R 0.00)';
+      totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
+    } else {
+      noticeBox.style.display = 'none';
+      dispatchBadge.style.display = 'block';
+
+      if (isFree) {
+        dispatchBadge.innerText = '🎉 Free Delivery Unlocked · 🚗 Dispatched within 48 Hours';
+        deliveryLabel.innerHTML = `<span style="color:var(--primary); font-weight:700;">FREE</span> <small style="color:var(--gray-muted); text-decoration:line-through;">(R ${selectedSuburbInfo.fee.toFixed(2)})</small>`;
         totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
       } else {
-        noticeBox.style.display = 'none';
-        dispatchBadge.style.display = 'block';
-
-        if (isFree) {
-          dispatchBadge.innerText = '🎉 Free Delivery Unlocked · 🚗 Dispatched within 48 Hours';
-          deliveryLabel.innerHTML = `<span style="color:var(--primary); font-weight:700;">FREE</span> <small style="color:var(--gray-muted); text-decoration:line-through;">(R ${selectedSuburbInfo.fee.toFixed(2)})</small>`;
-          totalLabel.innerText = `R ${subtotal.toFixed(2)}`;
-        } else {
-          dispatchBadge.innerText = '🚗 Dispatched within 48 Hours';
-          deliveryLabel.innerText = `Zone ${selectedSuburbInfo.zone} (R ${selectedSuburbInfo.fee.toFixed(2)})`;
-          totalLabel.innerText = `R ${(subtotal + selectedSuburbInfo.fee).toFixed(2)}`;
-        }
+        dispatchBadge.innerText = '🚗 Dispatched within 48 Hours';
+        deliveryLabel.innerText = `Zone ${selectedSuburbInfo.zone} (R ${selectedSuburbInfo.fee.toFixed(2)})`;
+        totalLabel.innerText = `R ${(subtotal + selectedSuburbInfo.fee).toFixed(2)}`;
       }
-
-      validateMinOrderConstraint();
     }
 
-    async function handleOrderSubmit(e) {
-      e.preventDefault();
-      const btn = document.getElementById('orderSubmitBtn');
-      const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
+    validateMinOrderConstraint();
+  }
 
-      if (subtotal < MIN_ORDER_AMOUNT) {
-        alert(`Minimum order value is R${MIN_ORDER_AMOUNT.toFixed(2)}. Your current basket subtotal is R ${subtotal.toFixed(2)}. Please add more items.`);
-        return;
-      }
+  async function handleOrderSubmit(e) {
+    e.preventDefault();
+    const btn = document.getElementById('orderSubmitBtn');
+    const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
 
-      if (!document.getElementById('termsConsentCheckbox').checked) {
-        alert('Please agree to the Terms, Warranty, and POPIA Privacy Policy.');
-        return;
-      }
+    if (subtotal < MIN_ORDER_AMOUNT) {
+      alert(`Minimum order value is R${MIN_ORDER_AMOUNT.toFixed(2)}. Your current basket subtotal is R ${subtotal.toFixed(2)}.`);
+      return;
+    }
 
-      if (!selectedSuburbInfo) {
-        alert('Please select a valid Suburb / Area from the suggestions list.');
-        return;
-      }
+    if (!document.getElementById('termsConsentCheckbox').checked) {
+      alert('Please agree to the Terms, Warranty, and POPIA Privacy Policy.');
+      return;
+    }
 
-      const name = document.getElementById('custName').value.trim();
-      const email = document.getElementById('custEmail').value.trim();
-      const rawPhone = document.getElementById('custWhatsapp').value.trim();
-      const street = document.getElementById('custStreet').value.trim();
-      const city = "Cape Town";
+    if (!selectedSuburbInfo) {
+      alert('Please select a valid Suburb / Area from the suggestions list.');
+      return;
+    }
 
-      let cleanPhone = rawPhone.replace(/[^0-9]/g, '');
-      if (cleanPhone.startsWith('0')) cleanPhone = '27' + cleanPhone.slice(1);
-      else if (!cleanPhone.startsWith('27')) cleanPhone = '27' + cleanPhone;
+    const name = document.getElementById('custName').value.trim();
+    const email = document.getElementById('custEmail').value.trim();
+    const rawPhone = document.getElementById('custWhatsapp').value.trim();
+    const street = document.getElementById('custStreet').value.trim();
+    const city = "Cape Town";
 
-      const fullAddress = `${street}, ${selectedSuburbInfo.name}, ${city}`;
-      const freeThreshold = storeConfig.free_delivery_threshold || 600;
-      const isFree = subtotal >= freeThreshold;
-      const isCollection = selectedSuburbInfo.type === 'collection';
-      const deliveryFee = (isCollection || isFree) ? 0 : selectedSuburbInfo.fee;
+    let cleanPhone = rawPhone.replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('0')) cleanPhone = '27' + cleanPhone.slice(1);
+    else if (!cleanPhone.startsWith('27')) cleanPhone = '27' + cleanPhone;
 
-      btn.disabled = true;
-      btn.innerText = 'Creating Secure Payment Session...';
+    const fullAddress = `${street}, ${selectedSuburbInfo.name}, ${city}`;
+    const freeThreshold = storeConfig.free_delivery_threshold || 600;
+    const isFree = subtotal >= freeThreshold;
+    const isCollection = selectedSuburbInfo.type === 'collection';
+    const deliveryFee = (isCollection || isFree) ? 0 : selectedSuburbInfo.fee;
 
-      try {
-        const res = await fetch('/api/orders/create-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            customer_name: name,
-            customer_email: email,
-            customer_whatsapp: cleanPhone,
-            delivery_address: fullAddress,
-            delivery_fee: deliveryFee,
-            is_collection: isCollection,
-            items: cart.map(i => ({ id: i.id, size: i.size || '', color: i.color || '', quantity: i.quantity }))
-          })
-        });
+    btn.disabled = true;
+    btn.innerText = 'Creating Secure Payment Session...';
 
-        const data = await res.json();
-        if (!res.ok) {
-          alert('Checkout Error: ' + (data.error || 'Could not initiate checkout.'));
-          btn.disabled = false;
-          btn.innerText = 'Pay with Card / Apple Pay';
-          return;
-        }
+    try {
+      const res = await fetch('/api/orders/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer_name: name,
+          customer_email: email,
+          customer_whatsapp: cleanPhone,
+          delivery_address: fullAddress,
+          delivery_fee: deliveryFee,
+          is_collection: isCollection,
+          items: cart.map(i => ({ id: i.id, size: i.size || '', color: i.color || '', quantity: i.quantity }))
+        })
+      });
 
-        localStorage.setItem('mp_customer_phone', cleanPhone);
-        localStorage.setItem('mp_customer_address', fullAddress);
-
-        btn.innerText = 'Redirecting to Yoco...';
-        window.location.href = data.redirect_url;
-      } catch (err) {
-        alert('Network Error: ' + err.message);
+      const data = await res.json();
+      if (!res.ok) {
+        alert('Checkout Error: ' + (data.error || 'Could not initiate checkout.'));
         btn.disabled = false;
         btn.innerText = 'Pay with Card / Apple Pay';
+        return;
       }
+
+      localStorage.setItem('mp_customer_phone', cleanPhone);
+      localStorage.setItem('mp_customer_address', fullAddress);
+
+      btn.innerText = 'Redirecting to Yoco...';
+      window.location.href = data.redirect_url;
+    } catch (err) {
+      alert('Network Error: ' + err.message);
+      btn.disabled = false;
+      btn.innerText = 'Pay with Card / Apple Pay';
     }
-  </script>
+  }
+                    </script>
+        
 </body>
 </html>
