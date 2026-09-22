@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MP Market — Admin Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-ivory: #F7F4EF; --surface-card: #FFFFFF; --charcoal: #171717; --gray-muted: #737373;
+      --gray-light: #EAE6DF; --border-subtle: #E8E3DA; --accent: #C45A2C; --accent-hover: #A8481E;
+      --primary: #087A58; --danger: #B91C1C; --radius-sm: 4px; --radius: 8px; --shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-ivory); color: var(--charcoal); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: var(--surface-card); border-bottom: 1px solid var(--border-subtle); padding: 14px 24px; display: flex; justify-content: space-between; align-items: center; }
+    .header-title { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn-view-store { background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 6px 14px; border-radius: var(--radius-sm); text-decoration: none; color: var(--charcoal); font-size: 12px; font-weight: 600; }
+    .admin-container { max-width: 1240px; margin: 24px auto; padding: 0 16px; width: 100%; flex: 1; }
+
+    .login-box { max-width: 400px; margin: 60px auto; background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); text-align: center; }
+    .login-box h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
+    .login-box p { font-size: 13px; color: var(--gray-muted); margin-bottom: 20px; }
+
+    .dashboard-layout { display: none; }
+    .admin-nav { display: flex; gap: 10px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 20px; padding-bottom: 10px; overflow-x: auto; }
+    .nav-tab { background: transparent; border: none; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; color: var(--gray-muted); cursor: pointer; white-space: nowrap; transition: 0.2s; text-transform: uppercase; }
+    .nav-tab.active { background: var(--charcoal); color: #FFFFFF; }
+
+    .card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); margin-bottom: 24px; }
+    .card-title { font-size: 15px; font-weight: 800; margin-bottom: 16px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: #fff; }
+    .form-control:focus { border-color: var(--charcoal); }
+
+    .btn-primary { background: var(--accent); color: #fff; border: none; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th, .admin-table td { padding: 12px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
+    .admin-table th { background: #FAFAFA; font-weight: 700; color: var(--charcoal); text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(23, 23, 23, 0.5); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: 0.2s; }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal-window { background: var(--surface-card); width: 100%; max-width: 600px; border-radius: var(--radius); padding: 24px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+
+    /* 🖨️ CLEAN PRINT STYLES - STOPS 2-PAGE BLANK OVERFLOW */
+    #printRenderContainer { display: none; }
+    @media print {
+      @page { size: portrait; margin: 8mm; }
+      html, body {
+        background: #FFFFFF !important;
+        color: #000000 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+      }
+      header, .admin-container, .modal-backdrop {
+        display: none !important;
+      }
+      #printRenderContainer {
+        display: block !important;
+        position: static !important;
+        width: 100% !important;
+        background: #FFFFFF !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .no-print-break {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">MP Market — Control Portal</div>
+    <div><a href="/" class="btn-view-store">← View Customer Store</a></div>
+  </header>
+
+  <div class="admin-container">
+    <div class="login-box" id="loginBox">
+      <h2>Manager Sign In</h2>
+      <p>Enter your ADMIN_PASSWORD secret to access management tools.</p>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group"><input type="password" id="adminPasswordInput" class="form-control" placeholder="Enter Secret Password" required></div>
+        <button type="submit" class="btn-primary" style="width:100%;">Access Dashboard</button>
+      </form>
+    </div>
+
+    <div class="dashboard-layout" id="dashboardLayout">
+      <div class="admin-nav">
+        <button class="nav-tab active" onclick="showTab('ordersTab', this)">Live Orders (<span id="liveOrderCount">0</span>)</button>
+        <button class="nav-tab" onclick="showTab('deliveredTab', this)">Delivered Archive (<span id="deliveredOrderCount">0</span>)</button>
+        <button class="nav-tab" onclick="showTab('directoryTab', this)">📍 Directory Approvals (<span id="dirCount">0</span>)</button>
+        <button class="nav-tab" onclick="showTab('inquiriesTab', this)">💬 Inquiries (<span id="inquiryCount">0</span>)</button>
+        <button class="nav-tab" onclick="showTab('catalogueTab', this)">Sourcing Catalogue</button>
+        <button class="nav-tab" id="tabAddProductBtn" onclick="showTab('addProductTab', this)">+ Add Product</button>
+        <button class="nav-tab" onclick="showTab('areasTab', this)">📍 Delivery Areas</button>
+        <button class="nav-tab" onclick="showTab('deliveryTab', this)">Store Settings</button>
+        <button class="nav-tab" style="margin-left:auto; color:var(--danger);" onclick="logout()">Logout</button>
+      </div>
+
+      <!-- TAB 1: LIVE ORDERS WITH SEARCH & BULK RUN SHEETS -->
+      <div id="ordersTab">
+        <div class="card">
+          <div class="card-title">
+            <span>Incoming Active Orders</span>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button onclick="printBulkDeliveryRunSheet()" class="btn-primary" style="padding:6px 12px; font-size:11px; background:var(--primary);">🚗 Bulk Delivery Sheet (By Area)</button>
+              <button onclick="printBulkSupplierWaybill()" class="btn-primary" style="padding:6px 12px; font-size:11px; background:var(--charcoal);">🏪 Bulk Run Sheet (By Supplier)</button>
+            </div>
+          </div>
+
+          <!-- 🔍 LIVE ORDER SEARCH BAR -->
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px;">
+            <input type="text" id="liveOrderSearchInput" class="form-control" style="max-width:380px;" placeholder="🔍 Punch in Order #, Customer, Phone, Suburb, or Item..." oninput="handleLiveOrderSearch()">
+            <span id="liveOrderFilterMeta" style="font-size:12px; color:var(--gray-muted);"></span>
+          </div>
+
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Order #</th><th>Customer</th><th>WhatsApp</th><th>Address / Suburb</th><th>Items, Size, Color & Shop</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="liveOrdersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: DELIVERED ARCHIVE & PDF EXPORT -->
+      <div id="deliveredTab" style="display:none;">
+        <div class="card">
+          <div class="card-title">
+            <span>Delivered Orders Archive</span>
+            <div style="display:flex; gap:10px;">
+              <button onclick="printCompletedOrdersReport()" class="btn-primary" style="padding:6px 14px; font-size:11px; background:var(--charcoal);">📄 Download Report (PDF)</button>
+              <button onclick="triggerMasterPurge()" style="background:var(--danger); color:#fff; border:none; padding:6px 14px; border-radius:var(--radius-sm); font-size:11px; font-weight:700; cursor:pointer;">🗑️ Year-End Purge</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Order #</th><th>Customer</th><th>WhatsApp</th><th>Address</th><th>Items Delivered</th><th>Total</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="deliveredOrdersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: COMMUNITY DIRECTORY APPROVALS -->
+      <div id="directoryTab" style="display:none;">
+        <div class="card">
+          <div class="card-title">
+            <span>Community Directory Approvals & Submissions</span>
+            <button onclick="loadAdminDirectory()" class="btn-view-store" style="cursor:pointer;">↻ Refresh</button>
+          </div>
+          <p style="font-size:12px; color:var(--gray-muted); margin-bottom:14px;">Click <strong>Inspect Photos & Bio</strong> to review the 5 business photos and verify there are no prohibited items before approving.</p>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Logo</th><th>Shop Name</th><th>Owner Email</th><th>Suburb</th><th>Category</th><th>WhatsApp</th><th>Status</th><th>Photos & Approvals</th></tr>
+              </thead>
+              <tbody id="directoryAdminTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: INQUIRIES -->
+      <div id="inquiriesTab" style="display:none;">
+        <div class="card">
+          <div class="card-title">
+            <span>Customer Contact Queries</span>
+            <button onclick="loadInquiries()" class="btn-view-store" style="cursor:pointer;">↻ Refresh</button>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead><tr><th>Date</th><th>Customer Name</th><th>Email</th><th>Message</th><th>Action</th></tr></thead>
+              <tbody id="inquiriesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: SOURCING CATALOGUE -->
+      <div id="catalogueTab" style="display:none;">
+        <div class="card">
+          <div class="card-title">
+            <span>Active Sourcing Catalogue</span>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <select id="supplierFilterSelect" onchange="filterCatalogueBySupplier()" class="form-control" style="width:auto; padding:6px 12px; font-size:12px;">
+                <option value="ALL">All Internal Suppliers</option>
+              </select>
+              <button onclick="loadCatalogue()" class="btn-view-store" style="cursor:pointer;">↻ Refresh</button>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="admin-table">
+              <thead>
+                <tr><th>Image</th><th>Name</th><th>Internal Supplier</th><th>Category</th><th>Price</th><th>Sizes</th><th>Colors</th><th>Status</th><th>Actions</th></tr>
+              </thead>
+              <tbody id="catalogueTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 6: ADD / EDIT PRODUCT FORM -->
+      <div id="addProductTab" style="display:none;">
+        <div class="card" style="max-width:740px; margin:0 auto;">
+          <div class="card-title" id="productFormTitle">Add Product to Sourcing List</div>
+          <form onsubmit="saveProduct(event)">
+            <input type="hidden" id="editProductId" value="">
+
+            <div class="form-group"><label>Product Name</label><input type="text" id="pName" class="form-control" required placeholder="e.g. Classic Heavy Cotton Tee"></div>
+            
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group"><label>Selling Price (ZAR)</label><input type="number" step="0.01" id="pPrice" class="form-control" required placeholder="180.00"></div>
+              <div class="form-group">
+                <label>Category</label>
+                <select id="prodCategory" class="form-control" required onchange="handleCategoryChange(this.value)">
+                  <option value="cat-stationery">Stationery & Office</option>
+                  <option value="cat-hardware">Hardware & DIY</option>
+                  <option value="cat-electronics">Electronics & Gadgets</option>
+                  <option value="cat-home">Home & Living</option>
+                  <option value="cat-clothing">Clothing & Apparel</option>
+                  <option value="cat-beauty">Personal Care</option>
+                  <option value="cat-gaming">Gaming & Accessories</option>
+                  <option value="cat-gifts">Gifts & General</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group"><label>Public Source Note</label><input type="text" id="pPublicSource" class="form-control" required value="Local Partner"></div>
+              <div class="form-group"><label>Internal Supplier / Shop Name</label><input type="text" id="pInternalSupplier" class="form-control" required value="Local Partner"></div>
+            </div>
+
+            <div id="adminClothingSizesSection" style="display:none; background:var(--bg-ivory); padding:14px; border-radius:4px; margin-bottom:16px;">
+              <label style="font-size:12px; font-weight:700; text-transform:uppercase; margin-bottom:8px; display:block;">Clothing Sizes:</label>
+              <div style="display:flex; gap:14px; flex-wrap:wrap;">
+                <label><input type="checkbox" name="cSize" value="XS"> XS</label>
+                <label><input type="checkbox" name="cSize" value="S"> S</label>
+                <label><input type="checkbox" name="cSize" value="M"> M</label>
+                <label><input type="checkbox" name="cSize" value="L"> L</label>
+                <label><input type="checkbox" name="cSize" value="XL"> XL</label>
+                <label><input type="checkbox" name="cSize" value="XXL"> XXL</label>
+                <label><input type="checkbox" name="cSize" value="3XL"> 3XL</label>
+              </div>
+            </div>
+
+            <div id="adminColorsSection" style="background:var(--bg-ivory); border: 1px solid var(--border-subtle); padding:14px; border-radius:4px; margin-bottom:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <label style="font-size:12px; font-weight:700; text-transform:uppercase; margin:0;">Product Colors (Leave blank to hide):</label>
+                <button type="button" onclick="toggleAllColors()" class="btn-minimal" id="toggleAllColorsBtn" style="padding:3px 8px; font-size:11px;">Select All</button>
+              </div>
+              <div style="display:flex; gap:10px 14px; flex-wrap:wrap;">
+                <label><input type="checkbox" name="pColor" value="Black"> Black</label>
+                <label><input type="checkbox" name="pColor" value="White"> White</label>
+                <label><input type="checkbox" name="pColor" value="Grey"> Grey</label>
+                <label><input type="checkbox" name="pColor" value="Silver"> Silver</label>
+                <label><input type="checkbox" name="pColor" value="Gold"> Gold</label>
+                <label><input type="checkbox" name="pColor" value="Red"> Red</label>
+                <label><input type="checkbox" name="pColor" value="Blue"> Blue</label>
+                <label><input type="checkbox" name="pColor" value="Navy"> Navy</label>
+                <label><input type="checkbox" name="pColor" value="Green"> Green</label>
+                <label><input type="checkbox" name="pColor" value="Yellow"> Yellow</label>
+                <label><input type="checkbox" name="pColor" value="Orange"> Orange</label>
+                <label><input type="checkbox" name="pColor" value="Pink"> Pink</label>
+                <label><input type="checkbox" name="pColor" value="Purple"> Purple</label>
+                <label><input type="checkbox" name="pColor" value="Brown"> Brown</label>
+                <label><input type="checkbox" name="pColor" value="Beige"> Beige</label>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+              <div class="form-group"><label>Sourcing Time</label><input type="text" id="pSourcingTime" class="form-control" value="Dispatched in 48h"></div>
+              <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-top:22px;">
+                <input type="checkbox" id="pIsNewArrival" style="width:18px; height:18px; accent-color:var(--accent); cursor:pointer;">
+                <label for="pIsNewArrival" style="margin:0; cursor:pointer; font-size:12px; font-weight:700;">✨ Mark as New Arrival</label>
+              </div>
+            </div>
+
+            <div class="form-group"><label>Description</label><textarea id="pDesc" class="form-control" rows="3"></textarea></div>
+
+            <div class="form-group">
+              <label>Product Photos</label>
+              <input type="file" id="pImageFiles" class="form-control" accept="image/*" multiple>
+              <small style="color:var(--gray-muted); font-size:11px;">Existing photos will be kept unless new ones are chosen.</small>
+            </div>
+
+            <button type="submit" class="btn-primary" id="saveProdBtn" style="width:100%;">Save Product</button>
+            <button type="button" id="cancelEditBtn" onclick="resetProductForm()" style="width:100%; margin-top:8px; background:none; border:none; color:var(--gray-muted); cursor:pointer; display:none;">Cancel Edit</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 7: DELIVERY AREAS -->
+      <div id="areasTab" style="display:none;">
+        <div class="card">
+          <div class="card-title">Add Custom Cape Town Suburb / Area</div>
+          <form onsubmit="saveCustomArea(event)" style="display:grid; grid-template-columns:2fr 1fr 1fr auto; gap:12px; align-items:flex-end; margin-bottom:20px;">
+            <div class="form-group" style="margin:0;"><label>Area / Suburb Name</label><input type="text" id="newAreaName" class="form-control" required placeholder="e.g. Constantia"></div>
+            <div class="form-group" style="margin:0;"><label>Delivery Fee (R)</label><input type="number" id="newAreaFee" class="form-control" required value="55"></div>
+            <div class="form-group" style="margin:0; display:flex; align-items:center; gap:6px; padding-bottom:10px;">
+              <input type="checkbox" id="newAreaIsCollection" onchange="toggleAreaFeeInput(this)">
+              <label for="newAreaIsCollection" style="margin:0; font-size:11px; cursor:pointer;">Collection Only</label>
+            </div>
+            <button type="submit" class="btn-primary" style="padding:10px 18px;">+ Add Area</button>
+          </form>
+          <table class="admin-table">
+            <thead><tr><th>Area / Suburb</th><th>Zone</th><th>Delivery Fee</th><th>Type</th><th>Action</th></tr></thead>
+            <tbody id="areasTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 8: STORE SETTINGS WITH DYNAMIC MINIMUM ORDER & MITCHELL'S PLAIN ONLY TOGGLE -->
+      <div id="deliveryTab" style="display:none;">
+        <div class="card" style="max-width:540px; margin:0 auto;">
+          <div class="card-title">Store & Delivery Settings</div>
+          <form onsubmit="saveDeliveryRates(event)">
+            
+            <div class="form-group">
+              <label>Minimum Order Spend (ZAR)</label>
+              <input type="number" step="0.01" id="settingMinOrder" class="form-control" required placeholder="200.00">
+              <small style="color:var(--gray-muted); font-size:11px;">Customers cannot check out below this amount.</small>
+            </div>
+
+            <div class="form-group"><label>Base Delivery Rate (ZAR)</label><input type="number" step="0.01" id="settingBaseFee" class="form-control" required></div>
+            <div class="form-group"><label>Free Delivery Threshold (ZAR)</label><input type="number" step="0.01" id="settingFreeThreshold" class="form-control" required></div>
+            
+            <hr style="border:none; border-top:1px solid var(--border-subtle); margin:20px 0;">
+
+            <!-- 📍 FOCUS ON MITCHELL'S PLAIN ONLY TOGGLE -->
+            <div style="background:#FFF7ED; border:1px solid #FDBA74; border-left:4px solid #EA580C; padding:14px; border-radius:4px; margin-bottom:20px;">
+              <div style="display:flex; align-items:flex-start; gap:10px;">
+                <input type="checkbox" id="settingMitchellsPlainOnly" style="width:20px; height:20px; accent-color:var(--accent); cursor:pointer; margin-top:2px;">
+                <div>
+                  <label for="settingMitchellsPlainOnly" style="font-size:13px; font-weight:800; color:#9A3412; cursor:pointer; text-transform:none; margin-bottom:4px;">
+                    Focus Strictly on Mitchell's Plain Only
+                  </label>
+                  <p style="font-size:12px; color:#9A3412; line-height:1.45; margin:0;">
+                    When enabled, only Mitchell's Plain suburbs are accepted at checkout. All outside Cape Town suburbs will be blocked.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <label style="font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 12px; display: block;">Toggle Categories Off (Hide on Storefront):</label>
+            <div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom: 24px;" id="adminCategoryToggles">
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-stationery"> Stationery</label>
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-hardware"> Hardware</label>
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-electronics"> Electronics</label>
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-home"> Home</label>
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-clothing"> Clothing</label>
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-beauty"> Beauty</label>
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-gaming"> Gaming</label>
+              <label style="font-size: 13px;"><input type="checkbox" value="cat-gifts"> Gifts</label>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width:100%;">Save Store Settings</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- INSPECT LISTING MODAL -->
+  <div class="modal-backdrop" id="directoryInspectModal">
+    <div class="modal-window">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:12px; margin-bottom:16px;">
+        <h3 id="inspectShopName" style="font-size:18px; font-weight:800;">Inspect Listing</h3>
+        <button onclick="closeModal('directoryInspectModal')" style="background:none; border:none; font-size:22px; cursor:pointer;">&times;</button>
+      </div>
+      <div id="inspectContent"></div>
+    </div>
+  </div>
+
+  <!-- PRINT CONTAINER (WAYBILL, DELIVERY SHEET, RECEIPT) -->
+  <div id="printRenderContainer"></div>
+
+  <script>
+    let adminToken = localStorage.getItem('mp_admin_token') || '';
+    let allOrdersCache = [];
+    let allCatalogueProducts = [];
+    let customAreasList = [];
+    let directoryListingsCache = [];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (adminToken) verifyAndOpen();
+    });
+
+    function formatWhatsAppLink(phone) {
+      let clean = (phone || '').replace(/[^0-9]/g, '');
+      if (clean.startsWith('0')) clean = '27' + clean.slice(1);
+      else if (!clean.startsWith('27')) clean = '27' + clean;
+      return `https://wa.me/${clean}`;
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const pwd = document.getElementById('adminPasswordInput').value.trim();
+      const res = await fetch('/api/admin/verify', { method: 'POST', headers: { 'Authorization': `Bearer ${pwd}` } });
+      if (res.ok) {
+        adminToken = pwd;
+        localStorage.setItem('mp_admin_token', adminToken);
+        verifyAndOpen();
+      } else {
+        alert('Invalid Admin Password.');
+      }
+    }
+
+    function logout() {
+      adminToken = '';
+      localStorage.removeItem('mp_admin_token');
+      document.getElementById('loginBox').style.display = 'block';
+      document.getElementById('dashboardLayout').style.display = 'none';
+    }
+
+    async function verifyAndOpen() {
+      document.getElementById('loginBox').style.display = 'none';
+      document.getElementById('dashboardLayout').style.display = 'block';
+      loadOrders();
+      loadInquiries();
+      loadCatalogue();
+      loadAreas();
+      loadSettings();
+      loadAdminDirectory();
+    }
+
+    function showTab(tabId, btn) {
+      ['ordersTab', 'deliveredTab', 'directoryTab', 'inquiriesTab', 'catalogueTab', 'addProductTab', 'areasTab', 'deliveryTab'].forEach(id => {
+        document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
+      });
+      document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    function handleCategoryChange(cat) {
+      const sizeSec = document.getElementById('adminClothingSizesSection');
+      sizeSec.style.display = (cat === 'cat-clothing') ? 'block' : 'none';
+    }
+
+    function toggleAllColors() {
+      const cbs = document.querySelectorAll('input[name="pColor"]');
+      const allChecked = Array.from(cbs).every(cb => cb.checked);
+      cbs.forEach(cb => cb.checked = !allChecked);
+      document.getElementById('toggleAllColorsBtn').innerText = allChecked ? 'Select All' : 'Clear All';
+    }
+
+    // -------------------------------------------------------------
+    // ORDERS LOADING & REALTIME FILTERING
+    // -------------------------------------------------------------
+    async function loadOrders() {
+      try {
+        const res = await fetch('/api/admin/orders', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        allOrdersCache = await res.json();
+
+        const liveOrders = allOrdersCache.filter(o => o.status !== 'Delivered');
+        const deliveredOrders = allOrdersCache.filter(o => o.status === 'Delivered');
+
+        document.getElementById('liveOrderCount').innerText = liveOrders.length;
+        document.getElementById('deliveredOrderCount').innerText = deliveredOrders.length;
+
+        renderLiveOrdersTable(liveOrders);
+        renderDeliveredOrdersTable(deliveredOrders);
+      } catch (e) {}
+    }
+
+    function renderLiveOrdersTable(orders) {
+      const tbody = document.getElementById('liveOrdersTableBody');
+      if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--gray-muted);">No matching live orders.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(o => `
+        <tr>
+          <td><strong>${o.order_number}</strong></td>
+          <td>${o.customer_name}<br><small style="color:var(--gray-muted);">${o.customer_email || ''}</small></td>
+          <td><a href="${formatWhatsAppLink(o.customer_whatsapp)}" target="_blank" style="color:var(--accent); font-weight:700; text-decoration:none;">${o.customer_whatsapp} ↗</a></td>
+          <td><small>${o.delivery_address}</small></td>
+          <td>
+            <div style="font-size:12px;">
+              ${o.items.map(i => `<div>• ${i.quantity}x ${i.product_name} ${i.selected_size ? `(Size: ${i.selected_size})` : ''} ${i.selected_color ? `<strong style="color:#087A58;">(${i.selected_color})</strong>` : ''} <span style="color:var(--accent); font-weight:bold;">[Shop: ${i.internal_supplier || 'Local Partner'}]</span></div>`).join('')}
+            </div>
+          </td>
+          <td><strong>R ${Number(o.total_amount).toFixed(2)}</strong></td>
+          <td>
+            <select onchange="handleStatusChange('${o.id}', this.value)" style="padding:6px; font-size:12px;">
+              <option value="Pending Sourcing" ${o.status==='Pending Sourcing'?'selected':''}>Pending Sourcing</option>
+              <option value="Sourced" ${o.status==='Sourced'?'selected':''}>Sourced</option>
+              <option value="Out for Delivery" ${o.status==='Out for Delivery'?'selected':''}>Out for Delivery</option>
+              <option value="Delivered">Mark Delivered</option>
+              <option value="Cancelled" ${o.status==='Cancelled'?'selected':''}>Cancelled</option>
+            </select>
+          </td>
+          <td>
+            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+              <button onclick='printWaybill(${JSON.stringify(o)})' style="padding:4px 8px; font-size:11px; background:var(--charcoal); color:#fff; border:none; border-radius:4px; cursor:pointer;" title="Print Internal Dispatch Waybill">Waybill</button>
+              <button onclick='printCustomerReceipt(${JSON.stringify(o)})' style="padding:4px 8px; font-size:11px; background:var(--primary); color:#fff; border:none; border-radius:4px; cursor:pointer;" title="Print Customer Sales Receipt">Receipt</button>
+              <button onclick="deleteOrder('${o.id}')" style="padding:4px 8px; font-size:11px; background:var(--danger); color:#fff; border:none; border-radius:4px; cursor:pointer;" title="Permanently Erase Customer Details (POPIA)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderDeliveredOrdersTable(orders) {
+      document.getElementById('deliveredOrdersTableBody').innerHTML = orders.map(o => `
+        <tr>
+          <td><strong>${o.order_number}</strong></td>
+          <td>${o.customer_name}</td>
+          <td><a href="${formatWhatsAppLink(o.customer_whatsapp)}" target="_blank" style="color:var(--accent); font-weight:700; text-decoration:none;">${o.customer_whatsapp} ↗</a></td>
+          <td><small>${o.delivery_address}</small></td>
+          <td><div style="font-size:12px;">${o.items.map(i => `<div>• ${i.quantity}x ${i.product_name} ${i.selected_size ? `(Size: ${i.selected_size})` : ''} ${i.selected_color ? `(Color: ${i.selected_color})` : ''}</div>`).join('')}</div></td>
+          <td><strong>R ${Number(o.total_amount).toFixed(2)}</strong></td>
+          <td><span style="color:#137333; font-weight:700;">✓ Delivered</span></td>
+          <td>
+            <div style="display:flex; gap:4px;">
+              <button onclick='printCustomerReceipt(${JSON.stringify(o)})' style="padding:4px 8px; font-size:11px; background:var(--primary); color:#fff; border:none; border-radius:4px; cursor:pointer;">Receipt</button>
+              <button onclick='printWaybill(${JSON.stringify(o)})' style="padding:4px 8px; font-size:11px; background:var(--bg-ivory); border:1px solid var(--border-subtle); cursor:pointer;">Waybill</button>
+              <button onclick="deleteOrder('${o.id}')" style="padding:4px 8px; font-size:11px; background:var(--danger); color:#fff; border:none; border-radius:4px; cursor:pointer;" title="Permanently Erase Customer Details (POPIA)">Delete</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // 🔍 LIVE FILTER LOGIC (ORDER #, NAME, PHONE, SUBURB, EMAIL, ITEM)
+    function handleLiveOrderSearch() {
+      const q = (document.getElementById('liveOrderSearchInput').value || '').trim().toLowerCase();
+      const liveOrders = allOrdersCache.filter(o => o.status !== 'Delivered');
+
+      if (!q) {
+        document.getElementById('liveOrderFilterMeta').innerText = '';
+        renderLiveOrdersTable(liveOrders);
+        return;
+      }
+
+      const filtered = liveOrders.filter(o => {
+        const inNum = (o.order_number || '').toLowerCase().includes(q);
+        const inName = (o.customer_name || '').toLowerCase().includes(q);
+        const inEmail = (o.customer_email || '').toLowerCase().includes(q);
+        const inPhone = (o.customer_whatsapp || '').toLowerCase().includes(q);
+        const inAddr = (o.delivery_address || '').toLowerCase().includes(q);
+        const inItems = (o.items || []).some(i => (i.product_name || '').toLowerCase().includes(q) || (i.internal_supplier || '').toLowerCase().includes(q));
+        return inNum || inName || inEmail || inPhone || inAddr || inItems;
+      });
+
+      document.getElementById('liveOrderFilterMeta').innerText = `Showing ${filtered.length} of ${liveOrders.length}`;
+      renderLiveOrdersTable(filtered);
+    }
+
+    async function handleStatusChange(id, status) {
+      if (status === 'Delivered') {
+        if (!confirm('Mark order as Delivered? It will notify the customer and move to Delivered Archive.')) {
+          loadOrders();
+          return;
+        }
+      }
+      await fetch(`/api/admin/orders/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({ status })
+      });
+      loadOrders();
+    }
+
+    async function deleteOrder(id) {
+      if (!confirm('Permanently delete this order and customer details from the database? (POPIA Erase)')) return;
+      const res = await fetch(`/api/admin/orders/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
+      if (res.ok) {
+        alert('Order permanently deleted.');
+        loadOrders();
+      } else {
+        alert('Failed to delete order.');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 🖨️ PRINTING FUNCTIONS (CLEAN 1-PAGE OUTPUT)
+    // -------------------------------------------------------------
+    function extractAreaFromAddress(addr) {
+      if (!addr) return 'Mitchells Plain';
+      const parts = addr.split(',').map(s => s.trim());
+      if (parts.length >= 3) return parts[parts.length - 2];
+      if (parts.length === 2) return parts[1];
+      return parts[0];
+    }
+
+    // 1. 🚗 BULK RUN SHEET BY AREA
+    function printBulkDeliveryRunSheet() {
+      const liveOrders = allOrdersCache.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled');
+      if (liveOrders.length === 0) return alert('No active orders to print.');
+
+      const areaMap = {};
+
+      liveOrders.forEach(order => {
+        const area = extractAreaFromAddress(order.delivery_address);
+        if (!areaMap[area]) areaMap[area] = {};
+
+        const customerKey = (order.customer_email || order.customer_name).toLowerCase().trim();
+
+        if (!areaMap[area][customerKey]) {
+          areaMap[area][customerKey] = {
+            customer_name: order.customer_name,
+            customer_email: order.customer_email,
+            phones: new Set([order.customer_whatsapp]),
+            addresses: new Set([order.delivery_address]),
+            orders: []
+          };
+        } else {
+          areaMap[area][customerKey].phones.add(order.customer_whatsapp);
+          areaMap[area][customerKey].addresses.add(order.delivery_address);
+        }
+
+        areaMap[area][customerKey].orders.push(order);
+      });
+
+      const area = document.getElementById('printRenderContainer');
+      area.innerHTML = `
+        <div style="font-family: sans-serif; color: #000; padding: 10px;">
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+              <h1 style="font-size: 18px; font-weight: 800; margin: 0; text-transform: uppercase;">MP MARKETPLACE — DELIVERY RUN SHEET (BY AREA)</h1>
+              <p style="font-size: 11px; color: #444; margin: 2px 0 0 0;">Generated: ${new Date().toLocaleString()} · Active Deliveries: ${liveOrders.length}</p>
+            </div>
+            <div style="font-size: 11px; text-align: right; font-weight: bold;">
+              Total Areas: ${Object.keys(areaMap).length}
+            </div>
+          </div>
+
+          ${Object.keys(areaMap).map(suburb => {
+            const clientKeys = Object.keys(areaMap[suburb]);
+            return `
+              <div class="no-print-break" style="border: 2px solid #000; border-radius: 4px; padding: 10px; margin-bottom: 16px;">
+                <div style="background: #EAE6DF; padding: 6px 10px; font-size: 13px; font-weight: 800; text-transform: uppercase; margin: -10px -10px 10px -10px; border-bottom: 1px solid #000;">
+                  📍 AREA: ${suburb} (${clientKeys.length} Delivery Stops)
+                </div>
+
+                ${clientKeys.map((cKey, idx) => {
+                  const client = areaMap[suburb][cKey];
+                  const totalDue = client.orders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+                  const allPhones = Array.from(client.phones).join(', ');
+                  const address = Array.from(client.addresses)[0];
+
+                  return `
+                    <div style="border-bottom: 1px solid #ddd; padding: 8px 0; margin-bottom: 8px; font-size: 11px;">
+                      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                        <div>
+                          <strong>Stop #${idx + 1}: ${client.customer_name}</strong> · Tel: <strong>${allPhones}</strong>
+                          <div style="color: #333; margin-top: 1px;">🏠 ${address}</div>
+                        </div>
+                        <div style="text-align: right;">
+                          <span style="font-weight: 800; font-size: 12px;">Total: R ${totalDue.toFixed(2)}</span>
+                          <div style="font-size: 10px; color: #087A58; font-weight: bold;">✓ Paid with Yoco</div>
+                        </div>
+                      </div>
+
+                      <table style="width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 4px; background: #FAFAFA;">
+                        <thead>
+                          <tr style="border-bottom: 1px solid #ccc; text-align: left;">
+                            <th style="padding: 4px;">Order #</th>
+                            <th style="padding: 4px;">Item Description</th>
+                            <th style="padding: 4px; text-align: center;">Qty</th>
+                            <th style="padding: 4px;">Pickup Shop</th>
+                            <th style="padding: 4px; text-align: right;">Delivery Confirmation</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${client.orders.map(o => o.items.map(i => `
+                            <tr style="border-bottom: 1px solid #eee;">
+                              <td style="padding: 3px 4px; font-weight: bold;">${o.order_number}</td>
+                              <td style="padding: 3px 4px;">${i.product_name} ${i.selected_size ? `[Size: ${i.selected_size}]` : ''} ${i.selected_color ? `[Color: ${i.selected_color}]` : ''}</td>
+                              <td style="padding: 3px 4px; text-align: center; font-weight: bold;">${i.quantity}</td>
+                              <td style="padding: 3px 4px; color: #C45A2C; font-weight: bold;">${i.internal_supplier || 'Local Partner'}</td>
+                              <td style="padding: 3px 4px; text-align: right;">[ ] Delivered</td>
+                            </tr>
+                          `).join('')).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      window.print();
+    }
+
+    // 2. 🧾 PROPER CUSTOMER RECEIPT (NO SUPPLIERS, NO VAT/REG)
+    function printCustomerReceipt(order) {
+      const area = document.getElementById('printRenderContainer');
+      area.innerHTML = `
+        <div class="no-print-break" style="border: 2px solid #000; padding: 24px; max-width: 580px; margin: 0 auto; font-family: sans-serif; color: #000; box-sizing: border-box;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 16px;">
+            <div>
+              <h1 style="font-size: 20px; font-weight: 800; margin: 0; letter-spacing: 0.5px; text-transform: uppercase;">MP MARKETPLACE</h1>
+              <p style="font-size: 11px; color: #555; margin: 3px 0 0 0;">Customer Purchase Receipt</p>
+            </div>
+            <div style="text-align: right;">
+              <h2 style="font-size: 16px; font-weight: 800; margin: 0;">#${order.order_number}</h2>
+              <p style="font-size: 11px; color: #555; margin: 3px 0 0 0;">${new Date(order.created_at).toLocaleDateString()}</p>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 11px; border-bottom: 1px solid #ccc; padding-bottom: 12px; margin-bottom: 14px;">
+            <div>
+              <strong style="text-transform: uppercase; font-size: 10px; color: #666;">Customer Details:</strong><br>
+              <strong>${order.customer_name}</strong><br>
+              Tel: ${order.customer_whatsapp}<br>
+              ${order.customer_email ? `Email: ${order.customer_email}` : ''}
+            </div>
+            <div>
+              <strong style="text-transform: uppercase; font-size: 10px; color: #666;">Delivery Address:</strong><br>
+              ${order.delivery_address}<br>
+              <span style="font-weight: bold; color: #087A58;">Payment Method: Paid Online (Yoco)</span>
+            </div>
+          </div>
+
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 16px;">
+            <thead>
+              <tr style="border-bottom: 1.5px solid #000; text-align: left; text-transform: uppercase; font-size: 10px;">
+                <th style="padding: 6px 0;">Item Description</th>
+                <th style="padding: 6px 0; text-align: center;">Qty</th>
+                <th style="padding: 6px 0; text-align: right;">Price</th>
+                <th style="padding: 6px 0; text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map(i => `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 8px 0;">
+                    <strong>${i.product_name}</strong>
+                    ${i.selected_size ? `<span style="color:#C45A2C;">(Size: ${i.selected_size})</span>` : ''}
+                    ${i.selected_color ? `<span style="color:#087A58;">(Color: ${i.selected_color})</span>` : ''}
+                  </td>
+                  <td style="padding: 8px 0; text-align: center;">${i.quantity}</td>
+                  <td style="padding: 8px 0; text-align: right;">R ${Number(i.unit_price).toFixed(2)}</td>
+                  <td style="padding: 8px 0; text-align: right; font-weight: bold;">R ${(Number(i.unit_price) * i.quantity).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <div style="border-top: 1px solid #ccc; padding-top: 8px; font-size: 12px; text-align: right; line-height: 1.6;">
+            <div>Items Subtotal: <strong>R ${Number(order.subtotal_amount).toFixed(2)}</strong></div>
+            <div>Delivery Fee: <strong>${order.delivery_fee === 0 ? 'FREE / Collection' : 'R ' + Number(order.delivery_fee).toFixed(2)}</strong></div>
+            <div style="font-size: 15px; font-weight: 800; border-top: 1.5px solid #000; padding-top: 6px; margin-top: 6px;">
+              TOTAL PAID: R ${Number(order.total_amount).toFixed(2)}
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; padding-top: 12px; border-top: 1px dashed #bbb; font-size: 10px; color: #555; text-align: center; line-height: 1.5;">
+            Thank you for shopping local with <strong>MP Marketplace</strong>!<br>
+            Dispatched straight to your door within 48 hours. For support, email orders@mp-marketplace.co.za.
+          </div>
+        </div>
+      `;
+      window.print();
+    }
+
+    // 3. 🏪 MASTER SOURCING SHEET (BY SUPPLIER)
+    function printBulkSupplierWaybill() {
+      const liveOrders = allOrdersCache.filter(o => o.status !== 'Delivered' && o.status !== 'Cancelled');
+      if (liveOrders.length === 0) return alert('No active orders to print.');
+
+      const supplierMap = {};
+      liveOrders.forEach(order => {
+        order.items.forEach(item => {
+          const supp = item.internal_supplier || 'Local Partner';
+          if (!supplierMap[supp]) supplierMap[supp] = [];
+          supplierMap[supp].push({ order, item });
+        });
+      });
+
+      const area = document.getElementById('printRenderContainer');
+      area.innerHTML = `
+        <div style="padding: 10px; font-family: sans-serif; color: #000;">
+          <h2 style="font-size: 18px; margin: 0 0 4px 0;">MP MARKET — MASTER SOURCING RUN SHEET</h2>
+          <p style="font-size: 11px; margin: 0 0 16px 0; color: #444;">Generated: ${new Date().toLocaleString()}</p>
+          ${Object.keys(supplierMap).map(supp => `
+            <div class="no-print-break" style="border: 2px solid #000; padding: 10px; margin-bottom: 16px; border-radius: 4px;">
+              <h3 style="font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase;">🏪 SHOP: ${supp} (${supplierMap[supp].length} items to collect)</h3>
+              <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                <thead><tr style="border-bottom: 1.5px solid #000; text-align: left;"><th>Item</th><th>Size</th><th>Color</th><th>Qty</th><th>Order #</th><th>Deliver To</th></tr></thead>
+                <tbody>
+                  ${supplierMap[supp].map(row => `
+                    <tr style="border-bottom: 1px solid #eee;">
+                      <td style="padding: 4px 0;">${row.item.product_name}</td>
+                      <td style="padding: 4px 0;">${row.item.selected_size || '—'}</td>
+                      <td style="padding: 4px 0;">${row.item.selected_color || '—'}</td>
+                      <td style="padding: 4px 0; font-weight: bold;">${row.item.quantity}</td>
+                      <td style="padding: 4px 0; font-weight: bold;">${row.order.order_number}</td>
+                      <td style="padding: 4px 0;">${row.order.customer_name} (${row.order.customer_whatsapp})<br><small>${row.order.delivery_address}</small></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      window.print();
+    }
+
+    // 4. SINGLE DISPATCH WAYBILL
+    function printWaybill(order) {
+      const area = document.getElementById('printRenderContainer');
+      area.innerHTML = `
+        <div class="no-print-break" style="border: 2px solid #000; padding: 18px; max-width: 580px; margin: 0 auto; font-family: sans-serif; color: #000; box-sizing: border-box;">
+          <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 12px;">
+            <div><h2 style="font-size: 18px; font-weight: 800; margin: 0;">MP MARKET</h2><p style="font-size: 10px; margin: 2px 0 0 0;">Internal Dispatch & Sourcing Waybill</p></div>
+            <div style="text-align: right;"><h3 style="font-size: 15px; margin: 0;">${order.order_number}</h3><p style="font-size: 10px; margin: 2px 0 0 0;">${new Date(order.created_at).toLocaleDateString()}</p></div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 11px; margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+            <div><strong>CUSTOMER:</strong><br>${order.customer_name}<br>Tel: ${order.customer_whatsapp}</div>
+            <div><strong>DELIVER TO:</strong><br>${order.delivery_address}</div>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 12px;">
+            <thead><tr style="border-bottom: 1px solid #000; text-align: left;"><th>Item Description</th><th>Pickup Shop</th><th style="text-align: center;">Qty</th><th style="text-align: right;">Price</th></tr></thead>
+            <tbody>
+              ${order.items.map(i => `
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td style="padding: 4px 0;">${i.product_name} ${i.selected_size ? `<strong>[Size: ${i.selected_size}]</strong>` : ''} ${i.selected_color ? `<strong>[Color: ${i.selected_color}]</strong>` : ''}</td>
+                  <td style="padding: 4px 0; color: #C45A2C; font-weight: bold;">${i.internal_supplier || 'Local Partner'}</td>
+                  <td style="padding: 4px 0; text-align: center;">${i.quantity}</td>
+                  <td style="padding: 4px 0; text-align: right;">R ${Number(i.unit_price).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <div style="text-align: right; font-size: 11px; line-height: 1.5;">
+            <div>Subtotal: R ${Number(order.subtotal_amount).toFixed(2)}</div>
+            <div>Delivery Fee: ${order.delivery_fee === 0 ? 'FREE / Collection' : 'R ' + Number(order.delivery_fee).toFixed(2)}</div>
+            <div style="font-size: 14px; font-weight: 800; border-top: 1px solid #000; padding-top: 4px; margin-top: 4px;">TOTAL PAID: R ${Number(order.total_amount).toFixed(2)}</div>
+          </div>
+        </div>
+      `;
+      window.print();
+    }
+
+    // 5. DELIVERED ORDERS PDF EXPORT
+    function printCompletedOrdersReport() {
+      const deliveredOrders = allOrdersCache.filter(o => o.status === 'Delivered');
+      if (deliveredOrders.length === 0) return alert('No completed orders to export.');
+      const totalRevenue = deliveredOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+
+      const area = document.getElementById('printRenderContainer');
+      area.innerHTML = `
+        <div style="padding: 16px; font-family: sans-serif; color: #000;">
+          <div style="border-bottom: 2px solid #000; padding-bottom: 8px; margin-bottom: 14px; display: flex; justify-content: space-between;">
+            <div>
+              <h2 style="font-size: 18px; margin: 0;">MP MARKET — COMPLETED ORDERS REPORT</h2>
+              <p style="font-size: 11px; color: #555; margin: 2px 0 0;">Delivered Orders Archive · ${new Date().toLocaleDateString()}</p>
+            </div>
+            <div style="text-align: right;">
+              <div>Count: <strong>${deliveredOrders.length}</strong></div>
+              <div style="font-size: 14px; font-weight: 800;">Total: R ${totalRevenue.toFixed(2)}</div>
+            </div>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+            <thead>
+              <tr style="border-bottom: 1.5px solid #000; background: #f0f0f0;">
+                <th style="padding: 4px;">Order #</th><th>Date</th><th>Customer</th><th>Address</th><th>Items</th><th style="text-align: right;">Total Paid</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${deliveredOrders.map(o => `
+                <tr style="border-bottom: 1px solid #ddd;">
+                  <td style="padding: 4px; font-weight: bold;">${o.order_number}</td>
+                  <td style="padding: 4px;">${new Date(o.created_at).toLocaleDateString()}</td>
+                  <td style="padding: 4px;">${o.customer_name} (${o.customer_whatsapp})</td>
+                  <td style="padding: 4px;"><small>${o.delivery_address}</small></td>
+                  <td style="padding: 4px;">${o.items.map(i => `${i.quantity}x ${i.product_name}`).join(', ')}</td>
+                  <td style="padding: 4px; text-align: right; font-weight: bold;">R ${Number(o.total_amount).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+      window.print();
+    }
+
+    async function triggerMasterPurge() {
+      const inputPass = prompt('Enter ADMIN_PASSWORD to purge Delivered orders:');
+      if (!inputPass || inputPass !== adminToken) return alert('Purge cancelled or wrong password.');
+
+      const res = await fetch('/api/admin/orders/purge-delivered', { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`Purge complete: ${data.count} delivered orders cleared.`);
+        loadOrders();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // DIRECTORY ADMIN LOAD & INSPECTION
+    // -------------------------------------------------------------
+    async function loadAdminDirectory() {
+      try {
+        const res = await fetch('/api/admin/directory', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        directoryListingsCache = await res.json();
+        document.getElementById('dirCount').innerText = (directoryListingsCache || []).filter(x => x.status === 'pending_approval').length;
+
+        const tbody = document.getElementById('directoryAdminTableBody');
+        tbody.innerHTML = (directoryListingsCache || []).map(d => `
+          <tr>
+            <td><img src="${d.logo_url || '/logo.jpg'}" style="width:36px; height:36px; object-fit:cover; border-radius:50%; cursor:pointer;" onclick="window.open(this.src, '_blank')" title="Click to View Full Size"></td>
+            <td><strong>${d.business_name}</strong></td>
+            <td><small>${d.owner_email}</small></td>
+            <td><span class="badge-suburb" style="background:#EFECE6; padding:3px 7px; border-radius:3px; font-weight:700;">📍 ${d.suburb}</span></td>
+            <td>${d.category}</td>
+            <td>${d.whatsapp_number}</td>
+            <td>
+              <span style="font-weight:800; color:${d.status==='active' ? '#137333' : '#D97706'}">
+                ${d.status === 'active' ? '✓ Active' : '⏳ Pending'}
+              </span>
+            </td>
+            <td>
+              <button onclick="inspectDirectoryListing('${d.id}')" style="padding:4px 8px; font-size:11px; background:var(--charcoal); color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:700; margin-right:4px;">🔍 Inspect Photos & Bio</button>
+              ${d.status !== 'active' ? `<button onclick="updateDirectoryStatus('${d.id}', 'active')" style="padding:4px 8px; font-size:11px; background:#137333; color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:700; margin-right:4px;">Approve</button>` : ''}
+              <button onclick="deleteDirectoryListing('${d.id}')" style="padding:4px 8px; font-size:11px; background:var(--danger); color:#fff; border:none; border-radius:4px; cursor:pointer; font-weight:700;">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    function inspectDirectoryListing(id) {
+      const d = directoryListingsCache.find(x => x.id === id);
+      if (!d) return;
+
+      document.getElementById('inspectShopName').innerText = `${d.business_name} (📍 ${d.suburb})`;
+      
+      let items = [];
+      try { items = JSON.parse(d.showcase_items || '[]'); } catch(e) {}
+
+      document.getElementById('inspectContent').innerHTML = `
+        <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px; background:var(--bg-ivory); padding:12px; border-radius:4px;">
+          <img src="${d.logo_url || '/logo.jpg'}" style="width:64px; height:64px; object-fit:cover; border-radius:50%; border:1px solid #ccc; cursor:pointer;" onclick="window.open(this.src, '_blank')">
+          <div>
+            <div style="font-size:15px; font-weight:800;">${d.business_name}</div>
+            <div style="font-size:12px; color:var(--gray-muted); margin:2px 0;">Owner Email: ${d.owner_email} · Tel: ${d.whatsapp_number}</div>
+            <div style="font-size:12px;"><span style="font-weight:700;">Category:</span> ${d.category} · <span style="font-weight:700;">Suburb:</span> ${d.suburb}</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:18px;">
+          <label style="font-size:11px; font-weight:800; text-transform:uppercase; display:block; margin-bottom:4px; color:var(--gray-muted);">Business Bio / Description:</label>
+          <div style="font-size:13px; line-height:1.5; background:#fff; border:1px solid var(--border-subtle); padding:12px; border-radius:4px;">${d.about_text || 'No description entered.'}</div>
+        </div>
+
+        <div style="margin-bottom:20px;">
+          <label style="font-size:11px; font-weight:800; text-transform:uppercase; display:block; margin-bottom:8px; color:var(--gray-muted);">Showcase Photos & Prices:</label>
+          ${items.length === 0 ? '<p style="font-size:12px; color:var(--gray-muted);">No showcase items uploaded.</p>' : `
+            <div style="display:flex; flex-wrap:wrap; gap:12px;">
+              ${items.map(it => `
+                <div style="width:130px; border:1px solid var(--border-subtle); border-radius:4px; padding:8px; text-align:center; background:var(--bg-ivory);">
+                  <img src="${it.img || '/logo.jpg'}" style="width:100%; height:100px; object-fit:contain; background:#fff; border-radius:3px; margin-bottom:6px; cursor:pointer;" onclick="window.open(this.src, '_blank')">
+                  <div style="font-size:12px; font-weight:700;">${it.title || 'Untitled'}</div>
+                  <div style="font-size:12px; font-weight:800; color:var(--accent); margin-top:2px;">R ${Number(it.price || 0).toFixed(2)}</div>
+                </div>
+              `).join('')}
+            </div>
+          `}
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-subtle); padding-top:14px;">
+          ${d.status !== 'active' ? `<button onclick="updateDirectoryStatus('${d.id}', 'active'); closeModal('directoryInspectModal');" style="background:#137333; color:#fff; border:none; padding:10px 20px; border-radius:4px; font-weight:800; cursor:pointer;">✓ Approve & Make Live</button>` : ''}
+          <button onclick="deleteDirectoryListing('${d.id}'); closeModal('directoryInspectModal');" style="background:var(--danger); color:#fff; border:none; padding:10px 20px; border-radius:4px; font-weight:800; cursor:pointer;">🗑️ Reject & Delete</button>
+        </div>
+      `;
+
+      document.getElementById('directoryInspectModal').classList.add('open');
+    }
+
+    async function updateDirectoryStatus(id, status) {
+      await fetch(`/api/admin/directory/${id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({ status })
+      });
+      loadAdminDirectory();
+    }
+
+    async function deleteDirectoryListing(id) {
+      if (!confirm('Permanently delete this business listing?')) return;
+      await fetch(`/api/admin/directory/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${adminToken}` }
+      });
+      loadAdminDirectory();
+    }
+
+    // -------------------------------------------------------------
+    // SOURCING CATALOGUE & EDITING
+    // -------------------------------------------------------------
+    async function loadCatalogue() {
+      const res = await fetch('/api/products');
+      allCatalogueProducts = await res.json();
+      const suppliers = Array.from(new Set(allCatalogueProducts.map(p => p.internal_supplier).filter(Boolean)));
+      document.getElementById('supplierFilterSelect').innerHTML = `<option value="ALL">All Internal Suppliers (${allCatalogueProducts.length})</option>` + suppliers.map(s => `<option value="${s}">${s}</option>`).join('');
+      renderCatalogueTable(allCatalogueProducts);
+    }
+
+    function renderCatalogueTable(prods) {
+      document.getElementById('catalogueTableBody').innerHTML = prods.map(p => {
+        let firstImg = '';
+        try {
+          if (p.image_url && p.image_url.startsWith('[')) firstImg = JSON.parse(p.image_url)[0];
+          else firstImg = p.image_url;
+        } catch(e) { firstImg = p.image_url; }
+
+        let sizesText = '—';
+        try {
+          if (p.available_sizes && p.available_sizes.startsWith('[')) sizesText = JSON.parse(p.available_sizes).join(', ');
+          else if (p.available_sizes) sizesText = p.available_sizes;
+        } catch(e) {}
+
+        let colorsText = '—';
+        try {
+          if (p.available_colors && p.available_colors.startsWith('[')) colorsText = JSON.parse(p.available_colors).join(', ');
+          else if (p.available_colors) colorsText = p.available_colors;
+        } catch(e) {}
+
+        return `
+          <tr>
+            <td>${firstImg ? `<img src="${firstImg}" style="width:36px; height:36px; object-fit:cover; border-radius:4px;">` : '—'}</td>
+            <td><strong>${p.name}</strong></td>
+            <td><span style="font-weight:700; color:var(--accent);">${p.internal_supplier || 'Local Partner'}</span></td>
+            <td>${p.category_id}</td>
+            <td>R ${Number(p.price).toFixed(2)}</td>
+            <td><small>${sizesText}</small></td>
+            <td><small>${colorsText}</small></td>
+            <td>
+              <button onclick="toggleAvailability('${p.id}')" style="padding:4px 8px; font-size:11px; border-radius:4px; border:none; cursor:pointer; font-weight:700; background:${p.is_available===1 ? '#E6F4EA; color:#137333' : '#FCE8E6; color:#C5221F'}">
+                ${p.is_available === 1 ? 'Available' : 'Unavailable'}
+              </button>
+            </td>
+            <td>
+              <button onclick="startEditProduct('${p.id}')" style="color:var(--charcoal); background:none; border:none; font-weight:700; cursor:pointer; margin-right:8px;">Edit</button>
+              <button onclick="deleteProd('${p.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:700;">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterCatalogueBySupplier() {
+      const selected = document.getElementById('supplierFilterSelect').value;
+      renderCatalogueTable(selected === 'ALL' ? allCatalogueProducts : allCatalogueProducts.filter(p => p.internal_supplier === selected));
+    }
+
+    function startEditProduct(id) {
+      const p = allCatalogueProducts.find(x => x.id === id);
+      if (!p) return;
+
+      document.getElementById('editProductId').value = p.id;
+      document.getElementById('productFormTitle').innerText = `Edit Product: ${p.name}`;
+      document.getElementById('pName').value = p.name;
+      document.getElementById('pPrice').value = p.price;
+      document.getElementById('prodCategory').value = p.category_id;
+      handleCategoryChange(p.category_id);
+
+      document.getElementById('pPublicSource').value = p.public_source || 'Local Partner';
+      document.getElementById('pInternalSupplier').value = p.internal_supplier || 'Local Partner';
+      document.getElementById('pSourcingTime').value = p.sourcing_time || 'Dispatched in 48h';
+      document.getElementById('pIsNewArrival').checked = p.is_new_arrival === 1;
+      document.getElementById('pDesc').value = p.description || '';
+
+      document.querySelectorAll('input[name="cSize"]').forEach(cb => {
+        cb.checked = p.available_sizes && p.available_sizes.includes(cb.value);
+      });
+
+      document.querySelectorAll('input[name="pColor"]').forEach(cb => {
+        cb.checked = p.available_colors && p.available_colors.includes(cb.value);
+      });
+
+      document.getElementById('saveProdBtn').innerText = 'Update Product';
+      document.getElementById('cancelEditBtn').style.display = 'block';
+
+      showTab('addProductTab', document.getElementById('tabAddProductBtn'));
+    }
+
+    function resetProductForm() {
+      document.getElementById('editProductId').value = '';
+      document.getElementById('productFormTitle').innerText = 'Add Product to Sourcing List';
+      document.getElementById('pName').value = '';
+      document.getElementById('pPrice').value = '';
+      document.getElementById('pPublicSource').value = 'Local Partner';
+      document.getElementById('pInternalSupplier').value = 'Local Partner';
+      document.getElementById('pSourcingTime').value = 'Dispatched in 48h';
+      document.getElementById('pIsNewArrival').checked = false;
+      document.getElementById('pDesc').value = '';
+      document.getElementById('pImageFiles').value = '';
+      document.querySelectorAll('input[name="cSize"]').forEach(cb => cb.checked = false);
+      document.querySelectorAll('input[name="pColor"]').forEach(cb => cb.checked = false);
+      document.getElementById('toggleAllColorsBtn').innerText = 'Select All';
+      handleCategoryChange(document.getElementById('prodCategory').value);
+
+      document.getElementById('saveProdBtn').innerText = 'Save Product';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+      showTab('catalogueTab');
+    }
+
+    async function compressImage(file, maxWidth = 800) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
+            }, 'image/jpeg', 0.8);
+          };
+        };
+      });
+    }
+
+    async function saveProduct(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveProdBtn');
+      btn.disabled = true;
+      btn.innerText = 'Saving to Catalogue...';
+
+      const editId = document.getElementById('editProductId').value;
+      const existingProduct = editId ? allCatalogueProducts.find(x => x.id === editId) : null;
+
+      let imageUrlsJson = existingProduct ? existingProduct.image_url : '';
+      const files = document.getElementById('pImageFiles').files;
+      if (files.length > 0) {
+        const fd = new FormData();
+        for (let i = 0; i < files.length; i++) {
+          const compressedFile = await compressImage(files[i]);
+          fd.append('file', compressedFile);
+        }
+        const up = await fetch('/api/admin/upload', { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` }, body: fd });
+        const upJson = await up.json();
+        if (upJson.imageUrls) imageUrlsJson = JSON.stringify(upJson.imageUrls);
+      }
+
+      const checkedSizes = [];
+      document.querySelectorAll('input[name="cSize"]:checked').forEach(cb => checkedSizes.push(cb.value));
+      const sizesJson = checkedSizes.length > 0 ? JSON.stringify(checkedSizes) : '';
+
+      const checkedColors = [];
+      document.querySelectorAll('input[name="pColor"]:checked').forEach(cb => checkedColors.push(cb.value));
+      const colorsJson = checkedColors.length > 0 ? JSON.stringify(checkedColors) : '';
+
+      const payload = {
+        name: document.getElementById('pName').value.trim(),
+        price: parseFloat(document.getElementById('pPrice').value),
+        category_id: document.getElementById('prodCategory').value,
+        public_source: document.getElementById('pPublicSource').value.trim() || 'Local Partner',
+        internal_supplier: document.getElementById('pInternalSupplier').value.trim() || 'Local Partner',
+        available_sizes: sizesJson,
+        available_colors: colorsJson,
+        sourcing_time: document.getElementById('pSourcingTime').value.trim() || 'Dispatched in 48h',
+        is_new_arrival: document.getElementById('pIsNewArrival').checked,
+        description: document.getElementById('pDesc').value.trim(),
+        image_url: imageUrlsJson
+      };
+
+      let url = '/api/admin/products';
+      let method = 'POST';
+
+      if (editId) {
+        url = `/api/admin/products/${editId}`;
+        method = 'PUT';
+      }
+
+      await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify(payload)
+      });
+
+      btn.disabled = false;
+      alert(editId ? 'Product updated successfully!' : 'Product published to catalogue!');
+      resetProductForm();
+      loadCatalogue();
+    }
+
+    async function toggleAvailability(id) {
+      await fetch(`/api/admin/products/toggle/${id}`, { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadCatalogue();
+    }
+
+    async function deleteProd(id) {
+      if (!confirm('Delete product?')) return;
+      await fetch(`/api/admin/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadCatalogue();
+    }
+
+    // -------------------------------------------------------------
+    // DELIVERY AREAS & DYNAMIC STORE SETTINGS
+    // -------------------------------------------------------------
+    async function loadAreas() {
+      try {
+        const res = await fetch('/api/areas');
+        customAreasList = await res.json();
+        const tbody = document.getElementById('areasTableBody');
+
+        if (customAreasList.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--gray-muted); padding:20px;">No custom suburbs added yet. System uses standard default areas.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = customAreasList.map(a => `
+          <tr>
+            <td><strong>${a.name}</strong></td>
+            <td>${a.zone_name || 'Custom'}</td>
+            <td>R ${Number(a.fee).toFixed(2)}</td>
+            <td>${a.is_collection ? '<span style="color:#92400E; font-weight:bold;">Collection Only</span>' : '<span style="color:var(--primary); font-weight:bold;">Delivery Eligible</span>'}</td>
+            <td><button onclick="deleteArea('${a.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:bold;">Delete</button></td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    function toggleAreaFeeInput(cb) {
+      const feeInput = document.getElementById('newAreaFee');
+      if (cb.checked) {
+        feeInput.value = 0;
+        feeInput.disabled = true;
+      } else {
+        feeInput.value = 55;
+        feeInput.disabled = false;
+      }
+    }
+
+    async function saveCustomArea(e) {
+      e.preventDefault();
+      const name = document.getElementById('newAreaName').value.trim();
+      const fee = document.getElementById('newAreaFee').value;
+      const isCol = document.getElementById('newAreaIsCollection').checked;
+
+      await fetch('/api/admin/areas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          name,
+          fee: isCol ? 0 : Number(fee),
+          is_collection: isCol,
+          zone_name: isCol ? 'Collection' : `Zone ${Number(fee) <= 30 ? 1 : Number(fee) <= 55 ? 2 : 3}`
+        })
+      });
+
+      alert(`Area "${name}" added to checkout suggestions!`);
+      document.getElementById('newAreaName').value = '';
+      loadAreas();
+    }
+
+    async function deleteArea(id) {
+      if (!confirm('Remove this custom area?')) return;
+      await fetch(`/api/admin/areas/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadAreas();
+    }
+
+    async function loadInquiries() {
+      try {
+        const res = await fetch('/api/admin/inquiries', { headers: { 'Authorization': `Bearer ${adminToken}` } });
+        const inqs = await res.json();
+        document.getElementById('inquiryCount').innerText = inqs.length;
+
+        document.getElementById('inquiriesTableBody').innerHTML = inqs.length === 0 ? `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--gray-muted);">No inquiries yet.</td></tr>` : inqs.map(q => `
+          <tr>
+            <td><small>${new Date(q.created_at).toLocaleDateString()}</small></td>
+            <td><strong>${q.first_name} ${q.last_name}</strong></td>
+            <td><a href="mailto:${q.email}" style="color:var(--accent); font-weight:600;">${q.email}</a></td>
+            <td><div style="font-size:13px; line-height:1.4;">${q.message}</div></td>
+            <td><button onclick="deleteInquiry('${q.id}')" style="background:none; border:none; color:var(--danger); font-weight:700; cursor:pointer;">Delete</button></td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    async function deleteInquiry(id) {
+      if (!confirm('Delete this inquiry?')) return;
+      await fetch(`/api/admin/inquiries/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadInquiries();
+    }
+
+    async function loadSettings() {
+      const res = await fetch('/api/config');
+      const cfg = await res.json();
+      document.getElementById('settingMinOrder').value = cfg.min_order_amount || 200;
+      document.getElementById('settingBaseFee').value = cfg.delivery_base_fee;
+      document.getElementById('settingFreeThreshold').value = cfg.free_delivery_threshold;
+      document.getElementById('settingMitchellsPlainOnly').checked = (cfg.mitchells_plain_only === 1 || cfg.mitchells_plain_only === "1");
+      
+      const hidden = (cfg.hidden_categories || '').split(',');
+      document.querySelectorAll('#adminCategoryToggles input[type="checkbox"]').forEach(cb => {
+        cb.checked = hidden.includes(cb.value);
+      });
+    }
+
+    async function saveDeliveryRates(e) {
+      e.preventDefault();
+      
+      const hidden = [];
+      document.querySelectorAll('#adminCategoryToggles input[type="checkbox"]:checked').forEach(cb => hidden.push(cb.value));
+      const mpOnly = document.getElementById('settingMitchellsPlainOnly').checked ? 1 : 0;
+
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
+        body: JSON.stringify({
+          min_order_amount: parseFloat(document.getElementById('settingMinOrder').value) || 200.0,
+          delivery_base_fee: parseFloat(document.getElementById('settingBaseFee').value),
+          free_delivery_threshold: parseFloat(document.getElementById('settingFreeThreshold').value),
+          hidden_categories: hidden.join(','),
+          mitchells_plain_only: mpOnly
+        })
+      });
+      alert('Store Settings Updated Successfully!');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+  </script>
+</body>
+</html>
