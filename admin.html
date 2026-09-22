@@ -1255,65 +1255,126 @@
     // -------------------------------------------------------------
     // DELIVERY AREAS & DYNAMIC STORE SETTINGS
     // -------------------------------------------------------------
-    async function loadAreas() {
+async function loadAreas() {
       try {
         const res = await fetch('/api/areas');
         customAreasList = await res.json();
-        const tbody = document.getElementById('areasTableBody');
-
-        if (customAreasList.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--gray-muted); padding:20px;">No custom suburbs added yet. System uses standard default areas.</td></tr>`;
-          return;
-        }
-
-        tbody.innerHTML = customAreasList.map(a => `
-          <tr>
-            <td><strong>${a.name}</strong></td>
-            <td>${a.zone_name || 'Custom'}</td>
-            <td>R ${Number(a.fee).toFixed(2)}</td>
-            <td>${a.is_collection ? '<span style="color:#92400E; font-weight:bold;">Collection Only</span>' : '<span style="color:var(--primary); font-weight:bold;">Delivery Eligible</span>'}</td>
-            <td><button onclick="deleteArea('${a.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:bold;">Delete</button></td>
-          </tr>
-        `).join('');
+        renderAreasTable(customAreasList);
       } catch (e) {}
     }
 
+    function renderAreasTable(areas) {
+      const tbody = document.getElementById('areasTableBody');
+      document.getElementById('areaCountBadge').innerText = `${areas.length} Areas Configured`;
+
+      if (areas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--gray-muted); padding:24px;">No suburbs in database yet. Click <strong>"📥 Load Mitchell's Plain & CT Suburbs"</strong> above to populate them instantly!</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = areas.map(a => `
+        <tr>
+          <td><strong>${a.name}</strong></td>
+          <td><span style="background:#EFECE6; padding:3px 8px; border-radius:3px; font-size:11px; font-weight:bold;">${a.zone_name || 'Mitchells Plain'}</span></td>
+          <td><strong style="color:var(--accent); font-size:14px;">R ${Number(a.fee).toFixed(2)}</strong></td>
+          <td>${a.is_collection ? '<span style="color:#92400E; font-weight:bold;">Collection Only</span>' : '<span style="color:var(--primary); font-weight:bold;">✓ Delivery Eligible</span>'}</td>
+          <td>
+            <button onclick="startEditArea('${a.id}')" style="color:var(--charcoal); background:none; border:none; font-weight:bold; cursor:pointer; margin-right:10px;">Edit Fee</button>
+            <button onclick="deleteArea('${a.id}')" style="color:var(--danger); background:none; border:none; cursor:pointer; font-weight:bold;">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterAreasTable() {
+      const q = (document.getElementById('areaSearchInput').value || '').toLowerCase().trim();
+      if (!q) return renderAreasTable(customAreasList);
+      renderAreasTable(customAreasList.filter(a => a.name.toLowerCase().includes(q) || (a.zone_name || '').toLowerCase().includes(q)));
+    }
+
+    function startEditArea(id) {
+      const a = customAreasList.find(x => x.id === id);
+      if (!a) return;
+
+      document.getElementById('editAreaId').value = a.id;
+      document.getElementById('areaNameInput').value = a.name;
+      document.getElementById('areaFeeInput').value = a.fee;
+      document.getElementById('areaIsCollectionInput').checked = a.is_collection === 1;
+      toggleAreaFeeInput(document.getElementById('areaIsCollectionInput'));
+
+      document.getElementById('areaFormTitle').innerText = `Edit Suburb: ${a.name}`;
+      document.getElementById('saveAreaBtn').innerText = 'Update Fee';
+      document.getElementById('cancelAreaEditBtn').style.display = 'inline-block';
+      document.getElementById('areaEditForm').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function resetAreaForm() {
+      document.getElementById('editAreaId').value = '';
+      document.getElementById('areaNameInput').value = '';
+      document.getElementById('areaFeeInput').value = '40';
+      document.getElementById('areaFeeInput').disabled = false;
+      document.getElementById('areaIsCollectionInput').checked = false;
+
+      document.getElementById('areaFormTitle').innerText = 'Add or Edit Delivery Suburb';
+      document.getElementById('saveAreaBtn').innerText = '+ Add Area';
+      document.getElementById('cancelAreaEditBtn').style.display = 'none';
+    }
+
     function toggleAreaFeeInput(cb) {
-      const feeInput = document.getElementById('newAreaFee');
+      const feeInput = document.getElementById('areaFeeInput');
       if (cb.checked) {
         feeInput.value = 0;
         feeInput.disabled = true;
       } else {
-        feeInput.value = 55;
+        if (feeInput.value === '0') feeInput.value = 40;
         feeInput.disabled = false;
       }
     }
 
-    async function saveCustomArea(e) {
+    async function saveArea(e) {
       e.preventDefault();
-      const name = document.getElementById('newAreaName').value.trim();
-      const fee = document.getElementById('newAreaFee').value;
-      const isCol = document.getElementById('newAreaIsCollection').checked;
+      const editId = document.getElementById('editAreaId').value;
+      const name = document.getElementById('areaNameInput').value.trim();
+      const fee = document.getElementById('areaFeeInput').value;
+      const isCol = document.getElementById('areaIsCollectionInput').checked;
 
-      await fetch('/api/admin/areas', {
-        method: 'POST',
+      const payload = {
+        name,
+        fee: isCol ? 0 : Number(fee),
+        is_collection: isCol,
+        zone_name: isCol ? 'Collection' : 'Delivery Zone'
+      };
+
+      let url = '/api/admin/areas';
+      let method = 'POST';
+
+      if (editId) {
+        url = `/api/admin/areas/${editId}`;
+        method = 'PUT';
+      }
+
+      await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
-        body: JSON.stringify({
-          name,
-          fee: isCol ? 0 : Number(fee),
-          is_collection: isCol,
-          zone_name: isCol ? 'Collection' : `Zone ${Number(fee) <= 30 ? 1 : Number(fee) <= 55 ? 2 : 3}`
-        })
+        body: JSON.stringify(payload)
       });
 
-      alert(`Area "${name}" added to checkout suggestions!`);
-      document.getElementById('newAreaName').value = '';
+      alert(editId ? `✓ Suburb "${name}" fee updated to R ${Number(fee).toFixed(2)}!` : `✓ Area "${name}" added!`);
+      resetAreaForm();
       loadAreas();
     }
 
     async function deleteArea(id) {
-      if (!confirm('Remove this custom area?')) return;
+      if (!confirm('Remove this suburb?')) return;
       await fetch(`/api/admin/areas/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      loadAreas();
+    }
+
+    async function seedDefaultAreas() {
+      if (!confirm('Populate standard Mitchell\'s Plain & Cape Town delivery areas into your database?')) return;
+      const res = await fetch('/api/admin/areas/seed-defaults', { method: 'POST', headers: { 'Authorization': `Bearer ${adminToken}` } });
+      const data = await res.json();
+      alert(`Loaded ${data.count} default suburbs. You can now adjust each fee individually!`);
       loadAreas();
     }
 
