@@ -542,10 +542,71 @@ export default {
           return json({ success: true, id: areaId }, 201);
         }
 
+        // --- ADMIN DELIVERY AREAS MANAGEMENT ---
+        if (url.pathname === "/api/admin/areas" && request.method === "POST") {
+          const { name, zone_name, fee, is_collection } = await request.json();
+          if (!name) return json({ error: "Area name required" }, 400);
+
+          const areaId = `area-${Date.now()}`;
+          await env.DB.prepare(
+            `INSERT INTO areas (id, name, zone_name, fee, is_collection) VALUES (?, ?, ?, ?, ?)`
+          ).bind(areaId, name.trim(), zone_name || 'Zone 1', Number(fee || 0), is_collection ? 1 : 0).run();
+
+          return json({ success: true, id: areaId }, 201);
+        }
+
+        // EDIT / UPDATE EXISTING AREA
+        if (url.pathname.startsWith("/api/admin/areas/") && request.method === "PUT") {
+          const id = url.pathname.replace("/api/admin/areas/", "");
+          const { name, zone_name, fee, is_collection } = await request.json();
+
+          await env.DB.prepare(
+            `UPDATE areas SET name = ?, zone_name = ?, fee = ?, is_collection = ? WHERE id = ?`
+          ).bind(name.trim(), zone_name || 'Zone 1', Number(fee || 0), is_collection ? 1 : 0, id).run();
+
+          return json({ success: true });
+        }
+
+        // DELETE AREA
         if (url.pathname.startsWith("/api/admin/areas/") && request.method === "DELETE") {
           const id = url.pathname.replace("/api/admin/areas/", "");
           await env.DB.prepare("DELETE FROM areas WHERE id = ?").bind(id).run();
           return json({ success: true });
+        }
+
+        // 📥 1-CLICK POPULATE DEFAULT SUBURBS
+        if (url.pathname === "/api/admin/areas/seed-defaults" && request.method === "POST") {
+          const defaultAreas = [
+            { name: "Mitchells Plain", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Rocklands", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Portland", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Westridge", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Tafelsig", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Beacon Valley", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Eastridge", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Lentegeur", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Woodlands", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Colorado Park", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Strandfontein", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Wavecrest", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Bayview", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Mandalay", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Pelican Park", zone: "Mitchells Plain", fee: 40, col: 0 },
+            { name: "Ottery", zone: "Surrounds", fee: 55, col: 0 },
+            { name: "Grassy Park", zone: "Surrounds", fee: 55, col: 0 },
+            { name: "Lotus River", zone: "Surrounds", fee: 55, col: 0 },
+            { name: "Retreat", zone: "Surrounds", fee: 70, col: 0 },
+            { name: "Claremont", zone: "Cape Town", fee: 75, col: 0 }
+          ];
+
+          const stmts = defaultAreas.map(a => 
+            env.DB.prepare(
+              `INSERT INTO areas (id, name, zone_name, fee, is_collection) VALUES (?, ?, ?, ?, ?)`
+            ).bind(`area-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`, a.name, a.zone, a.fee, a.col)
+          );
+
+          await env.DB.batch(stmts);
+          return json({ success: true, count: defaultAreas.length });
         }
 
         if (url.pathname === "/api/admin/inquiries" && request.method === "GET") {
