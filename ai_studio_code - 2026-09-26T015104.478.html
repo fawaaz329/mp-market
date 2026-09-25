@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Local Community Directory — Mitchell's Plain Marketplace</title>
+  <link rel="icon" href="/logo.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+  <style>
+    :root {
+      --bg-ivory: #F7F4EF;
+      --surface-card: #FFFFFF;
+      --charcoal: #171717;
+      --charcoal-secondary: #404040;
+      --gray-muted: #737373;
+      --gray-light: #EAE6DF;
+      --border-subtle: #E8E3DA;
+      --accent: #C45A2C;
+      --accent-hover: #A8481E;
+      --primary: #087A58;
+      --primary-hover: #066246;
+      --gold: #B45309;
+      --danger: #B91C1C;
+      --radius-sm: 4px;
+      --radius: 8px;
+      --shadow-subtle: 0 4px 20px -4px rgba(23, 23, 23, 0.05);
+      --shadow-card-hover: 0 12px 30px -6px rgba(23, 23, 23, 0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: var(--bg-ivory); color: var(--charcoal); display: flex; flex-direction: column; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+    
+    header { position: sticky; top: 0; z-index: 40; background: rgba(247, 244, 239, 0.98); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border-subtle); }
+    .header-top { max-width: 1240px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand-block { text-decoration: none; color: var(--charcoal); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .brand-text { font-size: 15px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+    .nav-btn-group { display: flex; align-items: center; gap: 10px; }
+    
+    .btn-minimal { background: transparent; border: 1px solid var(--border-subtle); padding: 8px 14px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; color: var(--charcoal); cursor: pointer; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .btn-minimal:hover { background: var(--surface-card); border-color: var(--charcoal); }
+    .btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); padding: 8px 16px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    main { max-width: 1240px; margin: 0 auto; padding: 24px 24px 80px; flex: 1; width: 100%; }
+
+    /* SELLER ONBOARDING CALLOUT BANNER */
+    .seller-join-banner {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-left: 4px solid var(--primary);
+      padding: 18px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .seller-join-text h2 { font-size: 16px; font-weight: 800; color: var(--charcoal); margin-bottom: 4px; }
+    .seller-join-text p { font-size: 13px; color: var(--charcoal-secondary); margin: 0; }
+
+    .search-filter-section { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-subtle); margin-bottom: 28px; }
+    .search-input-wrapper { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .search-input { flex: 1; min-width: 240px; background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 12px 16px; border-radius: var(--radius-sm); font-size: 13px; outline: none; }
+    .search-input:focus { border-color: var(--charcoal); background: #fff; }
+    .suburb-select { background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; outline: none; }
+
+    .category-pills-row { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+    .category-pills-row::-webkit-scrollbar { display: none; }
+    .cat-pill { background: var(--bg-ivory); border: 1px solid var(--border-subtle); padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap; color: var(--charcoal-secondary); text-transform: uppercase; letter-spacing: 0.3px; }
+    .cat-pill.active { background: var(--charcoal); color: #fff; border-color: var(--charcoal); }
+
+    /* DIRECTORY CARD GRID */
+    .directory-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    @media (min-width: 768px) { .directory-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1080px) { .directory-grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .vendor-card { background: var(--surface-card); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 22px; box-shadow: var(--shadow-subtle); display: flex; flex-direction: column; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; position: relative; }
+    .vendor-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card-hover); border-color: #D6CFBE; }
+    
+    .vendor-header { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .vendor-logo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; background: #FFFFFF; border: 1px solid var(--border-subtle); flex-shrink: 0; }
+    .vendor-title { font-size: 16px; font-weight: 800; color: var(--charcoal); line-height: 1.25; margin-bottom: 4px; }
+    
+    .rating-badge { font-size: 11px; font-weight: 700; color: var(--gold); display: flex; align-items: center; gap: 5px; }
+    .vendor-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .badge-suburb { background: #EFECE6; color: var(--charcoal); font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px; display: inline-flex; align-items: center; gap: 4px; text-transform: uppercase; }
+    .badge-cat { background: var(--bg-ivory); border: 1px solid var(--border-subtle); color: var(--accent); font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 3px; text-transform: uppercase; }
+
+    .vendor-bio { font-size: 13px; color: var(--charcoal-secondary); line-height: 1.5; margin-bottom: 18px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .btn-view-shop { background: var(--bg-ivory); color: var(--charcoal); border: 1px solid var(--border-subtle); padding: 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 800; text-transform: uppercase; text-align: center; margin-top: auto; letter-spacing: 0.3px; transition: 0.2s; }
+    .btn-view-shop:hover { background: var(--charcoal); color: #fff; }
+
+    /* PROFESSIONAL BUSINESS PROFILE PAGE VIEW */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(23, 23, 23, 0.7); z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; opacity: 0; visibility: hidden; transition: 0.2s; backdrop-filter: blur(4px); }
+    .modal-backdrop.open { opacity: 1; visibility: visible; }
+    .modal-window { background: var(--surface-card); width: 100%; max-width: 560px; border-radius: var(--radius); max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.25); }
+    
+    .modal-window.wide-profile { max-width: 1040px; padding: 0; background: #FFFFFF; }
+    
+    /* Cover banner */
+    .profile-hero-bar { background: #171717; color: #FFFFFF; padding: 36px 32px 32px; border-radius: var(--radius) var(--radius) 0 0; position: relative; }
+    .profile-hero-content { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+    .profile-hero-logo { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; background: #FFFFFF; border: 3px solid #FFFFFF; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+    .profile-hero-details { flex: 1; min-width: 240px; }
+    .profile-hero-title { font-size: 26px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px; }
+    
+    .btn-close-drawer { background: rgba(255,255,255,0.2); color: #fff; border: none; font-size: 18px; cursor: pointer; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; top: 16px; right: 16px; transition: 0.2s; }
+    .btn-close-drawer:hover { background: #fff; color: #000; }
+
+    /* Profile tabs / content sections */
+    .profile-body-layout { padding: 32px; display: grid; grid-template-columns: 1fr; gap: 32px; }
+    @media (min-width: 860px) { .profile-body-layout { grid-template-columns: 2fr 1.1fr; } }
+
+    .profile-section-card { margin-bottom: 28px; }
+    .profile-section-card:last-child { margin-bottom: 0; }
+    .section-heading-clean { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: var(--charcoal); border-bottom: 1.5px solid var(--charcoal); padding-bottom: 8px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Services & Price Table */
+    .services-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .services-table th, .services-table td { padding: 12px; border-bottom: 1px solid var(--border-subtle); text-align: left; }
+    .services-table th { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--gray-muted); background: #FAF9F6; }
+
+    /* Realistic Gallery Grid */
+    .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 10px; }
+    @media (min-width: 600px) { .gallery-grid { grid-template-columns: repeat(3, 1fr); } }
+    .gallery-thumb-wrap { width: 100%; height: 140px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); overflow: hidden; background: #FAF9F6; cursor: pointer; position: relative; }
+    .gallery-thumb-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s; }
+    .gallery-thumb-wrap:hover .gallery-thumb-img { transform: scale(1.04); }
+    .gallery-price-tag { position: absolute; bottom: 6px; right: 6px; background: rgba(23, 23, 23, 0.9); color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 3px; }
+
+    /* Sidebar info boxes */
+    .sidebar-info-card { background: var(--bg-ivory); border: 1px solid var(--border-subtle); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; }
+    .sidebar-info-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; font-size: 13px; line-height: 1.45; }
+    .sidebar-info-row:last-child { margin-bottom: 0; }
+    .sidebar-info-label { font-weight: 700; color: var(--charcoal); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 2px; }
+
+    .btn-contact-whatsapp { background: var(--primary); color: #FFFFFF; border: none; padding: 14px 20px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; transition: background 0.2s; }
+    .btn-contact-whatsapp:hover { background: var(--primary-hover); }
+
+    .lightbox-img { max-width: 90vw; max-height: 85vh; border-radius: 4px; object-fit: contain; }
+
+    /* FORM STYLES */
+    .form-group { margin-bottom: 14px; text-align: left; }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+    .form-control { width: 100%; padding: 10px 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); font-size: 13px; outline: none; background: #fff; }
+    .form-control:focus { border-color: var(--charcoal); }
+
+    footer { background: var(--bg-ivory); border-top: 1px solid var(--border-subtle); padding: 40px 24px 60px; text-align: center; font-size: 12px; color: var(--gray-muted); margin-top: auto; }
+    .footer-links-row { margin-top: 16px; display: flex; justify-content: center; gap: 20px; font-size: 13px; flex-wrap: wrap; }
+    .footer-link-item { color: var(--gray-muted); text-decoration: none; font-weight: 600; }
+    .footer-link-item:hover { color: var(--charcoal); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <a href="/" class="brand-block">
+        <img src="/logo.jpg" alt="MP Market" style="height: 36px; width: auto; object-fit: contain; mix-blend-mode: multiply; margin-left: -8px;">
+        <span class="brand-text">MP-MARKETPLACE</span>
+      </a>
+      
+      <!-- HEADER AUTH -->
+      <div class="nav-btn-group">
+        <a href="/" class="btn-minimal">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Storefront
+        </a>
+        <div id="sellerAuthContainer">
+          <button class="btn-primary" onclick="openSellerAuthModal()">Sign In to Add Business</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ONBOARDING CALLOUT BANNER -->
+    <div class="seller-join-banner">
+      <div class="seller-join-text">
+        <h2>Are you a local business owner or artisan in Mitchell's Plain?</h2>
+        <p>List your services, products, and contact details on the community directory for free. Connect with verified local clients directly on WhatsApp.</p>
+      </div>
+      <div id="sellerBannerCtaContainer">
+        <button class="btn-primary" onclick="openSellerAuthModal()">Sign In to Add Business</button>
+      </div>
+    </div>
+
+    <!-- SEARCH & FILTER -->
+    <div class="search-filter-section">
+      <div class="search-input-wrapper">
+        <input type="text" id="dirSearchInput" class="search-input" placeholder="Search by Business Name, Suburb (e.g. Rocklands), or Service..." oninput="handleSearchInput()">
+        <select id="suburbFilterSelect" class="suburb-select" onchange="handleFilterChange()">
+          <option value="ALL">All Suburbs / Areas</option>
+        </select>
+      </div>
+
+      <!-- TYPOGRAPHIC CATEGORY PILLS (NO EMOJIS) -->
+      <div class="category-pills-row" id="categoryPills">
+        <button class="cat-pill active" onclick="selectCategory('ALL', this)">All Categories</button>
+        <button class="cat-pill" onclick="selectCategory('Food & Baking', this)">Food & Baking</button>
+        <button class="cat-pill" onclick="selectCategory('Clothing & Sewing', this)">Clothing & Sewing</button>
+        <button class="cat-pill" onclick="selectCategory('Beauty & Hair', this)">Beauty & Hair</button>
+        <button class="cat-pill" onclick="selectCategory('Trades & Services', this)">Trades & Services</button>
+        <button class="cat-pill" onclick="selectCategory('Crafts & Gifts', this)">Crafts & Gifts</button>
+      </div>
+    </div>
+
+    <!-- MAIN DIRECTORY GRID -->
+    <div class="directory-grid" id="directoryGrid"></div>
+  </main>
+
+  <!-- SELLER SIGN-IN MODAL (DIRECT GOOGLE AUTH BUTTON ON DIRECTORY) -->
+  <div class="modal-backdrop" id="sellerAuthModal">
+    <div class="modal-window" style="text-align: center; padding: 32px 24px; max-width: 440px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px; margin-bottom: 18px;">
+        <h3 style="font-size: 16px; font-weight: 800; text-transform: uppercase;">Seller Sign In</h3>
+        <button onclick="closeModal('sellerAuthModal')" style="background:none; border:none; font-size:22px; cursor:pointer;">&times;</button>
+      </div>
+      <p style="font-size: 13px; color: var(--charcoal-secondary); margin-bottom: 22px; line-height: 1.5;">
+        Sign in with your Google account to create and manage your business profile on the MP Market Community Directory.
+      </p>
+      
+      <!-- GOOGLE'S OFFICIAL BUTTON RENDERS HERE -->
+      <div id="modalGoogleSellerBtnWrapper" style="display: flex; justify-content: center; margin-bottom: 16px;"></div>
+
+      <p style="font-size: 11px; color: var(--gray-muted); margin: 0; border-top: 1px solid var(--border-subtle); padding-top: 14px;">
+        No passwords required &middot; POPIA Compliant &middot; Instant setup
+      </p>
+    </div>
+  </div>
+
+  <!-- BUSINESS PROFILE PAGE MODAL -->
+  <div class="modal-backdrop" id="shopProfileModal">
+    <div class="modal-window wide-profile">
+      
+      <!-- HERO BAR -->
+      <div class="profile-hero-bar">
+        <button class="btn-close-drawer" onclick="closeModal('shopProfileModal')" title="Close profile">&times;</button>
+        
+        <div class="profile-hero-content">
+          <img id="spLogo" src="/logo.jpg" class="profile-hero-logo" alt="Logo">
+          <div class="profile-hero-details">
+            <h1 id="spName" class="profile-hero-title">Business Name</h1>
+            
+            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+              <span id="spSuburb" class="badge-suburb">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span id="spSuburbText">Mitchells Plain</span>
+              </span>
+              <span id="spCategory" class="badge-cat">Category</span>
+            </div>
+
+            <!-- RATING DISPLAY -->
+            <div id="spRating" class="rating-badge" style="cursor: pointer; display: inline-flex;" onclick="openReviewsFromProfile()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              <span id="spRatingText" style="color: #fff; font-weight: 700;">5.0 (0 reviews)</span>
+              <span style="color: #bbb; margin-left: 6px; text-decoration: underline;">Rate This Business</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STRUCTURED PROFILE CONTENT -->
+      <div class="profile-body-layout">
+        
+        <!-- LEFT COLUMN: ABOUT, SERVICES & PRICES, GALLERY -->
+        <div>
+          <!-- ABOUT SECTION -->
+          <div class="profile-section-card">
+            <div class="section-heading-clean">About the Business</div>
+            <p id="spBio" style="font-size: 14px; color: var(--charcoal-secondary); line-height: 1.7;"></p>
+          </div>
+
+          <!-- SERVICES & PRICES SECTION -->
+          <div class="profile-section-card" id="spServicesWrapper">
+            <div class="section-heading-clean">Services & Prices</div>
+            <table class="services-table">
+              <thead>
+                <tr>
+                  <th>Description / Item</th>
+                  <th style="text-align: right;">Price</th>
+                  <th style="text-align: right;">Direct Order</th>
+                </tr>
+              </thead>
+              <tbody id="spServicesTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- GALLERY SECTION -->
+          <div class="profile-section-card" id="spGalleryWrapper">
+            <div class="section-heading-clean">Work & Product Gallery</div>
+            <div class="gallery-grid" id="spGalleryGrid"></div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: OPENING HOURS, SERVICE AREAS, CONTACT -->
+        <div>
+          <div class="sidebar-info-card">
+            <!-- DIRECT CONTACT BUTTON -->
+            <a id="spWhatsappBtn" href="#" target="_blank" class="btn-contact-whatsapp" style="margin-bottom: 20px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.93 11.93 0 0 0 12.06 0C5.46 0 .09 5.37.09 11.97c0 2.11.55 4.17 1.6 6L0 24l6.23-1.63a11.93 11.93 0 0 0 5.83 1.51h.01c6.6 0 11.97-5.37 11.97-11.97 0-3.2-1.25-6.21-3.52-8.43zm-8.46 18.4h-.01c-1.8 0-3.56-.48-5.1-1.39l-.37-.22-3.79.99 1.01-3.69-.24-.38a9.92 9.92 0 0 1-1.52-5.22c0-5.5 4.48-9.97 9.98-9.97 2.66 0 5.16 1.04 7.04 2.92 1.88 1.88 2.92 4.38 2.92 7.04 0 5.5-4.48 9.97-9.98 9.97zm5.47-7.48c-.3-.15-1.78-.88-2.06-.98-.28-.1-.48-.15-.68.15-.2.3-.78.98-.95 1.18-.18.2-.35.23-.65.08-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.18-.3-.02-.46.13-.61.13-.13.3-.35.45-.53.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.64-.93-2.25-.24-.6-.49-.52-.68-.53h-.58c-.2 0-.53.08-.8.38-.28.3-1.05 1.03-1.05 2.51s1.08 2.91 1.23 3.11c.15.2 2.13 3.25 5.16 4.56.72.31 1.28.5 1.72.64.72.23 1.38.2 1.9.12.58-.09 1.78-.73 2.03-1.43.25-.7.25-1.3.18-1.43-.08-.12-.28-.2-.58-.35z"/></svg>
+              Contact on WhatsApp
+            </a>
+
+            <!-- OPENING HOURS -->
+            <div class="sidebar-info-row">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px; flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <div>
+                <span class="sidebar-info-label">Opening Hours</span>
+                <span id="spHours" style="color: var(--charcoal-secondary);">Monday – Friday: 08:30 – 17:00<br>Saturday: 09:00 – 14:00</span>
+              </div>
+            </div>
+
+            <!-- SERVICE AREAS -->
+            <div class="sidebar-info-row">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-top:2px; flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <div>
+                <span class="sidebar-info-label">Service Areas</span>
+                <span id="spAreas" style="color: var(--charcoal-secondary);">Mitchells Plain & surrounding neighborhoods</span>
+              </div>
+            </div>
+
+            <!-- VERIFIED BADGE -->
+            <div class="sidebar-info-row" style="border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 14px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" style="margin-top:2px; flex-shrink:0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              <div>
+                <span class="sidebar-info-label" style="color:var(--primary);">Verified Profile</span>
+                <span style="font-size:12px; color:var(--gray-muted);">Community registered & vetted by MP Market Administration.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- PROFILE FOOTER TOOLS -->
+          <div style="display: flex; justify-content: space-between; font-size: 11px;">
+            <button onclick="copyProfileShareLink()" class="btn-minimal" style="padding: 6px 10px; font-size: 11px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Share Profile
+            </button>
+            <a id="spReportBtn" href="#" style="color: var(--danger); text-decoration: none; display: flex; align-items: center; gap: 4px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              Report Business
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LIGHTBOX MODAL -->
+  <div class="modal-backdrop" id="imageLightboxModal" onclick="closeModal('imageLightboxModal')">
+    <div style="position: relative; max-width: 90%; max-height: 90%; display: flex; align-items: center; justify-content: center;">
+      <button onclick="closeModal('imageLightboxModal')" style="position: absolute; top: -15px; right: -15px; background: var(--charcoal); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 10;">&times;</button>
+      <img id="lightboxImageSrc" src="" class="lightbox-img" onclick="event.stopPropagation()">
+    </div>
+  </div>
+
+  <!-- REVIEWS MODAL -->
+  <div class="modal-backdrop" id="reviewsModal">
+    <div class="modal-window" style="padding: 24px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:12px; margin-bottom:16px;">
+        <h3 id="reviewsModalTitle" style="font-size:16px; font-weight:800; text-transform:uppercase;">Customer Reviews</h3>
+        <button onclick="closeModal('reviewsModal')" style="background:none; border:none; font-size:22px; cursor:pointer;">&times;</button>
+      </div>
+
+      <div id="reviewsListContainer" style="max-height:220px; overflow-y:auto; margin-bottom:18px; border-bottom:1px solid var(--border-subtle); padding-bottom:12px;"></div>
+
+      <h4 style="font-size:12px; font-weight:800; text-transform:uppercase; margin-bottom:10px;">Post Feedback</h4>
+      <form onsubmit="handleReviewSubmit(event)">
+        <input type="hidden" id="dirReviewListingId">
+        <div class="form-group">
+          <label>Your Name *</label>
+          <input type="text" id="revCustomerName" class="form-control" required placeholder="e.g. Nazlie Adams">
+        </div>
+        <div class="form-group">
+          <label>Rating *</label>
+          <select id="revStarRating" class="form-control" required>
+            <option value="5">5 Stars — Excellent Service</option>
+            <option value="4">4 Stars — Very Good</option>
+            <option value="3">3 Stars — Satisfactory</option>
+            <option value="2">2 Stars — Needs Improvement</option>
+            <option value="1">1 Star — Poor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Review Details (Optional)</label>
+          <textarea id="revCommentText" class="form-control" rows="2" placeholder="Write feedback regarding service, turnaround, or quality..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%; padding: 12px;" id="submitRevBtn">Post Rating</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SELLER REGISTRATION & MANAGEMENT MODAL -->
+  <div class="modal-backdrop" id="listingModal">
+    <div class="modal-window" style="padding: 24px; max-width: 620px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-subtle); padding-bottom:12px; margin-bottom:16px;">
+        <h3 id="listingModalTitle" style="font-size:16px; font-weight:800; text-transform:uppercase;">Business Profile Application</h3>
+        <button onclick="closeModal('listingModal')" style="background:none; border:none; font-size:22px; cursor:pointer;">&times;</button>
+      </div>
+
+      <form id="businessListingForm" onsubmit="handleListingSubmit(event)">
+        <div style="background: #E6F4EA; border: 1px solid #137333; color: #137333; border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 16px; font-size: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <span>Account: <strong id="ownerEmailLabel"></strong></span>
+          <span style="font-weight: 700;">Verified with Google</span>
+        </div>
+
+        <div class="form-group">
+          <label>Business / Trading Name *</label>
+          <input type="text" id="bName" class="form-control" required placeholder="e.g. Fatima's Artisan Bakes">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>Category *</label>
+            <select id="bCategory" class="form-control" required>
+              <option value="Food & Baking">Food & Baking</option>
+              <option value="Clothing & Sewing">Clothing & Sewing</option>
+              <option value="Beauty & Hair">Beauty & Hair</option>
+              <option value="Trades & Services">Trades & Services</option>
+              <option value="Crafts & Gifts">Crafts & Gifts</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Suburb / Neighborhood *</label>
+            <input type="text" id="bSuburb" class="form-control" required placeholder="e.g. Rocklands">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>WhatsApp Contact Number *</label>
+          <input type="tel" id="bWhatsapp" class="form-control" required placeholder="e.g. 082 123 4567">
+        </div>
+
+        <div class="form-group">
+          <label>Business Biography / About *</label>
+          <textarea id="bAbout" class="form-control" rows="3" required placeholder="Describe your trade, background, and specializations..."></textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label>Opening Hours</label>
+            <input type="text" id="bOpeningHours" class="form-control" placeholder="e.g. Mon–Fri 08:30–17:00, Sat 09:00–14:00">
+          </div>
+          <div class="form-group">
+            <label>Service Areas</label>
+            <input type="text" id="bServiceAreas" class="form-control" placeholder="e.g. Rocklands, Portland, Mitchells Plain">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Business Logo / Profile Photo</label>
+          <input type="file" id="bLogoFile" class="form-control" accept="image/*">
+        </div>
+
+        <!-- SHOWCASE PRODUCTS & SERVICES (UP TO 5 ITEMS) -->
+        <div style="background: var(--bg-ivory); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px;">
+          <label style="font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px; display: block;">Services & Product Pricing (Add up to 5 items with realistic photos):</label>
+          
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item1Title" class="form-control" placeholder="Service / Item 1 Title">
+              <input type="number" step="0.01" id="item1Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item1File" class="form-control" accept="image/*">
+          </div>
+
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item2Title" class="form-control" placeholder="Service / Item 2 Title">
+              <input type="number" step="0.01" id="item2Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item2File" class="form-control" accept="image/*">
+          </div>
+
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item3Title" class="form-control" placeholder="Service / Item 3 Title">
+              <input type="number" step="0.01" id="item3Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item3File" class="form-control" accept="image/*">
+          </div>
+
+          <div style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; margin-bottom: 10px;">
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item4Title" class="form-control" placeholder="Service / Item 4 Title">
+              <input type="number" step="0.01" id="item4Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item4File" class="form-control" accept="image/*">
+          </div>
+
+          <div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 6px;">
+              <input type="text" id="item5Title" class="form-control" placeholder="Service / Item 5 Title">
+              <input type="number" step="0.01" id="item5Price" class="form-control" placeholder="Price (R)">
+            </div>
+            <input type="file" id="item5File" class="form-control" accept="image/*">
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; font-size: 12px; color: var(--charcoal-secondary); line-height: 1.5; background: #FAF9F6; border: 1px solid var(--border-subtle); padding: 12px; border-radius: var(--radius-sm);">
+          <input type="checkbox" id="directoryConsentCheckbox" required style="margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer;">
+          <label for="directoryConsentCheckbox" style="cursor: pointer;">
+            I confirm that I am authorized to represent this business. I understand that my profile, work photos, and business telephone will be published publicly on the MP Market Community Directory.
+          </label>
+        </div>
+
+        <button type="submit" class="btn-primary" id="saveListingBtn" style="width: 100%; padding: 13px; font-size: 13px;">Submit Business Profile for Review</button>
+        <button type="button" onclick="handleSignOut()" style="width: 100%; margin-top: 10px; background: none; border: none; color: var(--danger); font-size: 12px; font-weight: 700; cursor: pointer;">Sign Out of Account</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; max-width: 640px; width: 100%; margin: 0 auto; padding: 0 16px;">
+      <a href="/" style="display: block; width: 100%; max-width: 580px;">
+        <img src="/footer-badge.jpg" alt="Mitchell's Plain Marketplace" loading="lazy" decoding="async" style="width: 100%; max-width: 580px; height: auto; object-fit: contain; border-radius: var(--radius); box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin-bottom: 24px; cursor: pointer;">
+      </a>
+      <div class="footer-links-row">
+        <a href="/" class="footer-link-item">Storefront</a>
+        <span style="color: var(--border-subtle);">&middot;</span>
+        <a href="/about.html" class="footer-link-item">About Us</a>
+        <span style="color: var(--border-subtle);">&middot;</span>
+        <a href="/warranty.html" class="footer-link-item">Warranty & Returns</a>
+        <span style="color: var(--border-subtle);">&middot;</span>
+        <a href="/terms.html" class="footer-link-item">Terms & Conditions</a>
+        <span style="color: var(--border-subtle);">&middot;</span>
+        <a href="/privacy.html" class="footer-link-item">Privacy Policy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const GOOGLE_CLIENT_ID = "1091285001207-n6gpbe3s1d20tcgqqo6enj3ukm827vc9.apps.googleusercontent.com";
+
+    let allListings = [];
+    let selectedCat = "ALL";
+    let searchDebounceTimer = null;
+    let verifiedOwnerUser = null;
+    let currentOwnerListing = null;
+    let currentlyViewingProfileId = null;
+
+    window.addEventListener("DOMContentLoaded", () => {
+      fetchListings();
+      initSellerAuth();
+      checkDeepLinkActions();
+    });
+
+    // -------------------------------------------------------------
+    // GOOGLE AUTH INITIALIZATION (DIRECT ON DIRECTORY)
+    // -------------------------------------------------------------
+    function initSellerAuth() {
+      const savedUser = JSON.parse(localStorage.getItem('mp_user') || 'null');
+
+      if (window.google) {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID,
+          callback: handleGoogleSellerResponse,
+          auto_select: false
+        });
+
+        // Pre-render the official Google button into the sign-in modal
+        const modalBtnWrap = document.getElementById('modalGoogleSellerBtnWrapper');
+        if (modalBtnWrap) {
+          google.accounts.id.renderButton(modalBtnWrap, {
+            theme: 'filled_blue',
+            size: 'large',
+            width: '280',
+            text: 'continue_with'
+          });
+        }
+      } else {
+        setTimeout(initSellerAuth, 400);
+      }
+
+      if (savedUser) {
+        verifiedOwnerUser = savedUser;
+        checkSellerListingStatus();
+      } else {
+        renderLoggedOutControls();
+      }
+    }
+
+    function renderLoggedOutControls() {
+      const container = document.getElementById('sellerAuthContainer');
+      const bannerContainer = document.getElementById('sellerBannerCtaContainer');
+
+      const btnHtml = `<button class="btn-primary" onclick="openSellerAuthModal()">Sign In to Add Business</button>`;
+      if (container) container.innerHTML = btnHtml;
+      if (bannerContainer) bannerContainer.innerHTML = btnHtml;
+    }
+
+    function openSellerAuthModal() {
+      if (verifiedOwnerUser) {
+        openListingModal();
+        return;
+      }
+
+      document.getElementById('sellerAuthModal').classList.add('open');
+      
+      // Ensure Google button is rendered
+      if (window.google) {
+        const modalBtnWrap = document.getElementById('modalGoogleSellerBtnWrapper');
+        if (modalBtnWrap) {
+          google.accounts.id.renderButton(modalBtnWrap, {
+            theme: 'filled_blue',
+            size: 'large',
+            width: '280',
+            text: 'continue_with'
+          });
+        }
+      }
+    }
+
+    async function handleGoogleSellerResponse(response) {
+      try {
+        const res = await fetch('/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential: response.credential })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          localStorage.setItem('mp_user', JSON.stringify(data.user));
+          verifiedOwnerUser = data.user;
+          
+          closeModal('sellerAuthModal');
+          
+          // Check listing status and immediately open business setup modal
+          await checkSellerListingStatus();
+          openListingModal();
+        } else {
+          alert("Could not complete Google Sign In.");
+        }
+      } catch (e) {
+        alert("Authentication network error.");
+      }
+    }
+
+    async function checkSellerListingStatus() {
+      const container = document.getElementById('sellerAuthContainer');
+      const bannerContainer = document.getElementById('sellerBannerCtaContainer');
+
+      if (container) container.innerHTML = `<button class="btn-primary" style="opacity:0.6;">Checking account...</button>`;
+      
+      try {
+        const res = await fetch('/api/directory/my-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: verifiedOwnerUser.email })
+        });
+        const existing = await res.json();
+
+        if (existing) {
+          currentOwnerListing = existing;
+          const html = `<button onclick="openListingModal()" class="btn-primary" style="background:var(--charcoal); border-color:var(--charcoal);">Manage My Business</button>`;
+          if (container) container.innerHTML = html;
+          if (bannerContainer) bannerContainer.innerHTML = html;
+        } else {
+          currentOwnerListing = null;
+          const html = `<button onclick="openListingModal()" class="btn-primary">+ Add Your Business Profile</button>`;
+          if (container) container.innerHTML = html;
+          if (bannerContainer) bannerContainer.innerHTML = html;
+        }
+      } catch(e) {
+        renderLoggedOutControls();
+      }
+    }
+
+    function checkDeepLinkActions() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('action') === 'add') {
+        setTimeout(() => {
+          if (verifiedOwnerUser) {
+            openListingModal();
+          } else {
+            openSellerAuthModal();
+          }
+        }, 500);
+      }
+    }
+
+    function handleSignOut() {
+      localStorage.removeItem('mp_user');
+      verifiedOwnerUser = null;
+      currentOwnerListing = null;
+      closeModal('listingModal');
+      closeModal('sellerAuthModal');
+      renderLoggedOutControls();
+    }
+
+    // -------------------------------------------------------------
+    // FETCH & RENDER LISTINGS
+    // -------------------------------------------------------------
+    async function fetchListings() {
+      try {
+        const res = await fetch("/api/directory/listings");
+        const data = await res.json();
+        allListings = data.listings || [];
+        populateSuburbFilter(data.suburbs || []);
+        renderListings(allListings);
+        checkDirectShareLink();
+      } catch (e) {}
+    }
+
+    function populateSuburbFilter(suburbs) {
+      const select = document.getElementById("suburbFilterSelect");
+      const current = select.value;
+      select.innerHTML = `<option value="ALL">All Suburbs / Areas</option>` + 
+        suburbs.map(s => `<option value="${s}" ${s === current ? 'selected' : ''}>${s}</option>`).join('');
+    }
+
+    function renderListings(listings) {
+      const grid = document.getElementById("directoryGrid");
+      if (listings.length === 0) {
+        grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; background: #fff; border: 1px solid var(--border-subtle); border-radius: var(--radius); color: var(--gray-muted);">No approved businesses matching your search criteria.</div>`;
+        return;
+      }
+
+      grid.innerHTML = listings.map(v => `
+        <div class="vendor-card" id="shop-${v.slug}" onclick="openVendorProfile('${v.id}')">
+          <div class="vendor-header">
+            <img src="${v.logo_url || '/logo.jpg'}" class="vendor-logo" alt="${v.business_name}" loading="lazy" decoding="async">
+            <div>
+              <h3 class="vendor-title">${v.business_name}</h3>
+              <div class="rating-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>${Number(v.avg_rating || 5.0).toFixed(1)} (${v.review_count || 0} reviews)</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="vendor-badges">
+            <span class="badge-suburb">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${v.suburb}
+            </span>
+            <span class="badge-cat">${v.category}</span>
+          </div>
+
+          <p class="vendor-bio">${v.about_text || 'Local Mitchell\'s Plain community business.'}</p>
+
+          <button class="btn-view-shop">View Full Business Profile</button>
+        </div>
+      `).join('');
+    }
+
+    // -------------------------------------------------------------
+    // OPEN BUSINESS PROFILE
+    // -------------------------------------------------------------
+    function openVendorProfile(id) {
+      const v = allListings.find(x => x.id === id);
+      if (!v) return;
+
+      currentlyViewingProfileId = v.id;
+
+      document.getElementById('spLogo').src = v.logo_url || '/logo.jpg';
+      document.getElementById('spName').innerText = v.business_name;
+      document.getElementById('spSuburbText').innerText = v.suburb;
+      document.getElementById('spCategory').innerText = v.category;
+      document.getElementById('spRatingText').innerText = `${Number(v.avg_rating || 5.0).toFixed(1)} (${v.review_count || 0} verified reviews)`;
+      document.getElementById('spBio').innerText = v.about_text || 'No background description provided.';
+
+      document.getElementById('spWhatsappBtn').href = `/api/directory/contact/${v.id}`;
+      document.getElementById('spReportBtn').href = `mailto:orders@mp-marketplace.co.za?subject=Report Business Profile: ${encodeURIComponent(v.business_name)}`;
+
+      let items = [];
+      let hours = "Monday – Friday: 08:30 – 17:00 | Saturday: 09:00 – 14:00";
+      let areas = `${v.suburb} and surrounding Mitchell's Plain areas`;
+
+      try {
+        const parsed = JSON.parse(v.showcase_items || '[]');
+        if (Array.isArray(parsed)) {
+          items = parsed;
+        } else if (parsed && typeof parsed === 'object') {
+          items = parsed.items || [];
+          if (parsed.opening_hours) hours = parsed.opening_hours;
+          if (parsed.service_areas) areas = parsed.service_areas;
+        }
+      } catch(e) {}
+
+      document.getElementById('spHours').innerText = hours;
+      document.getElementById('spAreas').innerText = areas;
+
+      const servicesWrapper = document.getElementById('spServicesWrapper');
+      const servicesTbody = document.getElementById('spServicesTableBody');
+      const galleryWrapper = document.getElementById('spGalleryWrapper');
+      const galleryGrid = document.getElementById('spGalleryGrid');
+
+      if (items.length > 0) {
+        servicesWrapper.style.display = 'block';
+        servicesTbody.innerHTML = items.map(it => `
+          <tr>
+            <td><strong>${it.title || 'Standard Service'}</strong></td>
+            <td style="text-align: right; font-weight: 800; color: var(--accent);">${it.price ? 'R ' + Number(it.price).toFixed(2) : 'Quote on request'}</td>
+            <td style="text-align: right;">
+              <a href="/api/directory/contact/${v.id}?item=${encodeURIComponent(it.title)}&price=${it.price || ''}" target="_blank" class="btn-minimal" style="display:inline-flex; padding:4px 10px; font-size:11px;">
+                Direct Inquiry
+              </a>
+            </td>
+          </tr>
+        `).join('');
+
+        const galleryItems = items.filter(it => it.img);
+        if (galleryItems.length > 0) {
+          galleryWrapper.style.display = 'block';
+          galleryGrid.innerHTML = galleryItems.map(it => `
+            <div class="gallery-thumb-wrap" onclick="openImageLightbox('${it.img}')" title="Click to inspect photo">
+              <img src="${it.img}" class="gallery-thumb-img" alt="${it.title}" loading="lazy">
+              ${it.price ? `<span class="gallery-price-tag">R ${Number(it.price).toFixed(2)}</span>` : ''}
+            </div>
+          `).join('');
+        } else {
+          galleryWrapper.style.display = 'none';
+        }
+      } else {
+        servicesWrapper.style.display = 'none';
+        galleryWrapper.style.display = 'none';
+      }
+
+      document.getElementById('shopProfileModal').classList.add('open');
+    }
+
+    function copyProfileShareLink() {
+      if (!currentlyViewingProfileId) return;
+      const v = allListings.find(x => x.id === currentlyViewingProfileId);
+      if (!v) return;
+      const shareUrl = `${window.location.origin}/directory.html?shop=${v.slug}`;
+      navigator.clipboard.writeText(shareUrl).then(() => alert("Profile link copied to clipboard."));
+    }
+
+    function openImageLightbox(src) {
+      document.getElementById('lightboxImageSrc').src = src;
+      document.getElementById('imageLightboxModal').classList.add('open');
+    }
+
+    // -------------------------------------------------------------
+    // SEARCH & FILTERS
+    // -------------------------------------------------------------
+    function handleSearchInput() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(filterListings, 200);
+    }
+    function handleFilterChange() { filterListings(); }
+    function selectCategory(cat, btn) {
+      selectedCat = cat;
+      document.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterListings();
+    }
+    function filterListings() {
+      const searchVal = document.getElementById('dirSearchInput').value.trim().toLowerCase();
+      const suburbVal = document.getElementById('suburbFilterSelect').value.toLowerCase();
+      const filtered = allListings.filter(v => {
+        const matchesCat = (selectedCat === "ALL" || v.category === selectedCat);
+        const matchesSuburb = (suburbVal === "all" || v.suburb.toLowerCase() === suburbVal);
+        let matchesSearch = true;
+        if (searchVal) {
+          const inName = (v.business_name || '').toLowerCase().includes(searchVal);
+          const inSuburb = (v.suburb || '').toLowerCase().includes(searchVal);
+          const inCat = (v.category || '').toLowerCase().includes(searchVal);
+          const inAbout = (v.about_text || '').toLowerCase().includes(searchVal);
+          const inItems = (v.showcase_items || '').toLowerCase().includes(searchVal);
+          matchesSearch = inName || inSuburb || inCat || inAbout || inItems;
+        }
+        return matchesCat && matchesSuburb && matchesSearch;
+      });
+      renderListings(filtered);
+    }
+
+    function checkDirectShareLink() {
+      const params = new URLSearchParams(window.location.search);
+      const shopSlug = params.get('shop');
+      if (shopSlug) {
+        setTimeout(() => {
+          const target = allListings.find(x => x.slug === shopSlug || x.id === shopSlug);
+          if (target) openVendorProfile(target.id);
+        }, 300);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // REVIEWS
+    // -------------------------------------------------------------
+    function openReviewsFromProfile() {
+      if (!currentlyViewingProfileId) return;
+      const v = allListings.find(x => x.id === currentlyViewingProfileId);
+      openReviewsModal(v.id, v.business_name);
+    }
+
+    async function openReviewsModal(listingId, shopName) {
+      document.getElementById('dirReviewListingId').value = listingId;
+      document.getElementById('reviewsModalTitle').innerText = `${shopName} — Reviews`;
+      document.getElementById('reviewsListContainer').innerHTML = `<p style="font-size:12px; color:var(--gray-muted);">Loading reviews...</p>`;
+      document.getElementById('reviewsModal').classList.add('open');
+
+      try {
+        const res = await fetch(`/api/directory/reviews/${listingId}`);
+        const revs = await res.json();
+        const container = document.getElementById('reviewsListContainer');
+
+        if (revs.length === 0) {
+          container.innerHTML = `<p style="font-size:12px; color:var(--gray-muted); padding:10px 0;">No reviews on record yet.</p>`;
+        } else {
+          container.innerHTML = revs.map(r => `
+            <div style="margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border-subtle); font-size:12px;">
+              <div style="display:flex; justify-content:space-between; font-weight:700;">
+                <span>${r.customer_name}</span>
+                <span style="color:var(--gold);">${r.rating} / 5 Stars</span>
+              </div>
+              ${r.comment ? `<p style="color:var(--charcoal-secondary); margin-top:3px;">"${r.comment}"</p>` : ''}
+            </div>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    async function handleReviewSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitRevBtn');
+      btn.disabled = true;
+      btn.innerText = 'Posting...';
+
+      const listingId = document.getElementById('dirReviewListingId').value;
+      const name = document.getElementById('revCustomerName').value.trim();
+      const rating = document.getElementById('revStarRating').value;
+      const comment = document.getElementById('revCommentText').value.trim();
+
+      try {
+        const res = await fetch('/api/directory/reviews', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ listing_id: listingId, customer_name: name, rating, comment })
+        });
+        if (res.ok) {
+          alert("Review posted successfully.");
+          closeModal('reviewsModal');
+          document.getElementById('revCustomerName').value = '';
+          document.getElementById('revCommentText').value = '';
+          await fetchListings();
+          if (currentlyViewingProfileId === listingId) openVendorProfile(listingId);
+        } else {
+          alert('Could not submit review.');
+        }
+      } catch (err) { alert('Network error.'); }
+      
+      btn.disabled = false;
+      btn.innerText = 'Post Rating';
+    }
+
+    // -------------------------------------------------------------
+    // LISTING APPLICATION
+    // -------------------------------------------------------------
+    function openListingModal() {
+      if (!verifiedOwnerUser) {
+        openSellerAuthModal();
+        return;
+      }
+
+      document.getElementById('listingModal').classList.add('open');
+      document.getElementById('businessListingForm').style.display = 'block';
+      document.getElementById('ownerEmailLabel').innerText = verifiedOwnerUser.email;
+
+      if (currentOwnerListing) {
+        document.getElementById('listingModalTitle').innerText = `Manage Business: ${currentOwnerListing.business_name}`;
+        document.getElementById('bName').value = currentOwnerListing.business_name;
+        document.getElementById('bCategory').value = currentOwnerListing.category;
+        document.getElementById('bSuburb').value = currentOwnerListing.suburb;
+        document.getElementById('bWhatsapp').value = currentOwnerListing.whatsapp_number;
+        document.getElementById('bAbout').value = currentOwnerListing.about_text || '';
+        document.getElementById('saveListingBtn').innerText = 'Save Changes for Review';
+
+        let items = [];
+        try {
+          const parsed = JSON.parse(currentOwnerListing.showcase_items || '[]');
+          if (Array.isArray(parsed)) {
+            items = parsed;
+          } else if (parsed && typeof parsed === 'object') {
+            items = parsed.items || [];
+            if (parsed.opening_hours) document.getElementById('bOpeningHours').value = parsed.opening_hours;
+            if (parsed.service_areas) document.getElementById('bServiceAreas').value = parsed.service_areas;
+          }
+        } catch(e) {}
+
+        if (items[0]) { document.getElementById('item1Title').value = items[0].title || ''; document.getElementById('item1Price').value = items[0].price || ''; }
+        if (items[1]) { document.getElementById('item2Title').value = items[1].title || ''; document.getElementById('item2Price').value = items[1].price || ''; }
+        if (items[2]) { document.getElementById('item3Title').value = items[2].title || ''; document.getElementById('item3Price').value = items[2].price || ''; }
+        if (items[3]) { document.getElementById('item4Title').value = items[3].title || ''; document.getElementById('item4Price').value = items[3].price || ''; }
+        if (items[4]) { document.getElementById('item5Title').value = items[4].title || ''; document.getElementById('item5Price').value = items[4].price || ''; }
+      }
+    }
+
+    async function compressImage(file, maxWidth = 800) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob((blob) => {
+              resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: 'image/jpeg' }));
+            }, 'image/jpeg', 0.82);
+          };
+        };
+      });
+    }
+
+    async function uploadSingleFile(fileInput) {
+      const file = fileInput.files[0];
+      if (!file) return null;
+      const compressedFile = await compressImage(file);
+      const fd = new FormData();
+      fd.append("file", compressedFile);
+      const res = await fetch("/api/directory/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      return data.imageUrl || null;
+    }
+
+    async function handleListingSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('saveListingBtn');
+
+      if (!document.getElementById('directoryConsentCheckbox').checked) {
+        alert('Please accept the publication authorization.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Uploading images & saving profile...';
+
+      try {
+        let logoUrl = currentOwnerListing ? currentOwnerListing.logo_url : '';
+        const uploadedLogo = await uploadSingleFile(document.getElementById('bLogoFile'));
+        if (uploadedLogo) logoUrl = uploadedLogo;
+
+        let oldItems = [];
+        try {
+          const parsed = JSON.parse(currentOwnerListing?.showcase_items || '[]');
+          oldItems = Array.isArray(parsed) ? parsed : (parsed.items || []);
+        } catch(e) {}
+        
+        const showcaseItems = [];
+        const extractItem = async (num, index) => {
+          const t = document.getElementById(`item${num}Title`).value.trim();
+          const p = document.getElementById(`item${num}Price`).value.trim();
+          const img = (await uploadSingleFile(document.getElementById(`item${num}File`))) || (oldItems[index]?.img || '');
+          if (t) showcaseItems.push({ title: t, price: p ? parseFloat(p) : null, img: img });
+        };
+
+        await extractItem(1, 0);
+        await extractItem(2, 1);
+        await extractItem(3, 2);
+        await extractItem(4, 3);
+        await extractItem(5, 4);
+
+        const structuredShowcase = {
+          items: showcaseItems,
+          opening_hours: document.getElementById('bOpeningHours').value.trim(),
+          service_areas: document.getElementById('bServiceAreas').value.trim()
+        };
+
+        const payload = {
+          owner_email: verifiedOwnerUser.email,
+          business_name: document.getElementById('bName').value.trim(),
+          category: document.getElementById('bCategory').value,
+          suburb: document.getElementById('bSuburb').value.trim(),
+          whatsapp_number: document.getElementById('bWhatsapp').value.trim(),
+          about_text: document.getElementById('bAbout').value.trim(),
+          logo_url: logoUrl,
+          showcase_items: structuredShowcase,
+          consent_agreed: true
+        };
+
+        const res = await fetch('/api/directory/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          alert('Business profile saved.\nOur administration team has been notified by email and will review your profile for activation.');
+          closeModal('listingModal');
+          initSellerAuth();
+        } else {
+          alert('Error saving business profile.');
+        }
+      } catch (err) {
+        alert('Network connection error.');
+      }
+      btn.disabled = false;
+      btn.innerText = 'Submit Business Profile for Review';
+    }
+
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  </script>
+</body>
+</html>
