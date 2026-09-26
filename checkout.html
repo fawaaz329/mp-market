@@ -419,8 +419,9 @@
 
     function updateTotals() {
       const subtotal = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-      const freeThreshold = storeConfig.free_delivery_threshold || 600;
-      const isFree = subtotal >= freeThreshold;
+      const freeThreshold = isNaN(Number(storeConfig.free_delivery_threshold)) ? 600 : Number(storeConfig.free_delivery_threshold);
+      const baseFee = isNaN(Number(storeConfig.delivery_base_fee)) ? 30 : Number(storeConfig.delivery_base_fee);
+      const isFree = baseFee === 0 || freeThreshold === 0 || subtotal >= freeThreshold;
 
       const dispatchBadge = document.getElementById('dispatchBadge');
       const noticeBox = document.getElementById('collectionNoticeBox');
