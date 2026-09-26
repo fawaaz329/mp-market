@@ -912,11 +912,12 @@
 
       // Check for 0 properly so it doesn't jump to 600
       const freeThreshold = isNaN(Number(storeConfig.free_delivery_threshold)) ? 600 : Number(storeConfig.free_delivery_threshold);
-      const baseFee = isNaN(Number(storeConfig.delivery_base_fee)) ? 30 : Number(storeConfig.delivery_base_fee);
-      
-      // If delivery is free (0), just display "Free Delivery" without printing 0
-      const deliveryBadgeText = (baseFee === 0 || freeThreshold === 0) ? 'Free Delivery' : `Free delivery over R ${freeThreshold}`;
       const minOrder = getMinOrder();
+
+      // Only show the badge if you actually set a threshold higher than 0 (e.g. 600). If 0, it completely disappears!
+      const freeDeliveryBadgeHtml = freeThreshold > 0 
+        ? `<span class="badge-trust-delivery">Free delivery over R ${freeThreshold}</span>` 
+        : '';
 
       grid.innerHTML = products.map(p => {
         const imgs = parseProductImages(p.image_url);
@@ -948,7 +949,13 @@
               <!-- DYNAMIC MINIMUM ORDER BADGE -->
               <div class="trust-badges-wrapper">
                 <span class="badge-min-order">🔒 Min. order R${minOrder}</span>
-                <span class="badge-trust-delivery">${deliveryBadgeText}</span>
+                ${freeDeliveryBadgeHtml}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
               </div>
             </div>
           </div>
