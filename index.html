@@ -981,8 +981,9 @@
       document.getElementById('pDetailSupplier').innerText = `Sourced from ${p.public_source || 'Local Partner'}`;
       document.getElementById('pDetailDesc').innerText = p.description || 'Authentic locally sourced product.';
 
-      const freeThreshold = storeConfig.free_delivery_threshold || 600;
-      document.getElementById('pDetailDeliveryBadge').innerText = `Free delivery over R ${freeThreshold}`;
+      const freeThreshold = isNaN(Number(storeConfig.free_delivery_threshold)) ? 600 : Number(storeConfig.free_delivery_threshold);
+      const baseFee = isNaN(Number(storeConfig.delivery_base_fee)) ? 30 : Number(storeConfig.delivery_base_fee);
+      document.getElementById('pDetailDeliveryBadge').innerText = (baseFee === 0 || freeThreshold === 0) ? 'Free Delivery' : `Free delivery over R ${freeThreshold}`;
       document.getElementById('pDetailMinOrderBadge').innerText = `🔒 Min. Order R${getMinOrder()}`;
 
       currentGalleryImages = parseProductImages(p.image_url);
