@@ -910,7 +910,12 @@
         return;
       }
 
-      const freeThreshold = storeConfig.free_delivery_threshold || 600;
+      // Check for 0 properly so it doesn't jump to 600
+      const freeThreshold = isNaN(Number(storeConfig.free_delivery_threshold)) ? 600 : Number(storeConfig.free_delivery_threshold);
+      const baseFee = isNaN(Number(storeConfig.delivery_base_fee)) ? 30 : Number(storeConfig.delivery_base_fee);
+      
+      // If delivery is free (0), just display "Free Delivery" without printing 0
+      const deliveryBadgeText = (baseFee === 0 || freeThreshold === 0) ? 'Free Delivery' : `Free delivery over R ${freeThreshold}`;
       const minOrder = getMinOrder();
 
       grid.innerHTML = products.map(p => {
@@ -943,7 +948,7 @@
               <!-- DYNAMIC MINIMUM ORDER BADGE -->
               <div class="trust-badges-wrapper">
                 <span class="badge-min-order">🔒 Min. order R${minOrder}</span>
-                <span class="badge-trust-delivery">Free delivery over R ${freeThreshold}</span>
+                <span class="badge-trust-delivery">${deliveryBadgeText}</span>
               </div>
             </div>
           </div>
