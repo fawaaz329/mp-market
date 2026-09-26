@@ -303,8 +303,8 @@ export default {
         const settingsMap = Object.fromEntries((results || []).map(r => [r.key, r.value]));
         return json({
           min_order_amount: parseFloat(settingsMap.min_order_amount) || 200.0,
-          delivery_base_fee: parseFloat(settingsMap.delivery_base_fee) || 30.0,
-          free_delivery_threshold: parseFloat(settingsMap.free_delivery_threshold) || 600.0,
+          delivery_base_fee: isNaN(parseFloat(settingsMap.delivery_base_fee)) ? 30.0 : parseFloat(settingsMap.delivery_base_fee),
+          free_delivery_threshold: isNaN(parseFloat(settingsMap.free_delivery_threshold)) ? 600.0 : parseFloat(settingsMap.free_delivery_threshold),
           hidden_categories: settingsMap.hidden_categories || "",
           mitchells_plain_only: parseInt(settingsMap.mitchells_plain_only, 10) === 1 ? 1 : 0
         });
