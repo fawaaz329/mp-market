@@ -912,8 +912,7 @@ export default {
         const { results } = await env.DB.prepare("SELECT * FROM directory_listings WHERE LOWER(owner_email) = ? LIMIT 1").bind(email.toLowerCase().trim()).all();
         return json(results && results.length > 0 ? results[0] : null);
       }
-
-      // SUBMIT OR UPDATE DIRECTORY LISTING
+// SUBMIT OR UPDATE DIRECTORY LISTING
       if (url.pathname === "/api/directory/submit" && request.method === "POST") {
         const body = await request.json();
         const { owner_email, business_name, category, suburb, whatsapp_number, about_text, logo_url, showcase_items, consent_agreed } = body;
@@ -931,8 +930,32 @@ export default {
 
         const existing = await env.DB.prepare("SELECT id FROM directory_listings WHERE LOWER(owner_email) = ?").bind(owner_email.toLowerCase().trim()).first();
 
-        // Consistent admin email recipient
-        const adminAlertRecipient = env.OWNER_NOTIFICATION_EMAIL || env.ADMIN_EMAIL || env.SENDER_EMAIL || "orders@mp-marketplace.co.za";
+        // Direct fallback to your active Gmail so alerts are never lost
+        const adminAlertRecipient = env.OWNER_NOTIFICATION_EMAIL || env.ADMIN_EMAIL || "docfloweditor@gmail.com";
+
+        const emailSubject = existing 
+          ? `Directory Listing Updated: ${business_name} (${suburb})`
+          : `New Directory Submission: ${business_name} (${suburb})`;
+
+        const emailHtml = `
+          <div style="font-family: Arial, sans-serif; padding: 24px; color: #171717; max-width: 580px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E8E3DA; border-radius: 8px;">
+            <h2 style="color: #087A58; margin-top: 0;">${existing ? 'Directory Listing Updated' : 'New Community Directory Listing Submitted'}</h2>
+            <p>A local seller has submitted their business profile for review on MP Market:</p>
+            
+            <div style="background: #F7F4EF; padding: 16px; border-radius: 6px; margin: 16px 0; font-size: 13px; line-height: 1.6;">
+              <div><strong>Business Name:</strong> ${business_name}</div>
+              <div><strong>Category:</strong> ${category}</div>
+              <div><strong>Suburb / Area:</strong> ${suburb}</div>
+              <div><strong>Owner Email:</strong> ${owner_email}</div>
+              <div><strong>WhatsApp:</strong> ${cleanPhone}</div>
+              <div><strong>Action Required:</strong> Log in to Admin to Inspect & Approve</div>
+            </div>
+
+            <p style="font-size: 12px; color: #666;">
+              Check your Admin Dashboard &rarr; <strong>Directory Approvals</strong> to approve this listing.
+            </p>
+          </div>
+        `;
 
         if (existing) {
           await env.DB.prepare(`
@@ -942,15 +965,13 @@ export default {
             WHERE id = ?
           `).bind(business_name, slug, category, suburb.trim(), cleanPhone, about_text || "", logo_url || "", JSON.stringify(showcase_items || {}), existing.id).run();
 
-          // Dispatch update alert
+          // Send notification email even on updates
           ctx.waitUntil(
             sendSystemEmail(env, {
               to: adminAlertRecipient,
               toName: "MP Market Admin",
-              subject: `Directory Listing Updated: ${business_name} (${suburb})`,
-              htmlContent: renderDirectorySubmissionEmail({
-                business_name, category, suburb, owner_email, whatsapp_number: cleanPhone, is_update: true
-              })
+              subject: emailSubject,
+              htmlContent: emailHtml
             })
           );
 
@@ -962,15 +983,13 @@ export default {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending_approval')
           `).bind(id, owner_email.toLowerCase().trim(), business_name, slug, category, suburb.trim(), cleanPhone, about_text || "", logo_url || "", JSON.stringify(showcase_items || {})).run();
 
-          // Dispatch new listing alert
+          // Send notification email on new listing
           ctx.waitUntil(
             sendSystemEmail(env, {
               to: adminAlertRecipient,
               toName: "MP Market Admin",
-              subject: `New Directory Submission: ${business_name} (${suburb})`,
-              htmlContent: renderDirectorySubmissionEmail({
-                business_name, category, suburb, owner_email, whatsapp_number: cleanPhone, is_update: false
-              })
+              subject: emailSubject,
+              htmlContent: emailHtml
             })
           );
 
