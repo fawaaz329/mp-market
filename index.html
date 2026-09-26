@@ -989,8 +989,15 @@
       document.getElementById('pDetailDesc').innerText = p.description || 'Authentic locally sourced product.';
 
       const freeThreshold = isNaN(Number(storeConfig.free_delivery_threshold)) ? 600 : Number(storeConfig.free_delivery_threshold);
-      const baseFee = isNaN(Number(storeConfig.delivery_base_fee)) ? 30 : Number(storeConfig.delivery_base_fee);
-      document.getElementById('pDetailDeliveryBadge').innerText = (baseFee === 0 || freeThreshold === 0) ? 'Free Delivery' : `Free delivery over R ${freeThreshold}`;
+      const deliveryBadge = document.getElementById('pDetailDeliveryBadge');
+      if (deliveryBadge) {
+        if (freeThreshold > 0) {
+          deliveryBadge.style.display = 'inline-block';
+          deliveryBadge.innerText = `Free delivery over R ${freeThreshold}`;
+        } else {
+          deliveryBadge.style.display = 'none'; // Completely hidden if set to 0!
+        }
+      }
       document.getElementById('pDetailMinOrderBadge').innerText = `🔒 Min. Order R${getMinOrder()}`;
 
       currentGalleryImages = parseProductImages(p.image_url);
