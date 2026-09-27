@@ -977,35 +977,60 @@
       const d = directoryListingsCache.find(x => x.id === id);
       if (!d) return;
 
-      document.getElementById('inspectShopName').innerText = `${d.business_name} (📍 ${d.suburb})`;
+      document.getElementById('inspectShopName').innerText = `${d.business_name} (${d.suburb})`;
       
       let items = [];
-      try { items = JSON.parse(d.showcase_items || '[]'); } catch(e) {}
+      let hours = 'Not specified';
+      let areas = 'Not specified';
+
+      try {
+        const parsed = JSON.parse(d.showcase_items || '[]');
+        if (Array.isArray(parsed)) {
+          items = parsed;
+        } else if (parsed && typeof parsed === 'object') {
+          items = parsed.items || [];
+          hours = parsed.opening_hours || 'Not specified';
+          areas = parsed.service_areas || 'Not specified';
+        }
+      } catch(e) {
+        items = [];
+      }
 
       document.getElementById('inspectContent').innerHTML = `
-        <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px; background:var(--bg-ivory); padding:12px; border-radius:4px;">
-          <img src="${d.logo_url || '/logo.jpg'}" style="width:64px; height:64px; object-fit:cover; border-radius:50%; border:1px solid #ccc; cursor:pointer;" onclick="window.open(this.src, '_blank')">
+        <div style="display:flex; gap:16px; align-items:center; margin-bottom:16px; background:var(--bg-ivory); padding:12px; border-radius:4px; border:1px solid var(--border-subtle);">
+          <img src="${d.logo_url || '/logo.jpg'}" style="width:64px; height:64px; object-fit:cover; border-radius:50%; border:1px solid #ccc; cursor:pointer;" onclick="window.open(this.src, '_blank')" title="Click to view Logo full size">
           <div>
-            <div style="font-size:15px; font-weight:800;">${d.business_name}</div>
-            <div style="font-size:12px; color:var(--gray-muted); margin:2px 0;">Owner Email: ${d.owner_email} · Tel: ${d.whatsapp_number}</div>
-            <div style="font-size:12px;"><span style="font-weight:700;">Category:</span> ${d.category} · <span style="font-weight:700;">Suburb:</span> ${d.suburb}</div>
+            <div style="font-size:16px; font-weight:800;">${d.business_name}</div>
+            <div style="font-size:12px; color:var(--gray-muted); margin:2px 0;">Owner: ${d.owner_email} &middot; Tel: ${d.whatsapp_number}</div>
+            <div style="font-size:12px;"><span style="font-weight:700;">Category:</span> ${d.category} &middot; <span style="font-weight:700;">Suburb:</span> ${d.suburb}</div>
           </div>
         </div>
 
-        <div style="margin-bottom:18px;">
+        <div style="margin-bottom:14px;">
           <label style="font-size:11px; font-weight:800; text-transform:uppercase; display:block; margin-bottom:4px; color:var(--gray-muted);">Business Bio / Description:</label>
-          <div style="font-size:13px; line-height:1.5; background:#fff; border:1px solid var(--border-subtle); padding:12px; border-radius:4px;">${d.about_text || 'No description entered.'}</div>
+          <div style="font-size:13px; line-height:1.6; background:#fff; border:1px solid var(--border-subtle); padding:12px; border-radius:4px;">${d.about_text || 'No description entered.'}</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px;">
+          <div style="background:#FAF9F6; border:1px solid var(--border-subtle); padding:10px 12px; border-radius:4px;">
+            <label style="font-size:10px; font-weight:800; text-transform:uppercase; display:block; color:var(--gray-muted);">Opening Hours:</label>
+            <div style="font-size:12px; font-weight:600; margin-top:2px;">${hours}</div>
+          </div>
+          <div style="background:#FAF9F6; border:1px solid var(--border-subtle); padding:10px 12px; border-radius:4px;">
+            <label style="font-size:10px; font-weight:800; text-transform:uppercase; display:block; color:var(--gray-muted);">Service Areas:</label>
+            <div style="font-size:12px; font-weight:600; margin-top:2px;">${areas}</div>
+          </div>
         </div>
 
         <div style="margin-bottom:20px;">
-          <label style="font-size:11px; font-weight:800; text-transform:uppercase; display:block; margin-bottom:8px; color:var(--gray-muted);">Showcase Photos & Prices:</label>
-          ${items.length === 0 ? '<p style="font-size:12px; color:var(--gray-muted);">No showcase items uploaded.</p>' : `
+          <label style="font-size:11px; font-weight:800; text-transform:uppercase; display:block; margin-bottom:8px; color:var(--gray-muted);">Showcase Photos & Prices (${items.length} uploaded - Click photo to enlarge):</label>
+          ${items.length === 0 ? '<p style="font-size:12px; color:var(--gray-muted); padding:8px 0;">No showcase items uploaded.</p>' : `
             <div style="display:flex; flex-wrap:wrap; gap:12px;">
               ${items.map(it => `
                 <div style="width:130px; border:1px solid var(--border-subtle); border-radius:4px; padding:8px; text-align:center; background:var(--bg-ivory);">
-                  <img src="${it.img || '/logo.jpg'}" style="width:100%; height:100px; object-fit:contain; background:#fff; border-radius:3px; margin-bottom:6px; cursor:pointer;" onclick="window.open(this.src, '_blank')">
-                  <div style="font-size:12px; font-weight:700;">${it.title || 'Untitled'}</div>
-                  <div style="font-size:12px; font-weight:800; color:var(--accent); margin-top:2px;">R ${Number(it.price || 0).toFixed(2)}</div>
+                  <img src="${it.img || '/logo.jpg'}" style="width:100%; height:100px; object-fit:contain; background:#fff; border-radius:3px; margin-bottom:6px; cursor:pointer;" onclick="window.open(this.src, '_blank')" title="Click to view full size">
+                  <div style="font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${it.title || 'Untitled'}</div>
+                  <div style="font-size:12px; font-weight:800; color:var(--accent); margin-top:2px;">${it.price ? 'R ' + Number(it.price).toFixed(2) : 'No price'}</div>
                 </div>
               `).join('')}
             </div>
@@ -1013,14 +1038,14 @@
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border-subtle); padding-top:14px;">
-          ${d.status !== 'active' ? `<button onclick="updateDirectoryStatus('${d.id}', 'active'); closeModal('directoryInspectModal');" style="background:#137333; color:#fff; border:none; padding:10px 20px; border-radius:4px; font-weight:800; cursor:pointer;">✓ Approve & Make Live</button>` : ''}
-          <button onclick="deleteDirectoryListing('${d.id}'); closeModal('directoryInspectModal');" style="background:var(--danger); color:#fff; border:none; padding:10px 20px; border-radius:4px; font-weight:800; cursor:pointer;">🗑️ Reject & Delete</button>
+          ${d.status !== 'active' ? `<button onclick="updateDirectoryStatus('${d.id}', 'active'); closeModal('directoryInspectModal');" style="background:#137333; color:#fff; border:none; padding:10px 20px; border-radius:4px; font-weight:800; cursor:pointer;">Approve & Make Live</button>` : ''}
+          <button onclick="deleteDirectoryListing('${d.id}'); closeModal('directoryInspectModal');" style="background:var(--danger); color:#fff; border:none; padding:10px 20px; border-radius:4px; font-weight:800; cursor:pointer;">Reject & Delete</button>
         </div>
       `;
 
       document.getElementById('directoryInspectModal').classList.add('open');
     }
-
+    
     async function updateDirectoryStatus(id, status) {
       await fetch(`/api/admin/directory/${id}/status`, {
         method: 'PUT',
