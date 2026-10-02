@@ -216,6 +216,40 @@
       #pDetailGrid { grid-template-columns: 1.1fr 1fr !important; gap: 40px !important; max-width: 1100px !important; margin: 0 auto !important; padding-top: 20px !important; }
       #productDetailModal .modal-header-row { max-width: 1100px !important; margin: 0 auto 20px !important; }
     }
+    /* FLOATING WHATSAPP BUTTON */
+    .floating-whatsapp {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background-color: #25D366;
+      color: #FFFFFF;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+      z-index: 45;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .floating-whatsapp:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+      color: #FFFFFF;
+    }
+    .floating-whatsapp svg {
+      width: 30px;
+      height: 30px;
+      fill: currentColor;
+    }
+    @media (max-width: 768px) {
+      .floating-whatsapp { bottom: 20px; right: 20px; width: 50px; height: 50px; }
+      .floating-whatsapp svg { width: 26px; height: 26px; }
+    }
+  </style>
+</head>
+<body>
   </style>
 </head>
 <body>
@@ -1432,5 +1466,13 @@
 
     function closeModal(id) { document.getElementById(id).classList.remove('open'); }
   </script>
+
+<!-- FLOATING WHATSAPP BUTTON -->
+  <a href="https://wa.me/27749115710?text=Hi%20MP%20Market!%20I%20have%20a%20question%20about%20a%20product." target="_blank" class="floating-whatsapp" aria-label="Chat with us on WhatsApp">
+    <svg viewBox="0 0 24 24">
+      <path d="M12.031 21.164c-1.638 0-3.238-.432-4.654-1.25l-.334-.198-3.46.907.922-3.37-.217-.346a9.585 9.585 0 0 1-1.464-5.068c0-5.303 4.316-9.619 9.619-9.619 2.57 0 4.982 1 6.8 2.818a9.554 9.554 0 0 1 2.816 6.8c0 5.304-4.316 9.62-9.62 9.62zm0-17.587c-4.394 0-7.974 3.58-7.974 7.974 0 1.405.367 2.775 1.066 3.98l.386.664-.648 2.37 2.428-.637.644.382c1.173.696 2.505 1.063 3.882 1.063 4.394 0 7.974-3.58 7.974-7.974 0-2.13-.83-4.133-2.336-5.639-1.506-1.506-3.509-2.336-5.64-2.336zm4.382 11.233c-.24-.12-1.42-.702-1.64-.782-.22-.08-.38-.12-.54.12-.16.24-.62.782-.76.942-.14.16-.28.18-.52.06-.24-.12-1.014-.374-1.93-1.19-.714-.636-1.196-1.42-1.336-1.66-.14-.24-.015-.37.105-.49.108-.108.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.302-.74-1.782-.196-.47-.394-.406-.54-.414-.14-.008-.3-.01-.46-.01-.16 0-.42.06-.64.3s-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.692 2.584 4.102 3.626.574.24 1.022.384 1.37.492.576.182 1.1.156 1.516.094.466-.07 1.42-.582 1.62-1.142.2-.56.2-.104.14-.114-.06-.01-.22-.05-.46-.17z"/>
+    </svg>
+  </a>
+
 </body>
 </html>
