@@ -644,7 +644,7 @@ export default {
           const { min_order_amount, delivery_base_fee, free_delivery_threshold, hidden_categories, mitchells_plain_only } = await request.json();
           await env.DB.batch([
             env.DB.prepare("DELETE FROM settings WHERE key = 'min_order_amount'"),
-            env.DB.prepare("INSERT INTO settings (key, value) VALUES ('min_order_amount', ?)").bind(String(min_order_amount || 200.0)),
+            env.DB.prepare("INSERT INTO settings (key, value) VALUES ('min_order_amount', ?)").bind(String((min_order_amount !== undefined && !isNaN(Number(min_order_amount))) ? min_order_amount : 200.0)),
             env.DB.prepare("UPDATE settings SET value = ? WHERE key = 'delivery_base_fee'").bind(String(delivery_base_fee)),
             env.DB.prepare("UPDATE settings SET value = ? WHERE key = 'free_delivery_threshold'").bind(String(free_delivery_threshold)),
             env.DB.prepare("DELETE FROM settings WHERE key = 'hidden_categories'"),
