@@ -262,7 +262,9 @@
     let selectedSuburbInfo = null;
 
     function getMinOrder() {
-      return storeConfig.min_order_amount ? Number(storeConfig.min_order_amount) : 200;
+  return (storeConfig && storeConfig.min_order_amount !== undefined && !isNaN(Number(storeConfig.min_order_amount)))
+    ? Number(storeConfig.min_order_amount)
+    : 200;
     }
 
     // CENTRALIZED BULK PRICING CALCULATOR
