@@ -1394,7 +1394,7 @@
     async function loadSettings() {
       const res = await fetch('/api/config');
       const cfg = await res.json();
-      document.getElementById('settingMinOrder').value = cfg.min_order_amount || 200;
+  document.getElementById('settingMinOrder').value = (cfg.min_order_amount !== undefined && !isNaN(Number(cfg.min_order_amount))) ? cfg.min_order_amount : 200;
       document.getElementById('settingBaseFee').value = cfg.delivery_base_fee;
       document.getElementById('settingFreeThreshold').value = cfg.free_delivery_threshold;
       document.getElementById('settingMitchellsPlainOnly').checked = (cfg.mitchells_plain_only === 1 || cfg.mitchells_plain_only === "1");
@@ -1416,7 +1416,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${adminToken}` },
         body: JSON.stringify({
-          min_order_amount: parseFloat(document.getElementById('settingMinOrder').value) || 200.0,
+          min_order_amount: isNaN(parseFloat(document.getElementById('settingMinOrder').value)) ? 200.0 : parseFloat(document.getElementById('settingMinOrder').value),
           delivery_base_fee: parseFloat(document.getElementById('settingBaseFee').value),
           free_delivery_threshold: parseFloat(document.getElementById('settingFreeThreshold').value),
           hidden_categories: hidden.join(','),
