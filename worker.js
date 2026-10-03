@@ -326,9 +326,41 @@ export default {
           params.push(category);
         }
 
-        query += " GROUP BY p.id ORDER BY p.created_at DESC";
+        query += " GROUP BY p.id";
+        if (isNewArrival === "1" || category === "cat-new-arrivals") {
+          query += " ORDER BY p.created_at DESC";
+        }
+        
         const { results } = await env.DB.prepare(query).bind(...params).all();
-        return json(results || []);
+        let items = results || [];
+
+        // 6-HOUR FAIR ROTATION (South Africa Time: UTC+2)
+        // Rotates products into a new balanced order at 00:00, 06:00, 12:00, and 18:00
+        if (!search && isNewArrival !== "1" && category !== "cat-new-arrivals") {
+          const now = new Date();
+          const sastHour = (now.getUTCHours() + 2) % 24;
+          const shiftBlock = Math.floor(sastHour / 6); // 0, 1, 2, or 3
+          const dateStr = now.toISOString().slice(0, 10);
+          const rotationSeed = `${dateStr}-shift-${shiftBlock}`;
+
+          // Deterministic hash so the order remains solid for the full 6 hours
+          function getSeedHash(str) {
+            let h = 0;
+            for (let i = 0; i < str.length; i++) {
+              h = ((h << 5) - h) + str.charCodeAt(i);
+              h |= 0;
+            }
+            return h;
+          }
+
+          items.sort((a, b) => {
+            const hashA = getSeedHash(a.id + rotationSeed);
+            const hashB = getSeedHash(b.id + rotationSeed);
+            return hashA - hashB;
+          });
+        }
+
+        return json(items);
       }
 
       if (url.pathname.startsWith("/api/reviews/") && request.method === "GET") {
