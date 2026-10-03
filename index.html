@@ -409,14 +409,18 @@
 
           <p style="font-size: 13px; color: var(--charcoal-secondary); line-height: 1.6; margin-bottom: 20px;" id="pDetailDesc"></p>
 
-          <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px;">
+<div style="display: flex; gap: 12px; align-items: center; margin-bottom: 24px; flex-wrap: wrap;">
             <div class="cart-qty-toggle" style="padding: 6px 12px;">
               <button onclick="updateDetailQty(-1)" style="font-size: 15px;">−</button>
               <span id="detailQty" style="font-size: 14px; font-weight: 800;">1</span>
               <button onclick="updateDetailQty(1)" style="font-size: 15px;">+</button>
             </div>
             <button class="btn-solid-checkout" id="detailAddToCartBtn" style="flex: 1;" onclick="addDetailToCart()">Add to Basket</button>
-          </div>
+            <button type="button" class="btn-minimal" onclick="copyProductShareLink()" style="padding: 12px 14px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px;" title="Share link to this product">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Share
+            </button>
+</div>
 
           <hr style="border: none; border-top: 1px solid var(--border-subtle); margin-bottom: 18px;">
           <h3 style="font-size: 14px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px;">Customer Reviews</h3>
