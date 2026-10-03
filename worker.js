@@ -334,16 +334,15 @@ export default {
         const { results } = await env.DB.prepare(query).bind(...params).all();
         let items = results || [];
 
-        // 6-HOUR FAIR ROTATION (South Africa Time: UTC+2)
-        // Rotates products into a new balanced order at 00:00, 06:00, 12:00, and 18:00
-        if (!search && isNewArrival !== "1" && category !== "cat-new-arrivals") {
+        // 6-HOUR SUPPLIER-AWARE ROTATION (South Africa Time: UTC+2)
+        // Rotates suppliers every 6 hours and deals 1 product from each supplier in turns
+        if (!search && isNewArrival !== "1" && category !== "cat-new-arrivals" && items.length > 0) {
           const now = new Date();
           const sastHour = (now.getUTCHours() + 2) % 24;
-          const shiftBlock = Math.floor(sastHour / 6); // 0, 1, 2, or 3
+          const shiftBlock = Math.floor(sastHour / 6); // 0, 1, 2, or 3 (00:00, 06:00, 12:00, 18:00)
           const dateStr = now.toISOString().slice(0, 10);
           const rotationSeed = `${dateStr}-shift-${shiftBlock}`;
 
-          // Deterministic hash so the order remains solid for the full 6 hours
           function getSeedHash(str) {
             let h = 0;
             for (let i = 0; i < str.length; i++) {
@@ -353,11 +352,39 @@ export default {
             return h;
           }
 
-          items.sort((a, b) => {
-            const hashA = getSeedHash(a.id + rotationSeed);
-            const hashB = getSeedHash(b.id + rotationSeed);
-            return hashA - hashB;
-          });
+          // 1. Group products by their supplier name
+          const supplierGroups = {};
+          for (const item of items) {
+            const supp = (item.internal_supplier || item.public_source || 'Local Partner').trim();
+            if (!supplierGroups[supp]) supplierGroups[supp] = [];
+            supplierGroups[supp].push(item);
+          }
+
+          // 2. Rotate the order of suppliers every 6 hours
+          const supplierKeys = Object.keys(supplierGroups);
+          supplierKeys.sort((a, b) => getSeedHash(a + rotationSeed) - getSeedHash(b + rotationSeed));
+
+          // 3. Shuffle each supplier's own products internally for fairness
+          for (const supp of supplierKeys) {
+            supplierGroups[supp].sort((a, b) => getSeedHash(a.id + rotationSeed) - getSeedHash(b.id + rotationSeed));
+          }
+
+          // 4. Round-Robin Interleave: 1 item from each supplier per round
+          let maxItems = 0;
+          for (const supp of supplierKeys) {
+            if (supplierGroups[supp].length > maxItems) maxItems = supplierGroups[supp].length;
+          }
+
+          const interleaved = [];
+          for (let round = 0; round < maxItems; round++) {
+            for (const supp of supplierKeys) {
+              if (round < supplierGroups[supp].length) {
+                interleaved.push(supplierGroups[supp][round]);
+              }
+            }
+          }
+
+          items = interleaved;
         }
 
         return json(items);
