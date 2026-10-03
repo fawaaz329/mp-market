@@ -1301,9 +1301,40 @@
       updateGalleryDisplay();
     }
 
-    function updateDetailQty(delta) {
+function updateDetailQty(delta) {
       currentDetailQuantity = Math.max(1, currentDetailQuantity + delta);
       document.getElementById('detailQty').innerText = currentDetailQuantity;
+    }
+
+    function copyProductShareLink() {
+      if (!currentDetailProduct) return;
+      const shareUrl = `${window.location.origin}/?product=${currentDetailProduct.id}`;
+
+      // Opens native WhatsApp / Phone Share menu on mobile
+      if (navigator.share) {
+        navigator.share({
+          title: currentDetailProduct.name,
+          text: `Check out ${currentDetailProduct.name} on MP Market:`,
+          url: shareUrl
+        }).catch(() => {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          alert('✓ Product link copied to clipboard!');
+        });
+      } else {
+        prompt('Copy this product link:', shareUrl);
+      }
+    }
+
+    function checkDirectProductLink() {
+      const params = new URLSearchParams(window.location.search);
+      const prodId = params.get('product') || params.get('p');
+      if (prodId && products.length > 0) {
+        const target = products.find(x => x.id === prodId);
+        if (target) {
+          setTimeout(() => openProductDetail(target.id), 250);
+        }
+      }
     }
 
     function openReviewPromptFromDetail() {
