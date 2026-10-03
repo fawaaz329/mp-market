@@ -945,6 +945,7 @@
         const res = await fetch(url);
         products = await res.json();
         renderProducts();
+        checkDirectProductLink();
       } catch (e) {
         console.error('Fetch products failed:', e);
       }
