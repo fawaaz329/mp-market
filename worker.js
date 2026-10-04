@@ -478,7 +478,12 @@ export default {
           const product = productMap.get(item.id);
           if (!product) return json({ error: `Product ${item.id} not found.` }, 400);
           if (product.is_available === 0) return json({ error: `${product.name} is currently unavailable.` }, 400);
-
+// Enforce stock limits on server
+          if (product.stock_quantity !== undefined && product.stock_quantity !== null && product.stock_quantity >= 0) {
+            if (totalQtyForProduct > product.stock_quantity) {
+              return json({ error: `Only ${product.stock_quantity} available in stock for ${product.name}. Please reduce your quantity.` }, 400);
+            }
+          }
           const totalQtyForProduct = qtyByProduct[item.id];
           let effectiveUnitPrice = product.price;
 
