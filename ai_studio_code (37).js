@@ -589,7 +589,12 @@ export default {
             "UPDATE orders SET payment_status = 'Paid', status = 'Sourced', payment_method = 'Yoco Online' WHERE id = ?"
           ).bind(order.id).run();
 
-          const { results: items } = await env.DB.prepare("SELECT * FROM order_items WHERE order_id = ?").bind(order.id).all();
+          
+        const { results: items } = await env.DB.prepare("SELECT * FROM order_items WHERE order_id = ?").bind(order.id).all();
+          // Automatically deduct stock for tracked inventory items
+          for (const item of (items || [])) {
+            await env.DB.prepare("UPDATE products SET stock_quantity = MAX(0, stock_quantity - ?) WHERE id = ? AND stock_quantity >= 0").bind(item.quantity, item.product_id).run();
+          }
           const updatedOrder = { ...order, status: "Sourced", payment_status: "Paid", items };
 
           const doId = env.REALTIME.idFromName("mp-market-global-room");
